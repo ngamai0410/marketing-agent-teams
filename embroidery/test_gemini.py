@@ -23,6 +23,8 @@ from llm import GeminiProvider
 from config import ModelSettings
 from tools import RESEARCH_TOOLS
 
+# gemini-2.0-flash requires billing enabled on the Google AI project.
+# gemini-1.5-flash has a separate free-tier quota — try it first if 2.0 is exhausted.
 GEMINI_MODEL = "gemini-2.0-flash"
 
 ECHO_TOOL = {
@@ -106,7 +108,9 @@ async def main():
         print("✗ GEMINI_API_KEY not set in .env — add it and retry.")
         return
 
-    print(f"Testing Gemini provider ({GEMINI_MODEL})...\n")
+    print(f"Testing Gemini provider ({GEMINI_MODEL})...")
+    print("Note: if you get 429 quota errors, either enable billing at console.cloud.google.com")
+    print("      or change GEMINI_MODEL above to 'gemini-1.5-flash' (separate free quota).\n")
 
     # Inject GeminiProvider directly — bypasses config.yaml provider setting
     agent_loop._provider = GeminiProvider(api_key=api_key)

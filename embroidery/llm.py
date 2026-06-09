@@ -219,7 +219,9 @@ class GeminiProvider(LLMProvider):
         self._client = genai.Client(api_key=api_key)
 
     def create_message(self, model, max_tokens, system, messages, tools) -> LLMResponse:
+        import time
         from google.genai import types
+        from google.genai.errors import ClientError
 
         contents = _to_gemini_messages(messages)
         config_kwargs: dict[str, Any] = {
@@ -229,11 +231,23 @@ class GeminiProvider(LLMProvider):
         if tools:
             config_kwargs["tools"] = _to_gemini_tools(tools)
 
-        resp = self._client.models.generate_content(
-            model=model,
-            contents=contents,
-            config=types.GenerateContentConfig(**config_kwargs),
-        )
+        for attempt in range(3):
+            try:
+                resp = self._client.models.generate_content(
+                    model=model,
+                    contents=contents,
+                    config=types.GenerateContentConfig(**config_kwargs),
+                )
+                break
+            except ClientError as e:
+                if e.code == 429 and attempt < 2:
+                    import re
+                    delay_match = re.search(r"retry[^\d]*(\d+)", str(e), re.IGNORECASE)
+                    delay = int(delay_match.group(1)) + 2 if delay_match else 60
+                    print(f"  [gemini] rate limited — waiting {delay}s (attempt {attempt + 1}/3)")
+                    time.sleep(delay)
+                else:
+                    raise
 
         candidate = resp.candidates[0] if resp.candidates else None
         parts = candidate.content.parts if (candidate and candidate.content) else []
