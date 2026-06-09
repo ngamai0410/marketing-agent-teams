@@ -7,7 +7,7 @@ Provider-agnostic agentic loop for the custom embroidery shop campaign. LLM engi
 ```bash
 # Python 3.11 required (system Python 3.14 has a broken pip on this machine)
 ~/.pyenv/versions/3.11.9/bin/python3 -m venv venv
-venv/bin/pip install "anthropic>=0.40" aiohttp python-dotenv rich pyyaml openai duckduckgo-search
+venv/bin/pip install "anthropic>=0.40" aiohttp python-dotenv rich pyyaml openai duckduckgo-search "google-genai>=1.0"
 
 # API keys
 cp .env.example .env
@@ -27,7 +27,7 @@ All settings live here. No other file needs to change.
 
 ```yaml
 llm:
-  provider: anthropic     # or: openai
+  provider: anthropic     # or: openai | gemini
 
 search:
   provider: duckduckgo    # or: brave (requires BRAVE_API_KEY)
@@ -45,7 +45,7 @@ agents:
 |---|---|
 | `config.yaml` | All settings — provider, model per agent, search engine, paths |
 | `config.py` | Loads `config.yaml` + env vars into typed `Config` / `ModelSettings` objects |
-| `llm.py` | `AnthropicProvider` and `OpenAIProvider` — both implement `LLMProvider` |
+| `llm.py` | `AnthropicProvider`, `OpenAIProvider`, `GeminiProvider` — all implement `LLMProvider` |
 | `search.py` | `BraveSearch` and `DuckDuckGoSearch` — both implement `SearchProvider` |
 | `agent_loop.py` | `run_agent()` — the single agentic loop used by every agent |
 | `smoke_test.py` | Verifies the full stack end-to-end with two tool calls |
@@ -67,4 +67,5 @@ The loop, tool execution, usage logging, and search limits are all handled autom
 |---|---|
 | `ANTHROPIC_API_KEY` | `llm.provider: anthropic` |
 | `OPENAI_API_KEY` | `llm.provider: openai` |
+| `GEMINI_API_KEY` | `llm.provider: gemini` |
 | `BRAVE_API_KEY` | `search.provider: brave` |

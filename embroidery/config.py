@@ -53,6 +53,7 @@ class Config:
     llm_provider: str = "anthropic"
     anthropic_api_key: str = field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY", ""))
     openai_api_key: str = field(default_factory=lambda: os.getenv("OPENAI_API_KEY", ""))
+    gemini_api_key: str = field(default_factory=lambda: os.getenv("GEMINI_API_KEY", ""))
     brave_api_key: str = field(default_factory=lambda: os.getenv("BRAVE_API_KEY", ""))
     search: SearchSettings = field(default_factory=SearchSettings)
     agents: AgentSettings = field(default_factory=AgentSettings)
@@ -79,6 +80,7 @@ def load_config(path: Path = _CONFIG_FILE) -> Config:
         llm_provider=raw.get("llm", {}).get("provider", "anthropic"),
         anthropic_api_key=os.getenv("ANTHROPIC_API_KEY", ""),
         openai_api_key=os.getenv("OPENAI_API_KEY", ""),
+        gemini_api_key=os.getenv("GEMINI_API_KEY", ""),
         brave_api_key=os.getenv("BRAVE_API_KEY", ""),
         search=SearchSettings(
             provider=search_raw.get("provider", "duckduckgo"),

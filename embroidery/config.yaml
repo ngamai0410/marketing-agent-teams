@@ -1,6 +1,11 @@
 # ─────────────────────────────────────────────
 # LLM Provider
-# Options: anthropic | openai
+# Options: anthropic | openai | gemini
+#
+# anthropic → set ANTHROPIC_API_KEY in .env
+# openai    → set OPENAI_API_KEY in .env
+# gemini    → set GEMINI_API_KEY in .env
+#             model examples: gemini-2.0-flash, gemini-2.5-pro
 # ─────────────────────────────────────────────
 llm:
   provider: anthropic

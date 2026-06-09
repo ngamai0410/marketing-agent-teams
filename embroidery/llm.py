@@ -210,6 +210,126 @@ def _to_openai_messages(system: str, messages: list[dict]) -> list[dict]:
 
 
 # ─────────────────────────────────────────────
+# Gemini
+# ─────────────────────────────────────────────
+
+class GeminiProvider(LLMProvider):
+    def __init__(self, api_key: str):
+        from google import genai
+        self._client = genai.Client(api_key=api_key)
+
+    def create_message(self, model, max_tokens, system, messages, tools) -> LLMResponse:
+        from google.genai import types
+
+        contents = _to_gemini_messages(messages)
+        config_kwargs: dict[str, Any] = {
+            "system_instruction": system,
+            "max_output_tokens": max_tokens,
+        }
+        if tools:
+            config_kwargs["tools"] = _to_gemini_tools(tools)
+
+        resp = self._client.models.generate_content(
+            model=model,
+            contents=contents,
+            config=types.GenerateContentConfig(**config_kwargs),
+        )
+
+        candidate = resp.candidates[0] if resp.candidates else None
+        parts = candidate.content.parts if (candidate and candidate.content) else []
+
+        text = ""
+        tool_calls: list[ToolCall] = []
+        for part in parts:
+            if getattr(part, "text", None):
+                text += part.text
+            fc = getattr(part, "function_call", None)
+            if fc:
+                # Use name as ID so tool_result can reference it in next turn
+                tc_id = fc.name if not any(t.id == fc.name for t in tool_calls) else f"{fc.name}_{len(tool_calls)}"
+                tool_calls.append(ToolCall(id=tc_id, name=fc.name, input=dict(fc.args or {})))
+
+        # Store in Anthropic-compatible dict format for the shared history
+        assistant_content: list[dict] = []
+        if text:
+            assistant_content.append({"type": "text", "text": text})
+        for tc in tool_calls:
+            assistant_content.append({"type": "tool_use", "id": tc.id, "name": tc.name, "input": tc.input})
+
+        usage_meta = getattr(resp, "usage_metadata", None)
+        return LLMResponse(
+            stop_reason="tool_use" if tool_calls else "end_turn",
+            text=text,
+            tool_calls=tool_calls,
+            usage=Usage(
+                getattr(usage_meta, "prompt_token_count", 0) or 0,
+                getattr(usage_meta, "candidates_token_count", 0) or 0,
+            ),
+            assistant_message={"role": "assistant", "content": assistant_content},
+        )
+
+
+def _to_gemini_tools(tools: list[dict]) -> list:
+    from google.genai import types
+
+    declarations = []
+    for tool in tools:
+        declarations.append(types.FunctionDeclaration(
+            name=tool["name"],
+            description=tool.get("description", ""),
+            parameters=tool.get("input_schema", {}),
+        ))
+    return [types.Tool(function_declarations=declarations)]
+
+
+def _to_gemini_messages(messages: list[dict]) -> list:
+    """Convert Anthropic-format message history to Gemini contents list."""
+    from google.genai import types
+
+    contents = []
+    for msg in messages:
+        role = "model" if msg["role"] == "assistant" else "user"
+        content = msg["content"]
+        parts = []
+
+        if isinstance(content, str):
+            parts.append(types.Part.from_text(text=content))
+        elif isinstance(content, list):
+            for block in content:
+                # Dict blocks (from Gemini or OpenAI round-trips stored as dicts)
+                if isinstance(block, dict):
+                    btype = block.get("type")
+                    if btype == "text":
+                        parts.append(types.Part.from_text(text=block["text"]))
+                    elif btype == "tool_use":
+                        parts.append(types.Part.from_function_call(
+                            name=block["name"], args=block["input"]
+                        ))
+                    elif btype == "tool_result":
+                        result = block["content"]
+                        if isinstance(result, list):
+                            result = " ".join(b.get("text", "") for b in result if isinstance(b, dict))
+                        # tool_use_id == name for Gemini (set in GeminiProvider above)
+                        parts.append(types.Part.from_function_response(
+                            name=block["tool_use_id"],
+                            response={"result": str(result)},
+                        ))
+                # Anthropic SDK objects (from Anthropic round-trips)
+                elif hasattr(block, "type"):
+                    if block.type == "text":
+                        parts.append(types.Part.from_text(text=block.text))
+                    elif block.type == "tool_use":
+                        parts.append(types.Part.from_function_call(
+                            name=block.name, args=block.input
+                        ))
+
+        if parts:
+            contents.append(types.Content(role=role, parts=parts))
+
+    return contents
+
+
+# ─────────────────────────────────────────────
 # Factory
 # ─────────────────────────────────────────────
 
@@ -219,4 +339,8 @@ def get_provider() -> LLMProvider:
         return AnthropicProvider(api_key=settings.anthropic_api_key)
     if provider == "openai":
         return OpenAIProvider(api_key=settings.openai_api_key)
-    raise ValueError(f"Unknown llm.provider: '{provider}'. Options: anthropic | openai")
+    if provider == "gemini":
+        if not settings.gemini_api_key:
+            raise ValueError("GEMINI_API_KEY not set. Add it to .env.")
+        return GeminiProvider(api_key=settings.gemini_api_key)
+    raise ValueError(f"Unknown llm.provider: '{provider}'. Options: anthropic | openai | gemini")
