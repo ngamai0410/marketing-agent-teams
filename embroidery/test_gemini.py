@@ -23,9 +23,9 @@ from llm import GeminiProvider
 from config import ModelSettings
 from tools import RESEARCH_TOOLS
 
-# gemini-2.0-flash requires billing enabled on the Google AI project.
-# gemini-1.5-flash has a separate free-tier quota — try it first if 2.0 is exhausted.
-GEMINI_MODEL = "gemini-2.0-flash"
+# gemini-2.0-flash-lite: cheapest available model, use for testing
+# gemini-2.0-flash / gemini-2.5-flash: require billing enabled
+GEMINI_MODEL = "gemini-2.0-flash-lite"
 
 ECHO_TOOL = {
     "name": "echo",
