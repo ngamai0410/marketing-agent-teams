@@ -1,5 +1,30 @@
 # embroidery/ — Market Research Agent (Stage 1)
 
+## Workflow
+
+```
+config.yaml  ──►  config.py  ──►  ModelSettings / Config
+                                        │
+                       ┌────────────────┼────────────────┐
+                       ▼                ▼                 ▼
+                    llm.py          search.py        (future agents)
+             AnthropicProvider    BraveSearch
+             OpenAIProvider       DuckDuckGoSearch
+             GeminiProvider
+                       │                │
+                       └────────┬───────┘
+                                ▼
+                          agent_loop.py
+                          run_agent()
+                          │  • calls LLM provider
+                          │  • executes tool calls
+                          │  • caps search usage
+                          │  • logs response.usage
+                          ▼
+                      output files
+                  (market_research_report.json, etc.)
+```
+
 Provider-agnostic agentic loop for the custom embroidery shop campaign. LLM engine and search engine are configured in `config.yaml` — no code changes needed to switch.
 
 ## Setup

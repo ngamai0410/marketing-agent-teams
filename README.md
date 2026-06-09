@@ -1,6 +1,43 @@
 # Agent Teams — EcomTalent Marketing Campaign System
 
-AI agent teams that run end-to-end marketing campaigns using the EcomTalent direct-response framework. Configurable LLM backend (Anthropic Claude or OpenAI) and search engine (Brave or DuckDuckGo).
+AI agent teams that run end-to-end marketing campaigns using the EcomTalent direct-response framework. Configurable LLM backend (Anthropic Claude, OpenAI, or Gemini) and search engine (Brave or DuckDuckGo).
+
+## Workflow
+
+```
+Product brief
+     │
+     ▼
+┌─────────────────────────────────────────────────────────┐
+│  Workflow 1 — Research                                  │
+│                                                         │
+│  Agent 1: Market Research ──► brand_intelligence_report │
+│      │                        market_research_report    │
+│      ├──► Agent 2: Avatar Builder ──► customer_avatars  │
+│      └──► Agent 3: Positioning   ──► positioning_matrix │
+└─────────────────────────────────────────────────────────┘
+     │
+     ▼
+┌─────────────────────────────────────────────────────────┐
+│  Workflow 2 — Copy Production                           │
+│                                                         │
+│  Agent 4: Hook Generator ──► hooks_library              │
+│      ├──► Agent 5: Script Writer  ──► video_scripts     │
+│      └──► Agent 6: Static Copy   ──► static_ad_copy     │
+└─────────────────────────────────────────────────────────┘
+     │
+     ▼
+┌─────────────────────────────────────────────────────────┐
+│  Workflow 3 — QA & Feedback                             │
+│                                                         │
+│  Agent 7: QA (blocking gate) ──┐                        │
+│      PASS ──► client           │ FAIL ──► back to 5/6  │
+│                                                         │
+│  Agent 8: Feedback Analyst (post-launch)                │
+│      ad_performance.csv ──► weekly_learnings            │
+│                          ──► next_week_brief            │
+└─────────────────────────────────────────────────────────┘
+```
 
 ## Structure
 

@@ -25,8 +25,12 @@ search:
 # ─────────────────────────────────────────────
 agents:
   # --- Market Research sub-agents (Stage 1) ---
+  # Model options by provider:
+  #   anthropic: claude-haiku-4-5 | claude-sonnet-4-6 | claude-opus-4-8
+  #   openai:    gpt-4o-mini | gpt-4o
+  #   gemini:    gemini-2.0-flash | gemini-2.5-pro
   audience_researcher:
-    model: claude-haiku-4-5       # anthropic | or: gpt-4o-mini for openai
+    model: claude-haiku-4-5       # anthropic | or: gpt-4o-mini for openai | gemini-2.0-flash for gemini
     max_tokens: 8096
 
   competitor_analyst:

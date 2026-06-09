@@ -41,6 +41,13 @@ def reset_search_count():
     _search_count = 0
 
 
+def reset_provider():
+    """Force the provider singleton to reinitialize on the next run_agent() call.
+    Useful in tests that need to switch providers mid-session."""
+    global _provider
+    _provider = None
+
+
 async def run_agent(
     system: str,
     messages: list[dict],
