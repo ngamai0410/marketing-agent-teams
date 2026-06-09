@@ -1,0 +1,77 @@
+# ─────────────────────────────────────────────
+# LLM Provider
+# Options: anthropic | openai
+# ─────────────────────────────────────────────
+llm:
+  provider: anthropic
+
+# ─────────────────────────────────────────────
+# Search Engine
+# Options: brave | duckduckgo
+# ─────────────────────────────────────────────
+search:
+  provider: duckduckgo   # free, no API key needed
+  max_searches: 20       # per agent run — cost/rate-limit guard
+
+# ─────────────────────────────────────────────
+# Per-agent model settings
+# Stage 1 defaults to haiku (cheap dev/test)
+# Switch to sonnet/opus after prompts are validated
+# ─────────────────────────────────────────────
+agents:
+  # --- Market Research sub-agents (Stage 1) ---
+  audience_researcher:
+    model: claude-haiku-4-5       # anthropic | or: gpt-4o-mini for openai
+    max_tokens: 8096
+
+  competitor_analyst:
+    model: claude-haiku-4-5
+    max_tokens: 8096
+
+  social_media_analyst:
+    model: claude-haiku-4-5
+    max_tokens: 8096
+
+  synthesizer:
+    model: claude-haiku-4-5       # no tools — pure synthesis
+    max_tokens: 16000
+
+  # --- Copy agents (Stage 3) ---
+  avatar_builder:
+    model: claude-sonnet-4-6
+    max_tokens: 8096
+
+  positioning_strategist:
+    model: claude-opus-4-8
+    max_tokens: 8096
+
+  hook_generator:
+    model: claude-sonnet-4-6
+    max_tokens: 8096
+
+  script_writer:
+    model: claude-opus-4-8
+    max_tokens: 16000
+
+  static_copy_writer:
+    model: claude-sonnet-4-6
+    max_tokens: 8096
+
+  qa_reviewer:
+    model: claude-sonnet-4-6
+    max_tokens: 4096
+
+  feedback_analyst:
+    model: claude-sonnet-4-6
+    max_tokens: 8096
+
+  orchestrator:
+    model: claude-opus-4-8
+    max_tokens: 8096
+
+# ─────────────────────────────────────────────
+# Paths
+# ─────────────────────────────────────────────
+paths:
+  output: output
+  brand_ai: brand_ai
