@@ -67,8 +67,8 @@ agents:
     max_tokens: 8096
 
   qa_reviewer:
-    model: gemini-2.5-flash
-    max_tokens: 4096
+    model: gemini-2.5-pro         # flash emits MALFORMED_FUNCTION_CALL even on small contexts here
+    max_tokens: 8096
 
   feedback_analyst:
     model: gemini-2.5-flash

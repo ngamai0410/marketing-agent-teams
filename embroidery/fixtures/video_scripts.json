@@ -1,0 +1,35 @@
+{
+  "scripts": [
+    {
+      "ad_id": "vid_giftgiver_01",
+      "segment": "B_gift_giver",
+      "platform": "TikTok",
+      "visual_hook": "Frame 1: girl mid-ugly-cry holding a hoodie, mascara running, caption frozen over her face",
+      "text_hook": "I put our dog's heartbeat on a hoodie and she hasn't stopped crying",
+      "script": [
+        {"element": "Hook", "voiceover": "I put our dog's last heartbeat on a hoodie and my sister hasn't stopped crying.", "visual": "Ugly-cry reaction shot, hoodie clutched to chest"},
+        {"element": "Problem", "voiceover": "I almost bought her another personalised mug. You know the ones — same script font, same clipart paw print.", "visual": "Scroll through generic Etsy mug listings, eye-roll"},
+        {"element": "Twist the knife", "voiceover": "She'd have said thanks, put it in the cupboard, and never thought about it again. For the dog she had for 14 years.", "visual": "Mug shoved to back of cupboard, door closes"},
+        {"element": "Product intro", "voiceover": "Then I found this shop where an actual human redraws your design stitch by stitch. I sent them the vet's printout of Biscuit's heartbeat.", "visual": "Screen recording: uploading ECG strip, digitiser's stitch-map preview"},
+        {"element": "Feature to benefit", "voiceover": "Because it's hand-digitised, every tiny spike of that heartbeat is sharp. It reads like the real printout — you can tell it wasn't mass-produced.", "visual": "Macro shot of stitching next to the original ECG paper"},
+        {"element": "Bad alternative", "voiceover": "The print-on-demand version I almost ordered? I've seen them after one wash. Blurry threads, cracked vinyl.", "visual": "Side-by-side: faded auto-digitised patch vs crisp hand-digitised one"},
+        {"element": "Results", "voiceover": "She wears it every single day. She told me it's the best gift she's ever gotten. I believe her — I cried when I opened mine.", "visual": "Sister wearing hoodie on a walk, smiling, touching the embroidery"},
+        {"element": "CTA", "voiceover": "They do heartbeats, handwriting, kids' drawings — anything. Link in bio, takes like 2 minutes to upload.", "visual": "Quick montage of 3 other custom pieces, link sticker"}
+      ]
+    },
+    {
+      "ad_id": "vid_corporate_02",
+      "segment": "B_gift_giver",
+      "platform": "TikTok",
+      "visual_hook": "Company logo animation with sparkle effect",
+      "text_hook": "Custom Embroidery Co — Quality You Can Trust",
+      "script": [
+        {"element": "Intro", "voiceover": "At Custom Embroidery Co, we have been providing premium embroidery solutions since 2018.", "visual": "Logo animation, studio b-roll"},
+        {"element": "Features", "voiceover": "We offer custom embroidered hats, hoodies, jackets and more, with industry-leading stitch density and a wide range of thread colors.", "visual": "Product grid slideshow"},
+        {"element": "Quality", "voiceover": "Our state-of-the-art machines and rigorous quality control process ensure excellence in every order.", "visual": "Machine close-up, worker with clipboard"},
+        {"element": "Offer", "voiceover": "Order today and enjoy 10% off your first purchase. Satisfaction guaranteed.", "visual": "Discount code on screen"},
+        {"element": "CTA", "voiceover": "Visit our website now. Custom Embroidery Co — Quality You Can Trust.", "visual": "Logo + URL end card"}
+      ]
+    }
+  ]
+}

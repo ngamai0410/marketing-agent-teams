@@ -1,0 +1,35 @@
+{
+  "shop": "Custom Embroidery Co",
+  "unique_mechanism": "Hand-digitised stitch maps — every design is redrawn stitch-by-stitch by a human digitiser instead of auto-converted, so fine lines and small text stay crisp",
+  "segments": {
+    "B_gift_giver": {
+      "awareness_level": 3,
+      "sophistication_stage": 4,
+      "dominant_desire": "Give a gift that makes the recipient feel deeply known and loved — proof of how well you know them",
+      "core_problem": "Generic personalised gifts (mugs, prints) feel low-effort; buyers fear blurry, cheap-looking embroidery from print-on-demand shops",
+      "positioning": "The gift that makes them cry — heirloom-grade embroidery of the things only you two share",
+      "avatar_language": [
+        "I cried when I opened it",
+        "feels so personal",
+        "heirloom quality",
+        "she said it was the best gift she's ever gotten",
+        "you can tell it wasn't mass-produced"
+      ],
+      "platform": "TikTok/Reels, organic UGC style"
+    },
+    "D_aesthetic_buyer": {
+      "awareness_level": 2,
+      "sophistication_stage": 4,
+      "dominant_desire": "Wear pieces that look quiet-luxury custom, not fast-fashion — embroidery as identity",
+      "core_problem": "Mass-market 'custom' hoodies all use the same fonts and clipart; they look cheap on camera",
+      "positioning": "Quiet-luxury embroidery — hand-digitised, no clipart, the piece people ask 'where did you get that?'",
+      "avatar_language": [
+        "elevated basics",
+        "quiet luxury",
+        "where did you get that",
+        "doesn't look like an Etsy font"
+      ],
+      "platform": "TikTok/Reels and Instagram feed"
+    }
+  }
+}
