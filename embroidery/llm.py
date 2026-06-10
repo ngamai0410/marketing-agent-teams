@@ -237,6 +237,9 @@ class GeminiProvider(LLMProvider):
 
         for attempt in range(3):
             try:
+                # Escalate temperature on retries — at fixed temp an "empty
+                # candidate" response tends to repeat identically.
+                config_kwargs["temperature"] = 0.3 + 0.3 * attempt
                 resp = self._client.models.generate_content(
                     model=model,
                     contents=contents,

@@ -100,5 +100,10 @@ _READ_FILE = {
 # Agent 1 Market Research sub-agents: web access + file write
 RESEARCH_TOOLS = [_WEB_SEARCH, _WEB_FETCH, _WRITE_FILE]
 
+# Agent 1 sub-agents A/B/C: web access only — they return JSON as final text
+# (avoids gemini-2.5-flash MALFORMED_FUNCTION_CALL on large write_file payloads;
+# the Python wrapper persists their output instead)
+SEARCH_TOOLS = [_WEB_SEARCH, _WEB_FETCH]
+
 # Analysis and copy agents (2–6): file I/O only, no web access
 FILE_TOOLS = [_READ_FILE, _WRITE_FILE]
