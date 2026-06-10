@@ -17,6 +17,7 @@ build/
 # Output (generated files, not source)
 embroidery/output/
 embroidery/brand_ai/
+plans/
 
 # OS
 .DS_Store

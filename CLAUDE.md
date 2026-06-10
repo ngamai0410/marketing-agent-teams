@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 After every file edit, update `README.md` in the same directory (create if absent). Must include: what the directory does, how to run it, what each file is for (skip derivable-from-filename entries), and a **workflow chart** (ASCII or Mermaid) showing component relationships and data flow. Update the chart whenever workflow, data contracts, or component relationships change.
 
+## Plan status rule
+
+At the end of every working day (and before ending any session that built or changed an agent), update `development-plan.md` to reflect actual state: check off completed items, and record deviations from the plan inline (e.g. architecture differs from spec, work pulled forward/pushed back, provider changes). The plan must never claim something is pending that is already built, or vice versa.
+
 ---
 
 ## Project
@@ -54,25 +58,6 @@ Add to any module: `from logger import get_logger; log = get_logger(__name__)`
 
 ---
 
-## Complexity stages — validate before advancing
-
-| Stage | What's added | Cost/run (prod models) |
-|---|---|---|
-| 1 — Single agent | One agent, one output file. All prompt dev on Haiku | <$0.05 |
-| 2 — Linear pipeline | Agent 1 output feeds Agent 2; no orchestrator | $0.10–0.30 |
-| 3 — Parallel pipeline | Orchestrator + `asyncio.gather()` for agents 2+3, 5+6 | $1–3 |
-| 4 — QA gate + feedback | Agent 7 blocks; re-runs 5+6 on FAIL. Agent 8 post-launch only | $1.50–4 |
-
-Stage 3 execution order (non-obvious — 4 must block because 5+6 need hooks):
-```python
-research = await run_agent(agent1, ...)
-avatar, positioning = await asyncio.gather(run_agent(agent2), run_agent(agent3))
-hooks = await run_agent(agent4, ...)   # sequential — 5+6 depend on this
-scripts, static = await asyncio.gather(run_agent(agent5), run_agent(agent6))
-```
-
----
-
 ## Agent hierarchy and pipeline
 
 ```
@@ -109,7 +94,7 @@ Orchestrator
 | `weekly_learnings.json`, `next_week_brief.json` | 8 | Orchestrator |
 
 **Tool access per agent:**
-- Agent 1: `web_search`, `web_fetch` (billed per call — budget +$0.20–0.50/run; capped by `search.max_searches`), `write_file`
+- Agent 1: `web_search`, `web_fetch` (billed per call — budget +$0.20–0.50/run; capped by `search.max_searches` shared per run **and** `search.max_searches_per_agent`, both enforced in `agent_loop.py` — prompts alone are ignored by flash). Sub-agents A/B/C are **search-only** (`SEARCH_TOOLS`) and return JSON as final text — Python persists `output/research_*.json`; this avoids flash's MALFORMED_FUNCTION_CALL on large tool payloads. The Synthesizer has **no tools** (2 calls on pro: JSON report, then markdown narrative); `BrandAI` (`brand_store.py`) keeps timestamped history in `brand_ai/<shop>/`.
 - Agents 2–6: `read_file`, `write_file`
 - Agent 7: `read_file`, `write_file`, `call_agent`
 - Agent 8: `read_csv`, `read_file`, `write_file`, `call_orchestrator`

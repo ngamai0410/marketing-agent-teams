@@ -42,9 +42,10 @@ Product brief
 ## Structure
 
 ```
-embroidery/          Working implementation — Market Research agent (Stage 1)
+embroidery/          Working implementation — Agent 1 (Market Research) + Agent 7 (QA)
 CLAUDE.md            Development rules and architecture guidance for Claude Code
-development-plan.md  4-week build plan with per-day tasks and cost estimates
+development-plan.md  4-week build plan with per-day tasks, cost estimates, and a
+                     status header — updated at the end of every working day (CLAUDE.md rule)
 ai-agent-team-embroidery-marketing.md   Canonical 8-agent architecture reference
 market-research-agent-embroidery.html   Detailed Market Research agent build plan
 ```
@@ -66,10 +67,10 @@ See `embroidery/README.md` for full setup and configuration.
 
 8 specialist agents organized in 3 workflows:
 
-| Workflow | Agents | Notes |
-|---|---|---|
-| Research | Market Research → Avatar Builder + Positioning (parallel) | Stage 1–2 |
-| Copy | Hook Generator → Script Writer + Static Copy (parallel) | Stage 3 |
-| QA & Feedback | QA gatekeeper → Feedback Analyst | Stage 4 |
+| Workflow | Agents |
+|---|---|
+| Research | Market Research → Avatar Builder + Positioning (parallel) |
+| Copy | Hook Generator → Script Writer + Static Copy (parallel) |
+| QA & Feedback | QA gatekeeper → Feedback Analyst |
 
-Build in stages — validate each before adding the next. See `development-plan.md`.
+See `development-plan.md` for the build schedule and stage gates.

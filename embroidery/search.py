@@ -5,12 +5,16 @@ Switching search providers: change `search.provider` in config.yaml.
 Options: brave | duckduckgo
 """
 
-import json
+import asyncio
+import time
 from abc import ABC, abstractmethod
 
 import aiohttp
 
 from config import settings
+from logger import get_logger
+
+_log = get_logger("search")
 
 
 class SearchProvider(ABC):
@@ -31,9 +35,13 @@ class SearchProvider(ABC):
 
 class BraveSearch(SearchProvider):
     _BASE = "https://api.search.brave.com/res/v1/web/search"
+    _MIN_INTERVAL = 1.1  # free tier ≈ 1 req/s — space out parallel sub-agents
+    _MAX_ATTEMPTS = 3
 
     def __init__(self, api_key: str):
         self._api_key = api_key
+        self._lock = asyncio.Lock()   # serializes concurrent sub-agents' requests
+        self._last_request = 0.0
 
     async def search(self, query: str, num_results: int = 10) -> str:
         headers = {
@@ -43,11 +51,28 @@ class BraveSearch(SearchProvider):
         }
         params = {"q": query, "count": min(num_results, 20)}
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(self._BASE, headers=headers, params=params) as resp:
-                if resp.status != 200:
-                    return f"[Brave search error: HTTP {resp.status}]"
-                data = await resp.json()
+        for attempt in range(self._MAX_ATTEMPTS):
+            async with self._lock:
+                wait = self._last_request + self._MIN_INTERVAL - time.monotonic()
+                if wait > 0:
+                    await asyncio.sleep(wait)
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(self._BASE, headers=headers, params=params) as resp:
+                            status = resp.status
+                            data = await resp.json() if status == 200 else None
+                finally:
+                    self._last_request = time.monotonic()
+
+            if status == 200:
+                break
+            if status == 429 and attempt < self._MAX_ATTEMPTS - 1:
+                delay = 2.0 * (attempt + 1)
+                _log.info("brave rate limited — waiting %.1fs (attempt %d/%d)",
+                          delay, attempt + 1, self._MAX_ATTEMPTS)
+                await asyncio.sleep(delay)
+                continue
+            return f"[Brave search error: HTTP {status}]"
 
         results = data.get("web", {}).get("results", [])
         lines = []

@@ -39,7 +39,8 @@ class AgentSettings:
 @dataclass
 class SearchSettings:
     provider: str = "duckduckgo"
-    max_searches: int = 20
+    max_searches: int = 20           # shared budget per pipeline run
+    max_searches_per_agent: int = 8  # cap per agent_name within one run
 
 
 @dataclass
@@ -85,6 +86,7 @@ def load_config(path: Path = _CONFIG_FILE) -> Config:
         search=SearchSettings(
             provider=search_raw.get("provider", "duckduckgo"),
             max_searches=search_raw.get("max_searches", 20),
+            max_searches_per_agent=search_raw.get("max_searches_per_agent", 8),
         ),
         agents=agents,
         paths=PathSettings(

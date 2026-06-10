@@ -2,7 +2,9 @@
 
 **Start date:** June 8, 2026  
 **Target completion:** July 3, 2026 (~4 weeks)  
-**Methodology:** CLAUDE.md complexity stages — validate each stage before adding the next.
+**Methodology:** build in stages — validate each stage (see gates below) before adding the next.
+
+> **Status as of June 10, 2026 (late evening):** Days 1–4 complete — **Day 4 finished a day early** (June 10). Provider is **Gemini** (`27790f2`) — cost tables below still assume Claude pricing. **Day 4 done:** all three Day 3 carry-overs fixed and verified live (provider call in `asyncio.to_thread` — A/B/C now truly parallel, ~70s combined; per-agent search cap `max_searches_per_agent: 8` enforced in code and observed firing; Brave spacing 1.1s + 429 retry). Pipeline wired in `agent1_market_research.py` (legacy single-agent replaced): `brief → gather(A,B,C) → Synthesizer (agent1_synthesizer.py, 2 no-tool pro calls: JSON then markdown) → output files + BrandAI snapshot (brand_store.py)`. Full live run passes `test_market_research.py --full` (~4.5 min wall clock): 25 desires / 14 problems / 15 hooks / 12 objections, 100% verbatim-evidenced desires, 36.5k-char narrative. Agent 7 (pulled forward from Day 6) committed in `a7be3dd`. **Next: Day 5 manual validation read** (1–4h immersion, do not skip).
 
 ---
 
@@ -22,12 +24,12 @@ Stage 4 — Orchestrator + Agent 8: Feedback Loop + end-to-end wiring
 
 The Market Research Agent is itself a mini-pipeline: Orchestrator dispatches 3 sub-agents in parallel (Audience Researcher, Competitor Analyst, Social Media Analyst), then a Synthesizer merges their outputs. Build this first because every downstream agent depends on its output.
 
-### Day 1 — June 8 | Foundation [~4h]
+### Day 1 — June 8 | Foundation [~4h] — ✅ DONE June 9 (`3c30a76`)
 
-- [ ] Create project structure: `embroidery/`, `brand_ai/`, `output/`
-- [ ] Set up Python venv, install: `anthropic>=0.40 aiohttp python-dotenv rich`
-- [ ] Create `.env` with `ANTHROPIC_API_KEY`
-- [ ] Implement core agentic loop — the pattern all agents share:
+- [x] Create project structure: `embroidery/`, `brand_ai/`, `output/`
+- [x] Set up Python venv, install: `anthropic>=0.40 aiohttp python-dotenv rich`
+- [x] Create `.env` with `ANTHROPIC_API_KEY` (later also `GEMINI_API_KEY`, `BRAVE_API_KEY`)
+- [x] Implement core agentic loop — the pattern all agents share:
   ```python
   while response.stop_reason == "tool_use":
       messages.append({"role": "assistant", "content": response.content})
@@ -35,70 +37,74 @@ The Market Research Agent is itself a mini-pipeline: Orchestrator dispatches 3 s
       messages.append({"role": "user", "content": results})
       response = client.messages.create(...)
   ```
-- [ ] Smoke test: dummy `echo` tool — verify loop enters, executes tool, returns final text
-- [ ] Add `response.usage` logging to every `messages.create` call (critical for cost monitoring)
+- [x] Smoke test: dummy `echo` tool — verify loop enters, executes tool, returns final text (`smoke_test.py`)
+- [x] Add `response.usage` logging to every `messages.create` call (critical for cost monitoring)
 
 **Cost:** $0 (no real calls yet)
 
 ---
 
-### Day 2 — June 9 | Tool Layer [~4h]
+### Day 2 — June 9 | Tool Layer [~4h] — ✅ DONE June 9–10 (`3c30a76`…`b0cdaa1`)
 
-- [ ] Implement `web_search(query, num_results=10)` — use Brave Search API (`$3/1000 queries`); fallback: `duckduckgo-search` package (free)
-- [ ] Implement `web_fetch(url)` — fetch full page content via `aiohttp`
-- [ ] Implement `write_file(filename, content)` — save to `output/` directory
-- [ ] Define `RESEARCH_TOOLS` list with JSON schemas for all 3 tools
-- [ ] Test: run single agent on Haiku with 1 web_search call, verify tool result feeds back correctly
-- [ ] Add `max_searches` counter: stop agentic loop after 20 searches to cap `web_search` cost
+- [x] Implement `web_search(query, num_results=10)` — Brave Search API primary; DuckDuckGo fallback (`search.py`)
+- [x] Implement `web_fetch(url)` — fetch full page content via `aiohttp`
+- [x] Implement `write_file(filename, content)` — save to `output/` directory
+- [x] Define `RESEARCH_TOOLS` list with JSON schemas for all 3 tools (`tools.py`, Anthropic schema format)
+- [x] Test: single agent with 1 web_search call, tool result feeds back correctly — *deviation: validated on Gemini flash, not Haiku; provider switched to Gemini (`27790f2`)*
+- [x] Add `max_searches` counter: stop agentic loop after 20 searches to cap `web_search` cost (`search.max_searches` in config.yaml)
 
 **Cost:** < $0.05 (Haiku smoke tests)  
 **Watch:** Each `web_search` call = ~$0.003. An uncapped agent doing 50+ searches = $0.15+ just in search costs.
 
 ---
 
-### Day 3 — June 10 | Build 3 Sub-Agent Prompts [~5h]
+### Day 3 — June 10 | Build 3 Sub-Agent Prompts [~5h] — ✅ DONE June 10 (`agent1_subagents.py`)
 
-Test every system prompt on Haiku with a short synthetic brief before committing to Sonnet/Opus.
+> **Resolution of the Day 3 open decision:** split into A/B/C **per plan**. Sub-agents live in `agent1_subagents.py`; each gets **search-only tools** (`SEARCH_TOOLS` = web_search + web_fetch, no write_file) and returns its JSON as final text — the Python wrapper saves `output/research_{a,b,c}_*.json`. This sidesteps flash's MALFORMED_FUNCTION_CALL on large tool payloads, so `audience_researcher` moved back to `gemini-2.5-flash`. Tests ran on flash with the real (short) shop brief, not Haiku — provider is Gemini.
 
 **Agent A — Audience & Desire Researcher** (Steps 1, 2, 4, 5, 6 of 8-step framework)
-- [ ] Write system prompt: product analysis → desire/problem mapping → Reddit/Amazon mining
-- [ ] CA additions to embed: LF8 tag per desire, WHEN+WHY emotion format, Problem Node 3-check
-- [ ] Evidence classification: DIRECT (proves node) / FUEL (voice bank) / FALSE (discard)
-- [ ] Output schema: `top_desires[]`, `top_problems[]`, `voice_bank{}`, `objections[]`, `identity_markers{}`
-- [ ] Test on Haiku with 200-token brief — verify JSON output structure
+- [x] Write system prompt: product analysis → desire/problem mapping → Reddit/Amazon mining
+- [x] CA additions to embed: LF8 tag per desire, WHEN+WHY emotion format, Problem Node 3-check
+- [x] Evidence classification: DIRECT (proves node) / FUEL (voice bank) / FALSE (discard)
+- [x] Output schema: `top_desires[]`, `top_problems[]`, `voice_bank{}`, `objections[]`, `identity_markers{}`
+- [x] Test with short brief — verify JSON output structure (*on gemini-2.5-flash; all 10 assertions pass*)
 
 **Agent B — Competitor & Positioning Analyst** (Steps 3, 4, 8)
-- [ ] Write system prompt: direct + indirect competitor research → Sophistication Stage 1–5 → Unique Mechanism candidates
-- [ ] Embed rule: "Sophistication raised by ALL alternatives, not just direct competitors" (DTG, DTF, iron-on, screen print all count)
-- [ ] Output schema: `sophistication_assessment{}`, `awareness_levels_by_segment{}`, `unique_mechanism_candidates[]`, `5x5_matrix_cell`
-- [ ] Test on Haiku
+- [x] Write system prompt: direct + indirect competitor research → Sophistication Stage 1–5 → Unique Mechanism candidates
+- [x] Embed rule: "Sophistication raised by ALL alternatives, not just direct competitors" (DTG, DTF, iron-on, screen print all count)
+- [x] Output schema: `sophistication_assessment{}`, `awareness_levels_by_segment{}`, `unique_mechanism_candidates[]`, `5x5_matrix_cell`
+- [x] Test (*assessed Stage 3, 6 alternatives, 3 UM candidates typed 1/2/3 — all assertions pass*)
 
 **Agent C — Social Media & Hook Analyst** (Step 7)
-- [ ] Write system prompt: TikTok/Instagram/YouTube hook patterns, comment theme analysis, visual patterns, influencer landscape
-- [ ] Hook categories: size-of-claim, speed-of-claim, curiosity-gap, problem-first, identity
-- [ ] Output schema: `hook_patterns[]`, `comment_themes{}`, `top_hooks_to_adapt[]`, `content_structure_patterns[]`
-- [ ] Test on Haiku
+- [x] Write system prompt: TikTok/Instagram/YouTube hook patterns, comment theme analysis, visual patterns, influencer landscape
+- [x] Hook categories: size-of-claim, speed-of-claim, curiosity-gap, problem-first, identity
+- [x] Output schema: `hook_patterns[]`, `comment_themes{}`, `top_hooks_to_adapt[]`, `content_structure_patterns[]`
+- [x] Test (*first run hit Gemini empty-response flake — fixed in `llm.py` by escalating temperature 0.3→0.6→0.9 on retry; second run passes all assertions*)
 
-**Cost:** < $0.30 total (Haiku, short inputs)
+**Cost:** ~$0.10 actual (flash + ~40 Brave searches across test runs)
+
+**Findings carried to Day 4/5:**
+- Flash ignores the prompt's 6-search budget (Agent A consumed the full 20-search cap solo) → Day 4 needs a **per-agent search cap in code**, or A starves B/C of the shared budget.
+- `run_agent` calls the provider synchronously → `asyncio.gather()` won't parallelize until the call is wrapped in `asyncio.to_thread`.
+- Brave free tier is rate-limited → parallel sub-agents need request spacing in `search.py`.
+- Quality (Day 5): some Agent A evidence comes from hobbyist/machine-owner threads (r/embroidery DIY) rather than buyers — steer queries toward buyer-intent sources.
 
 ---
 
-### Day 4 — June 11 | Parallel Execution + Synthesizer [~4h]
+### Day 4 — June 11 | Parallel Execution + Synthesizer [~4h] — ✅ DONE June 10 (a day early)
 
-- [ ] Implement `run_market_research(brief)`:
-  ```python
-  results_a, results_b, results_c = await asyncio.gather(
-      run_agent(AGENT_A_SYSTEM, prompt_a, RESEARCH_TOOLS),
-      run_agent(AGENT_B_SYSTEM, prompt_b, RESEARCH_TOOLS),
-      run_agent(AGENT_C_SYSTEM, prompt_c, RESEARCH_TOOLS)
-  )
-  ```
-- [ ] Build Synthesizer system prompt: cross-reference findings, rank by frequency + intensity, produce all required sections (30 desires, 20 problems, 20 hooks, 15 objections, Sophistication, Desire Map UP/DOWN, Yes Stack, Bright/Dark Side, Buzzwords, Success Patterns)
-- [ ] Synthesizer gets no tools — pure synthesis from A+B+C outputs
-- [ ] Implement `BrandAI` storage class: save timestamped JSON + markdown report to `brand_ai/embroidery_shop/`
-- [ ] Wire together: `brief → gather(A,B,C) → Synthesizer → write market_research_report.json + brand_intelligence_report.md`
+- [x] Make `run_agent` non-blocking: wrap `provider.create_message` in `asyncio.to_thread` (provider calls are sync — without this, `gather()` serializes) *(added Day 3)* — *verified: A/B/C log lines fully interleave; the three sub-agents finish in ~70s wall-clock combined*
+- [x] Enforce a per-agent search cap in code — flash ignores the prompt budget *(added Day 3)* — *`search.max_searches_per_agent: 8` in config.yaml, enforced per `agent_name` in `agent_loop._execute_tool`; fired live (Agent C hit 8 and was told to synthesize)*
+- [x] Add request spacing/retry to `BraveSearch` for parallel sub-agents (free tier ≈ 1 req/s) *(added Day 3)* — *shared `asyncio.Lock` + 1.1s min interval + 3× retry on HTTP 429*
+- [x] Implement `run_market_research(brief)` — *in `agent1_market_research.py` (legacy single-agent version replaced, per Day 3 note); calls `run_subagent("a"|"b"|"c")` under `asyncio.gather` with one shared search budget*
+- [x] Build Synthesizer system prompt: cross-reference findings, rank by frequency + intensity, produce all required sections — *`agent1_synthesizer.py`; targets kept (30/20/20/15) with hard minimums and an explicit per-segment dimensionalization procedure (pro under-delivered counts until the expansion step was made mandatory); `coverage_gaps` section added for Day 5 review*
+- [x] Synthesizer gets no tools — pure synthesis from A+B+C outputs (model set to `gemini-2.5-pro` in config — report-writing quality; Python writes the files from its text output) — *deviation: TWO no-tool calls, not one — call 1 emits the JSON report, call 2 writes the markdown narrative from JSON + raw evidence (a single 16k-token response can't hold both)*
+- [x] Implement `BrandAI` storage class: save timestamped JSON + markdown report to `brand_ai/embroidery_shop/` — *in `brand_store.py` (named to avoid clashing with the `brand_ai/` data dir); `save_research()` / `latest_research()`*
+- [x] Wire together: `brief → gather(A,B,C) → Synthesizer → write market_research_report.json + brand_intelligence_report.md` — *full live run passes `test_market_research.py --full`: 24 desires / 14 problems / 14 hooks / 15 objections, 100% of desires with verbatim evidence, ~38–41k-char narrative*
 
-**Cost:** ~$0.30–0.50 (first Sonnet dev run)
+**Cost:** ~$0.30–0.50 planned (Sonnet) → actual on Gemini ≈ $0.15–0.25 across 3 synthesizer dev runs + 1 full pipeline run (~16 Brave searches)
+
+**Carried to Day 5:** synthesizer minimums (24/14/14) sit below the original 30/20/20 targets — judge during the manual read whether per-segment expansion should be pushed harder or the evidence base (more sub-agent searches) is the real lever. `test_market_research.py` (no flag) revalidates the Synthesizer from static files without new searches.
 
 ---
 
@@ -125,12 +131,14 @@ Test every system prompt on Haiku with a short synthetic brief before committing
 
 Build QA *before* any content agents. Every ad script or static copy will pass through it.
 
-### Day 6 — June 15 | Agent 7: QA Agent [~3h]
+### Day 6 — June 15 | Agent 7: QA Agent [~3h] — 🔀 PULLED FORWARD to June 10
 
-- [ ] Write QA system prompt: 8-question diagnostic + Buying Psychology checklist
-- [ ] Output schema: `passed_8_questions`, `question_scores{}`, `checklist_failures[]`, `hook_rate_prediction`, `revision_required`, `revision_notes`
-- [ ] Test with 3 hand-written sample scripts: 1 should PASS, 2 should FAIL with specific notes
-- [ ] Verify: FAIL output contains actionable revision notes, not vague feedback
+> **Actual:** `agent7_qa_reviewer.py` + `test_agent7.py` + `fixtures/` (positioning_matrix, video_scripts, static_ad_copy samples) built June 10, committed `a7be3dd`. `qa_reviewer` model moved to `gemini-2.5-pro` — flash emits MALFORMED_FUNCTION_CALL even on small contexts.
+
+- [x] Write QA system prompt: 8-question diagnostic + Buying Psychology checklist
+- [x] Output schema: `passed_8_questions`, `question_scores{}`, `checklist_failures[]`, `hook_rate_prediction`, `revision_required`, `revision_notes`
+- [x] Test with 3 fixture ads: gift-giver script PASS, corporate script FAIL, overall FAIL — *verified June 10, all `test_agent7` assertions hold against `qa_report.json`*
+- [x] Verify: FAIL output contains actionable revision notes, not vague feedback — *notes name the segment, the style to emulate, and the reference ad*
 
 **Cost:** < $0.10 (Haiku, hand-crafted test inputs)
 

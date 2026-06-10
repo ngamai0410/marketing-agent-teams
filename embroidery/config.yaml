@@ -15,8 +15,9 @@ llm:
 # Options: brave | duckduckgo
 # ─────────────────────────────────────────────
 search:
-  provider: brave        # needs BRAVE_API_KEY in .env | or: duckduckgo (free, less reliable)
-  max_searches: 20       # per agent run — cost/rate-limit guard
+  provider: brave            # needs BRAVE_API_KEY in .env | or: duckduckgo (free, less reliable)
+  max_searches: 20           # shared per pipeline run — cost/rate-limit guard
+  max_searches_per_agent: 8  # per agent — enforced in code; flash ignores prompt budgets
 
 # ─────────────────────────────────────────────
 # Per-agent model settings
@@ -30,7 +31,7 @@ agents:
   #   openai:    gpt-4o-mini | gpt-4o
   #   gemini:    gemini-2.5-flash | gemini-2.5-pro
   audience_researcher:
-    model: gemini-2.5-pro          # flash emits MALFORMED_FUNCTION_CALL on large write_file payloads — needs pro
+    model: gemini-2.5-flash        # sub-agents return JSON as text (no write_file) — flash is safe here
     max_tokens: 16000
 
   competitor_analyst:
@@ -42,7 +43,7 @@ agents:
     max_tokens: 8096
 
   synthesizer:
-    model: gemini-2.5-flash        # no tools — pure synthesis
+    model: gemini-2.5-pro          # no tools — pure synthesis; pro for report quality (30-page gate)
     max_tokens: 16000
 
   # --- Copy agents (Stage 3) ---

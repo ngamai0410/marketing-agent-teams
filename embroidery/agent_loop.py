@@ -8,6 +8,7 @@ Usage:
     result = asyncio.run(run_agent(system, messages, tools, model_settings))
 """
 
+import asyncio
 from pathlib import Path
 
 from config import settings, ModelSettings
@@ -19,7 +20,8 @@ _log = get_logger("agent_loop")
 # Module-level singletons — instantiated once, reused across all agents
 _provider: LLMProvider | None = None
 _search = None
-_search_count = 0
+_search_count = 0                          # shared budget per pipeline run
+_search_count_by_agent: dict[str, int] = {}  # per-agent cap — flash ignores prompt budgets
 
 
 def _get_provider() -> LLMProvider:
@@ -38,9 +40,10 @@ def _get_search():
 
 
 def reset_search_count():
-    """Call before each agent run to reset the per-run search counter."""
+    """Call before each agent run to reset the per-run search counters."""
     global _search_count
     _search_count = 0
+    _search_count_by_agent.clear()
 
 
 def reset_provider():
@@ -83,7 +86,10 @@ async def run_agent(
     _log.info("agent=%s model=%s max_tokens=%d starting", agent_name, model_settings.model, model_settings.max_tokens)
 
     while call_count < max_tool_calls:
-        response = provider.create_message(
+        # Provider calls are sync (and may time.sleep in retries) — run in a
+        # thread so asyncio.gather() actually parallelizes concurrent agents.
+        response = await asyncio.to_thread(
+            provider.create_message,
             model=model_settings.model,
             max_tokens=model_settings.max_tokens,
             system=system,
@@ -109,7 +115,7 @@ async def run_agent(
             tool_results = []
             for tc in response.tool_calls:
                 _log.debug("agent=%s tool=%s inputs=%s", agent_name, tc.name, _truncate(str(tc.input), 120))
-                result = await _execute_tool(tc.name, tc.input)
+                result = await _execute_tool(tc.name, tc.input, agent_name)
                 _log.debug("agent=%s tool=%s result_chars=%d", agent_name, tc.name, len(str(result)))
                 tool_results.append({
                     "type": "tool_result",
@@ -141,7 +147,7 @@ def _truncate(s: str, n: int) -> str:
 # Tool executor
 # ─────────────────────────────────────────────
 
-async def _execute_tool(name: str, inputs: dict) -> str:
+async def _execute_tool(name: str, inputs: dict, agent_name: str = "agent") -> str:
     global _search_count
 
     if name == "echo":
@@ -158,11 +164,22 @@ async def _execute_tool(name: str, inputs: dict) -> str:
         return result
 
     if name == "web_search":
+        # Per-agent cap enforced in code — flash ignores the prompt's search
+        # budget and would starve concurrent sub-agents of the shared budget.
+        agent_used = _search_count_by_agent.get(agent_name, 0)
+        if agent_used >= settings.search.max_searches_per_agent:
+            _log.warning("tool=web_search agent=%s agent_search_limit=%d reached",
+                         agent_name, settings.search.max_searches_per_agent)
+            return (f"[your search limit of {settings.search.max_searches_per_agent} is used up — "
+                    f"stop searching and produce your final output from the evidence you have]")
         if _search_count >= settings.search.max_searches:
             _log.warning("tool=web_search search_limit=%d reached", settings.search.max_searches)
-            return f"[search limit reached: {settings.search.max_searches} searches per run]"
+            return (f"[shared search limit reached: {settings.search.max_searches} searches per run — "
+                    f"stop searching and produce your final output from the evidence you have]")
         _search_count += 1
-        _log.info("tool=web_search count=%d query=%s", _search_count, inputs["query"])
+        _search_count_by_agent[agent_name] = agent_used + 1
+        _log.info("tool=web_search agent=%s count=%d agent_count=%d query=%s",
+                  agent_name, _search_count, agent_used + 1, inputs["query"])
         return await _get_search().search(inputs["query"], inputs.get("num_results", 10))
 
     if name == "web_fetch":
