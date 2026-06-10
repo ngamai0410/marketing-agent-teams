@@ -7,12 +7,12 @@ config.yaml  ──►  config.py  ──►  ModelSettings / Config
                                         │
                        ┌────────────────┼────────────────┐
                        ▼                ▼                 ▼
-                    llm.py          search.py        (future agents)
-             AnthropicProvider    BraveSearch
-             OpenAIProvider       DuckDuckGoSearch
-             GeminiProvider
-                       │                │
-                       └────────┬───────┘
+                    llm.py          search.py     agent1_market_research.py
+             AnthropicProvider    BraveSearch     (system prompt + shop brief)
+             OpenAIProvider       DuckDuckGoSearch        │
+             GeminiProvider             │                 │
+                       │                │                 │
+                       └────────┬───────┴◄────────────────┘
                                 ▼
                           agent_loop.py
                           run_agent()
@@ -22,7 +22,8 @@ config.yaml  ──►  config.py  ──►  ModelSettings / Config
                           │  • logs every call + tool      ◄───┘
                           ▼
                       output/
-                  (market_research_report.json, etc.)
+        market_research_report.json   ──►  read by Agents 2 & 3 (Stage 2+)
+        brand_intelligence_report.md  ──►  read by Agents 2 & 3 (Stage 2+)
 ```
 
 Provider-agnostic agentic loop for the custom embroidery shop campaign. Provider and search engine switch via one line in `config.yaml`.
@@ -32,10 +33,27 @@ Provider-agnostic agentic loop for the custom embroidery shop campaign. Provider
 ```bash
 # Python 3.11 — system Python 3.14 has broken pip
 ~/.pyenv/versions/3.11.9/bin/python3 -m venv venv
-venv/bin/pip install "anthropic>=0.40" aiohttp python-dotenv rich pyyaml openai duckduckgo-search "google-genai>=1.0"
+venv/bin/pip install "anthropic>=0.40" aiohttp python-dotenv rich pyyaml openai ddgs "google-genai>=1.0"
 cp .env.example .env   # then add API keys
 venv/bin/python smoke_test.py   # verifies loop + tools + file write
 ```
+
+## Run Agent 1 (Market Research)
+
+```bash
+venv/bin/python agent1_market_research.py
+```
+
+Edit `SHOP_BRIEF` at the top of `agent1_market_research.py` before each campaign run.
+Outputs land in `output/`: `market_research_report.json` (structured) and
+`brand_intelligence_report.md` (narrative). Search count is capped by
+`search.max_searches` in `config.yaml` (default 20/run).
+
+**Gemini model caveat:** `gemini-2.5-flash` reliably fails with
+`MALFORMED_FUNCTION_CALL` when an agent emits a large `write_file` payload
+(a full report as one function argument). Agents that write big files must
+use `gemini-2.5-pro`. `llm.py` retries empty Gemini responses 3× and logs
+the `finish_reason` before raising.
 
 ## Files
 
@@ -47,7 +65,10 @@ venv/bin/python smoke_test.py   # verifies loop + tools + file write
 | `search.py` | `BraveSearch` and `DuckDuckGoSearch` — both implement `SearchProvider` |
 | `logger.py` | `get_logger(name)` — shared log sink: INFO→stdout, DEBUG→`logs/<run_id>.log` |
 | `agent_loop.py` | `run_agent()` — the single agentic loop used by every agent |
+| `agent1_market_research.py` | Agent 1 — EcomTalent 8-step market research; writes the two reports Agents 2 & 3 consume |
+| `tools.py` | Tool schemas (Anthropic JSON format) — `RESEARCH_TOOLS` etc. |
 | `smoke_test.py` | Verifies the full stack end-to-end with two tool calls |
+| `output/` | Agent-written artifacts (reports, briefs) — the pipeline's data contracts |
 | `.env` | API keys (gitignored) |
 | `.env.example` | Key names with placeholder values (committed) |
 | `logs/` | Per-run log files (gitignored); one file per process, named by timestamp |

@@ -227,6 +227,10 @@ class GeminiProvider(LLMProvider):
         config_kwargs: dict[str, Any] = {
             "system_instruction": system,
             "max_output_tokens": max_tokens,
+            # Default temp (1.0) makes gemini-2.5-flash prone to
+            # MALFORMED_FUNCTION_CALL on large tool payloads (e.g. write_file
+            # with a full report). Lower temp markedly reduces this.
+            "temperature": 0.3,
         }
         if tools:
             config_kwargs["tools"] = _to_gemini_tools(tools)
@@ -238,6 +242,19 @@ class GeminiProvider(LLMProvider):
                     contents=contents,
                     config=types.GenerateContentConfig(**config_kwargs),
                 )
+                # Gemini intermittently returns an empty candidate (no text,
+                # no function call) — e.g. finish_reason MALFORMED_FUNCTION_CALL
+                # or a blocked/empty response. Retry instead of ending the run.
+                if _gemini_response_is_empty(resp):
+                    if attempt < 2:
+                        finish = _gemini_finish_reason(resp)
+                        print(f"  [gemini] empty response (finish_reason={finish}) — retrying (attempt {attempt + 1}/3)")
+                        time.sleep(2 * (attempt + 1))
+                        continue
+                    raise RuntimeError(
+                        f"Gemini returned an empty response 3 times in a row "
+                        f"(finish_reason={_gemini_finish_reason(resp)})."
+                    )
                 break
             except ClientError as e:
                 if e.code == 429 and attempt < 2:
@@ -293,6 +310,19 @@ class GeminiProvider(LLMProvider):
             ),
             assistant_message={"role": "assistant", "content": assistant_content},
         )
+
+
+def _gemini_response_is_empty(resp) -> bool:
+    candidate = resp.candidates[0] if resp.candidates else None
+    parts = candidate.content.parts if (candidate and candidate.content) else None
+    if not parts:
+        return True
+    return not any(getattr(p, "text", None) or getattr(p, "function_call", None) for p in parts)
+
+
+def _gemini_finish_reason(resp) -> str:
+    candidate = resp.candidates[0] if resp.candidates else None
+    return str(getattr(candidate, "finish_reason", "NO_CANDIDATE"))
 
 
 def _to_gemini_tools(tools: list[dict]) -> list:

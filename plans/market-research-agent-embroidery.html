@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Research Agent — Custom Thêu | EcomTalent</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #1c2128;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #6c8cff;
+    --accent2: #f0883e;
+    --accent3: #3fb950;
+    --accent4: #d2a8ff;
+    --accent5: #ff7b72;
+    --yellow: #e3b341;
+    --cite-wiki: #1c6ef533;
+    --cite-video: #d29922;
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; padding: 0 0 80px; }
+
+  /* NAV */
+  nav { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 100; }
+  nav .logo { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: .5px; }
+  nav .breadcrumb { font-size: 12px; color: var(--muted); }
+  nav .breadcrumb span { color: var(--text); }
+
+  /* HERO */
+  .hero { background: linear-gradient(135deg, #0d1117 0%, #161b2e 60%, #1a1422 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; max-width: 1100px; margin: 0 auto; }
+  .hero-tag { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+  .hero h1 { font-size: 32px; font-weight: 800; line-height: 1.2; margin-bottom: 16px; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero-sub { font-size: 15px; color: var(--muted); max-width: 680px; line-height: 1.7; }
+  .hero-meta { margin-top: 24px; display: flex; gap: 24px; flex-wrap: wrap; }
+  .hero-meta-item { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .hero-meta-item strong { color: var(--text); }
+  .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
+
+  /* LAYOUT */
+  .page { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 32px 0; }
+  @media(max-width: 700px) { .two-col { grid-template-columns: 1fr; } .hero { padding: 32px 16px; } .page { padding: 0 16px; } }
+
+  /* SECTION HEADERS */
+  .section-header { margin: 48px 0 24px; display: flex; align-items: center; gap: 12px; }
+  .section-num { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .section-header h2 { font-size: 20px; font-weight: 700; }
+  .section-header .section-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+  /* CARDS */
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 16px; }
+  .card-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .card-body { font-size: 13px; color: var(--muted); line-height: 1.7; }
+  .card-body strong { color: var(--text); }
+  .card-body ul { padding-left: 18px; margin-top: 6px; }
+  .card-body li { margin-bottom: 4px; }
+  .card-body p + p { margin-top: 8px; }
+
+  /* CORE INSIGHT BOX */
+  .insight { background: linear-gradient(135deg, #1c2951 0%, #1a1422 100%); border: 1px solid var(--accent)44; border-left: 3px solid var(--accent); border-radius: var(--radius); padding: 20px 24px; margin: 20px 0; }
+  .insight-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .insight p { font-size: 15px; font-weight: 600; line-height: 1.5; }
+  .insight small { display: block; margin-top: 8px; font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  /* STEP CARDS */
+  .step { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 16px; position: relative; }
+  .step-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: var(--accent); color: #fff; border-radius: 50%; font-size: 12px; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+  .step-header { display: flex; align-items: flex-start; margin-bottom: 12px; }
+  .step-header-text { flex: 1; }
+  .step-title { font-size: 15px; font-weight: 700; }
+  .step-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .step-body { font-size: 13px; color: var(--muted); line-height: 1.7; padding-left: 34px; }
+  .step-body ul { padding-left: 18px; margin-top: 6px; }
+  .step-body li { margin-bottom: 5px; }
+  .step-body p + p { margin-top: 8px; }
+  .step-body strong { color: var(--text); }
+
+  /* TAGS */
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; margin: 2px; }
+  .tag-blue { background: var(--accent)22; color: var(--accent); border: 1px solid var(--accent)44; }
+  .tag-orange { background: var(--accent2)22; color: var(--accent2); border: 1px solid var(--accent2)44; }
+  .tag-green { background: var(--accent3)22; color: var(--accent3); border: 1px solid var(--accent3)44; }
+  .tag-purple { background: var(--accent4)22; color: var(--accent4); border: 1px solid var(--accent4)44; }
+  .tag-red { background: var(--accent5)22; color: var(--accent5); border: 1px solid var(--accent5)44; }
+  .tag-yellow { background: var(--yellow)22; color: var(--yellow); border: 1px solid var(--yellow)44; }
+
+  /* CITE BADGES */
+  .cite { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; text-decoration: none; letter-spacing: .3px; vertical-align: middle; margin-left: 4px; }
+  .cite-wiki { background: #1c6ef522; color: #79b8ff; border: 1px solid #1c6ef544; }
+  .cite-wiki:hover { background: #1c6ef544; }
+  .cite-video { background: #d2992222; color: var(--yellow); border: 1px solid #d2992244; }
+  .cite-video:hover { background: #d2992244; }
+  .cite-code { background: #3fb95022; color: var(--accent3); border: 1px solid #3fb95044; font-family: monospace; }
+
+  /* CITE BLOCK */
+  .cite-block { background: var(--bg3); border: 1px solid var(--border); border-left: 3px solid var(--yellow); border-radius: var(--radius); padding: 14px 18px; margin: 14px 0; font-size: 12px; }
+  .cite-block-header { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--yellow); margin-bottom: 8px; }
+  .cite-block-quote { font-style: italic; color: var(--muted); line-height: 1.6; margin-bottom: 8px; padding-left: 12px; border-left: 2px solid var(--border); }
+  .cite-block-links { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  /* CODE */
+  .code-block { background: #010409; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin: 14px 0; overflow-x: auto; }
+  .code-block pre { font-size: 12px; line-height: 1.6; color: #a9b7c6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+  .kw { color: #cc7832; } .fn { color: #ffc66d; } .str { color: #6a8759; } .cm { color: #808080; font-style: italic; } .num { color: #6897bb; } .cl { color: #a9b7c6; } .var { color: #9876aa; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+  th { background: var(--bg3); color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border)88; vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+  td strong { color: var(--text); }
+  td:first-child { font-weight: 600; color: var(--text); }
+
+  /* MATRIX */
+  .matrix { overflow-x: auto; margin: 16px 0; }
+  .matrix table { min-width: 600px; }
+  .matrix th { font-size: 11px; }
+  .matrix td { font-size: 12px; }
+  .matrix-cell-highlight { background: var(--accent)11; }
+  .matrix-cell-best { background: var(--accent3)22; border-left: 2px solid var(--accent3); }
+
+  /* AGENT FLOW */
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 20px 0; flex-wrap: wrap; }
+  .flow-item { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; font-size: 12px; font-weight: 600; flex: 1; min-width: 100px; text-align: center; }
+  .flow-arrow { display: flex; align-items: center; color: var(--muted); font-size: 18px; padding: 0 6px; }
+
+  /* OUTPUT BOX */
+  .output-box { background: var(--bg3); border: 1px solid var(--accent3)44; border-radius: var(--radius); padding: 14px 18px; margin: 12px 0; }
+  .output-box-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent3); margin-bottom: 8px; }
+  .output-box ul { list-style: none; padding: 0; }
+  .output-box li { font-size: 12px; color: var(--muted); padding: 4px 0; display: flex; align-items: flex-start; gap: 8px; }
+  .output-box li::before { content: "→"; color: var(--accent3); flex-shrink: 0; margin-top: 1px; }
+  .output-box li strong { color: var(--text); }
+
+  /* PHASE BADGE */
+  .phase { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+  .phase-1 { background: var(--accent)22; color: var(--accent); }
+  .phase-2 { background: var(--accent2)22; color: var(--accent2); }
+  .phase-3 { background: var(--accent4)22; color: var(--accent4); }
+
+  /* AGENT CARD */
+  .agent-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 20px; }
+  .agent-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  .agent-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .agent-header-text h3 { font-size: 15px; font-weight: 700; }
+  .agent-header-text p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .agent-body { padding: 20px 24px; }
+  .agent-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .agent-meta-item label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); display: block; margin-bottom: 4px; }
+  .agent-meta-item .val { font-size: 12px; }
+
+  /* SOURCE INDEX */
+  .source-index { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-top: 40px; }
+  .source-index h3 { font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--muted); }
+  .source-row { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border)66; font-size: 12px; }
+  .source-row:last-child { border-bottom: none; }
+  .source-id { width: 60px; font-weight: 700; color: var(--accent); flex-shrink: 0; font-family: monospace; font-size: 11px; }
+  .source-info { flex: 1; }
+  .source-info .title { color: var(--text); font-weight: 600; margin-bottom: 3px; }
+  .source-info .links { display: flex; gap: 8px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">EcomTalent</span>
+  <span class="breadcrumb">AI Agent Teams › <span>Market Research Agent</span></span>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">📚 EcomTalent × Creative Avatar Masterclass × Claude Agent Architecture</div>
+  <h1>Market Research Agent<br>cho <em>Shop Thêu Custom</em></h1>
+  <p class="hero-sub">Kiến thức từ EcomTalent + Creative Avatar Masterclass về Market Research + kế hoạch từng bước build AI agent hoàn chỉnh. Mỗi quyết định thiết kế đều được trích dẫn từ bài giảng cụ thể.</p>
+  <div style="background:#1a2233;border:1px solid #d2a8ff44;border-left:3px solid #d2a8ff;border-radius:8px;padding:10px 16px;margin:16px 0 0;font-size:12px;color:#8b949e">
+    <strong style="color:#d2a8ff">✦ Cập nhật Creative Avatar:</strong>
+    LF8 per desire · WHEN+WHY emotion · Problem Node 3-check · Evidence DIRECT/FUEL/FALSE · 3-star review priority · FB Ad comments mining · Desire Map UP/DOWN
+    <span style="float:right">
+      <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/2424851/ca-wiki" target="_blank">ca-wiki</a>
+      <a class="cite cite-video" href="https://drive.google.com/drive/folders/1u8u6zlFQK1TulaGUNIbA9eLOxI1jvO3-" target="_blank">🎬 CA Videos</a>
+    </span>
+  </div>
+  <div class="hero-meta">
+    <div class="hero-meta-item"><span class="dot" style="background:var(--accent)"></span><strong>Module nguồn:</strong> CS V4, V2, V3 + Creative Avatar Masterclass</div>
+    <div class="hero-meta-item"><span class="dot" style="background:var(--accent2)"></span><strong>Framework:</strong> Claude Agentic Loop + Tool Use</div>
+    <div class="hero-meta-item"><span class="dot" style="background:var(--accent3)"></span><strong>Output:</strong> Tài liệu nghiên cứu 34–45 trang</div>
+    <div class="hero-meta-item"><span class="dot" style="background:var(--accent4)"></span><strong>Sản phẩm:</strong> Custom Embroidery Shop</div>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PHẦN 1: KIẾN THỨC NỀN TẢN -->
+<!-- ═══════════════════════════════════════════════════════ -->
+
+<div class="section-header">
+  <div class="section-num">1</div>
+  <div>
+    <h2>Kiến thức EcomTalent về Market Research</h2>
+    <div class="section-sub">Tại sao, What, và How — trước khi build bất cứ thứ gì</div>
+  </div>
+</div>
+
+<div class="insight">
+  <div class="insight-label">💡 Ý cốt lõi</div>
+  <p>"Market Research không phải là bước chuẩn bị — nó <em>là</em> công việc quan trọng nhất. Không research → spam quảng cáo mù. Có research → biết chính xác nói gì, nói với ai, nói như thế nào."</p>
+  <small>Nguồn: CS V4 [07:45]–[08:12] — "Skipping market research = randomly spam testing. With it = data-driven, scalable ad creation."</small>
+</div>
+
+<div class="cite-block">
+  <div class="cite-block-header">📖 Trích dẫn trực tiếp từ khoá học</div>
+  <div class="cite-block-quote">"99% of bad marketers obsess over hooks, editing styles, and copying competitors. Winners focus on deeply understanding who they're selling to."</div>
+  <div class="cite-block-links">
+    <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/372957/et-ecomtalent-fundamentals-v4-understanding-your-customer" target="_blank">📄 FUND V4 — Customer</a>
+    <span class="tag tag-yellow">FUNDAMENTALS V4 [00:00]–[00:22]</span>
+  </div>
+</div>
+
+<h3 style="font-size:16px;margin:28px 0 16px;color:var(--text)">1.1 — Tại sao Market Research là nền tảng của mọi thứ</h3>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-title"><span style="color:var(--accent5)">⚡</span> Không có research</div>
+    <div class="card-body">
+      <ul>
+        <li>Test quảng cáo ngẫu nhiên, không biết tại sao thắng/thua</li>
+        <li>Copy đối thủ mà không hiểu tại sao họ làm vậy</li>
+        <li>Viết hook theo cảm tính → tỷ lệ thất bại cao</li>
+        <li>Không biết khách hàng đang ở mức Awareness nào → sai entry point</li>
+        <li>Không biết thị trường đang ở mức Sophistication nào → sai messaging</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span style="color:var(--accent3)">✅</span> Có research đầy đủ</div>
+    <div class="card-body">
+      <ul>
+        <li>Biết chính xác khách hàng muốn gì, sợ gì, ngôn ngữ họ dùng</li>
+        <li>Xác định Awareness level → chọn đúng entry point cho ad</li>
+        <li>Xác định Sophistication level → chọn đúng loại messaging</li>
+        <li>Tìm Unique Mechanism → thoát khỏi cạnh tranh về giá</li>
+        <li>Viết hook từ ngôn ngữ thực của khách → hook rate cao hơn</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="cite-block">
+  <div class="cite-block-header">⏱ Kết quả thực tế được đề cập trong khoá</div>
+  <div class="cite-block-quote">"6 months ago this research took a week. With Claude + internet access, it takes ~10 minutes to produce a 34-page document."</div>
+  <div class="cite-block-links">
+    <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416/et-ecomtalent-creative-strategy-v4-deep-market-research-ai" target="_blank">📄 CS V4 — Deep Market Research</a>
+    <a class="cite cite-video" href="https://drive.google.com/file/d/1pL5Vpg-3ENgIU2_1VpcJPxvytjWJeA0b/view" target="_blank">🎬 Video [35:04]–[35:12]</a>
+  </div>
+</div>
+
+<hr class="divider">
+
+<h3 style="font-size:16px;margin:0 0 16px;color:var(--text)">1.2 — 8 Bước Market Research (Enhanced Market Research Prompt)</h3>
+
+<p style="font-size:13px;color:var(--muted);margin-bottom:20px">Đây là cấu trúc của "Enhanced Market Research Prompt" — prompt được xây dựng trong 2 ngày, tạo ra tài liệu 34–45 trang. Khoá học demo trực tiếp với client FlowPouch (mushroom focus pouches).</p>
+
+<div class="step">
+  <div class="step-header">
+    <span class="step-num">1</span>
+    <div class="step-header-text">
+      <div class="step-title">Brand & Product Analysis</div>
+      <div class="step-subtitle">Phân tích bản thân trước khi nhìn ra ngoài<a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416/" target="_blank">CS V4</a> <span class="cite cite-video">⏱ [03:27]–[07:08]</span></div>
+    </div>
+  </div>
+  <div class="step-body">
+    <p>Trả lời 6 câu hỏi cốt lõi về sản phẩm:</p>
+    <ul>
+      <li>Sản phẩm giải quyết <strong>vấn đề gì</strong> hoặc thoả mãn <strong>desire gì</strong>?</li>
+      <li>Đây là <strong>superior product</strong> (tốt hơn thật sự) hay <strong>identity product</strong> (mua để thể hiện bản thân)?</li>
+      <li>3–5 <strong>Unique Mechanisms</strong> — điều gì làm nó khác biệt?</li>
+      <li>Positioning vs. <strong>direct competitors</strong> (cùng sản phẩm) và <strong>indirect competitors</strong> (giải pháp thay thế)?</li>
+      <li>Brand voice/tone là gì?</li>
+      <li>Risk reversal / guarantees / offers?</li>
+    </ul>
+    <p style="margin-top:10px"><strong>Với shop thêu custom:</strong> Superior product (chất lượng thêu thực sự khác biệt) + Identity product (mua để thể hiện cá tính). Unique mechanism có thể là: chỉ thêu premium, độ phân giải chi tiết, chất liệu vải, tốc độ giao hàng...</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <span class="step-num">2</span>
+    <div class="step-header-text">
+      <div class="step-title">Desire & Problem Mapping</div>
+      <div class="step-subtitle">Khám phá cảm xúc ẩn sau quyết định mua<a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416/" target="_blank">CS V4</a> <span class="cite cite-video">⏱ [08:33]–[12:03]</span></div>
+    </div>
+  </div>
+  <div class="step-body">
+    <ul>
+      <li>Top 10 <strong>primary desires</strong> thúc đẩy thị trường (xếp hạng 1–10 kèm lý do)</li>
+      <li>Những <strong>vấn đề ngăn cản</strong> họ đạt được desire đó</li>
+      <li>Họ đã thử <strong>bao nhiêu giải pháp</strong> trước đây?</li>
+      <li><strong>Emotional state</strong> của thị trường: desperate / curious / skeptical / hopeful</li>
+      <li>5–7 ví dụ về <strong>ngôn ngữ chính xác</strong> của khách (từ Amazon/Reddit comments)</li>
+      <li>Mức độ <strong>urgency</strong>; seasonal patterns</li>
+    </ul>
+    <div style="background:#1a2233;border:1px solid #d2a8ff44;border-left:3px solid #d2a8ff;border-radius:6px;padding:10px 14px;margin-top:10px;font-size:12px;color:#8b949e">
+      <strong style="color:#d2a8ff">✦ CA Additions cho Step 2:</strong>
+      <ul style="padding-left:16px;margin-top:6px">
+        <li><strong>LF8 tag per desire</strong> — gắn 1 trong 8 Life Forces: LF1 Survival, LF3 Freedom from Pain, LF6 Winning, LF7 Care for Loved Ones, LF8 Social Approval. Custom thêu = chủ yếu LF7+LF8. Script Writer cần label này để chọn emotional register.
+          <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/2359981/ca-lf8-framework" target="_blank">CA LF8</a>
+          <a class="cite cite-video" href="https://drive.google.com/file/d/1aohbnTMwTLygWACLelq3oKqCEsD6hxtE/view" target="_blank">🎬 Lec 04</a>
+        </li>
+        <li><strong>WHEN+WHY emotion format</strong> — "frustrated" → "frustrated — WHEN nhận hàng màu sai BECAUSE đã trả $50 kỳ vọng accuracy". Emotion mà thiếu WHEN+WHY = không dùng được cho copywriter.
+          <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/2457920/ca-sub-avatar-system" target="_blank">CA Sub-Avatar</a>
+          <a class="cite cite-video" href="https://drive.google.com/file/d/1HZ_XOQQ4gxwsAxRU_dudPDvq1UZkO_8C/view" target="_blank">🎬 Lec 07</a>
+        </li>
+        <li><strong>Problem Node 3-check</strong> trước khi classify là Problem Aware: ✓ Experience (gì đang xảy ra?) + ✓ Bad Emotion (cảm xúc gì?) + ✓ Ongoing (mãn tính?). Thiếu Bad Emotion → node đó là Unaware, không phải Problem Aware → sai awareness entry.
+          <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/2457886/ca-desire-map" target="_blank">CA Desire Map</a>
+          <a class="cite cite-video" href="https://drive.google.com/file/d/1iK6Uv0CjNMTZ7MSfkU-319vX8zMSP28U/view" target="_blank">🎬 Lec 06</a>
+        </li>
+      </ul>
+    </div>
+    <p style="margin-top:10px"><strong>Với shop thêu:</strong> Desires có thể là: muốn quà tặng độc nhất (LF7), muốn thể hiện bản thân (LF8), muốn đồng phục chuyên nghiệp (LF6)... Emotional state: excited nhưng lo về chất lượng/thời gian giao hàng.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <span class="step-num">3</span>
+    <div class="step-header-text">
+      <div class="step-title">Competitor & Market Research</div>
+      <div class="step-subtitle">Hiểu landscape để tìm khoảng trống<a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416/" target="_blank">CS V4</a> <span class="cite cite-video">⏱ [12:04]–[14:03]</span></div>
+    </div>
+  </div>
+  <div class="step-body">
+    <ul>
+      <li><strong>Direct competitors:</strong> USP, pricing, messaging patterns</li>
+      <li><strong>Indirect competitors:</strong> 7–10 danh mục giải pháp thay thế; mỗi loại thoả mãn cùng desire như thế nào?</li>
+      <li><strong>Meta Ad Library + Atria:</strong> loại ad đối thủ chạy; messaging họ dùng; target segments; offers; guarantees</li>
+    </ul>
+    <p style="margin-top:10px"><strong>Với shop thêu:</strong> Direct = các shop thêu khác. Indirect = in áo (DTG/DTF), patch dán, decal, may đo, quà tặng cá nhân hóa khác. Mỗi loại có positioning khác nhau.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <span class="step-num">4</span>
+    <div class="step-header-text">
+      <div class="step-title">Identity Markers Research</div>
+      <div class="step-subtitle">Chỉ cho identity products — thêu custom thuộc nhóm này<a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416/" target="_blank">CS V4</a> <span class="cite cite-video">⏱ [14:03]–[16:33]</span></div>
+    </div>
+  </div>
+  <div class="step-body">
+    <ul>
+      <li>Xác định <strong>identity group</strong> cụ thể: ai mua thêu custom? (ví dụ: gym bros, K-pop fans, university clubs, corporate HR, pet owners)</li>
+      <li>Common <strong>values</strong> của nhóm này</li>
+      <li><strong>Visual markers</strong> họ nhận ra nhau qua</li>
+      <li><strong>Language patterns</strong> — họ nói chuyện với nhau như thế nào?</li>
+    </ul>
+    <p style="margin-top:10px"><strong>Insight:</strong> Thêu custom là identity product bậc cao — người mua không mua vật phẩm, họ mua biểu tượng cho nhóm hoặc bản thân. Ad phải mirror lại identity đó.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <span class="step-num">5</span>
+    <div class="step-header-text">
+      <div class="step-title">Amazon Review Mining</div>
+      <div class="step-subtitle">Ngôn ngữ thực của khách hàng — nguồn vàng cho copywriting<a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416/" target="_blank">CS V4</a> <span class="cite cite-video">⏱ [16:36]–[18:02]</span></div>
+    </div>
+  </div>
+  <div class="step-body">
+    <ul>
+      <li>Dùng Amazon review scraper → export toàn bộ reviews → phân tích bằng ChatGPT/Claude</li>
+      <li>Tìm: desires, complaints, objections, <strong>chính xác ngôn ngữ họ dùng</strong></li>
+      <li>Đọc thủ công một phần — AI analysis đôi khi miss ý tưởng quan trọng</li>
+    </ul>
+    <div style="background:#1a2233;border:1px solid #d2a8ff44;border-left:3px solid #d2a8ff;border-radius:6px;padding:10px 14px;margin-top:10px;font-size:12px;color:#8b949e">
+      <strong style="color:#d2a8ff">✦ CA Addition — 3-star review priority:</strong>
+      Đọc theo thứ tự: <strong style="color:#e6edf3">3-star TRƯỚC</strong> (objection gold mine — đã mua, không hài lòng hoàn toàn → ghi rõ điều thiếu) → 5-star (desire fulfilled) → 1-star (deal breakers = UNRESOLVABLE objections). Lý do: 3★ chứa objections cụ thể nhất vì người đó đã có đủ dynamic để mua nhưng không đủ để satisfied hoàn toàn.
+      <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/2360066/ca-research-workflow" target="_blank">CA Research Workflow</a>
+      <a class="cite cite-video" href="https://drive.google.com/file/d/1tvPcLQPm3U8MB0iosSu6lCKG39IkEJll/view" target="_blank">🎬 Lec 09</a>
+    </div>
+    <p style="margin-top:10px"><strong>Với thêu:</strong> Search "custom embroidery" trên Amazon → đọc 3★ trước (tìm objections: "color wasn't exactly right", "took longer than expected"), rồi 5★ (desire fulfilled), rồi 1★ (deal breakers). Phrases như "exceeded expectations", "took too long", "colors faded" → raw copy cho ad.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <span class="step-num">6</span>
+    <div class="step-header-text">
+      <div class="step-title">Reddit Research</div>
+      <div class="step-subtitle">"One of my favorite sources for figuring out who the fuck is my target audience"<a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416/" target="_blank">CS V4</a> <span class="cite cite-video">⏱ [18:03]–[19:26]</span></div>
+    </div>
+  </div>
+  <div class="step-body">
+    <ul>
+      <li>Tìm subreddits liên quan: r/Embroidery, r/CrossStitch, r/GiftIdeas, r/Etsy, r/Customclothing...</li>
+      <li>Đọc cách người ta nói chuyện, than phiền về gì, muốn gì</li>
+      <li>Reddit = gold mine cho <strong>exact customer language</strong> có thể dùng trực tiếp trong ad</li>
+      <li>Claude với internet access cung cấp direct quotes + source links</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <span class="step-num">7</span>
+    <div class="step-header-text">
+      <div class="step-title">Social Media Deep Dive</div>
+      <div class="step-subtitle">TikTok, Instagram, YouTube — phân tích hook patterns và comment themes<a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416/" target="_blank">CS V4</a> <span class="cite cite-video">⏱ [19:27]–[26:01]</span></div>
+    </div>
+  </div>
+  <div class="step-body">
+    <ul>
+      <li><strong>Hook analysis:</strong> 20–25 hooks thành công nhất trong niche — patterns về size of claim, speed of claim, authority figures</li>
+      <li><strong>Comment section analysis:</strong> group theo themes — questions, objections, enthusiasm, fears</li>
+      <li><strong>Visual analysis:</strong> environments nào, kiểu người nào, visual proof elements nào</li>
+      <li><strong>Influencer analysis:</strong> 5–10 influencers chính; content strategy của họ</li>
+      <li><strong>Content structure patterns:</strong> ad/content structures hiệu quả nhất</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <span class="step-num">8</span>
+    <div class="step-header-text">
+      <div class="step-title">Ad Style Analysis + Market Sophistication Assessment</div>
+      <div class="step-subtitle">Xác định vị trí của thị trường → chọn đúng messaging type<a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416/" target="_blank">CS V4</a> <span class="cite cite-video">⏱ [26:35]–[33:17]</span></div>
+    </div>
+  </div>
+  <div class="step-body">
+    <ul>
+      <li>Xác định <strong>Sophistication level (1–5)</strong> kèm evidence</li>
+      <li>Competitor ad style: professional vs. UGC; emotional vs. logical; bright side vs. dark side; short vs. long form; serious vs. humorous</li>
+      <li><strong>Yes Stack:</strong> xếp các statements logic để customer nghĩ "yeah, đúng" từng bước → khi giới thiệu sản phẩm, họ đã được primed</li>
+      <li><strong>Bright Side vs. Dark Side:</strong> Bright = visualise ideal life with product; Dark = instil fear about life without it. Test cả hai.</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="divider">
+
+<h3 style="font-size:16px;margin:0 0 20px;color:var(--text)">1.3 — Market Awareness × Sophistication: Framework định vị</h3>
+
+<div class="insight">
+  <div class="insight-label">💡 Ý cốt lõi</div>
+  <p>"Hai dial từ Eugene Schwartz — Awareness nói <em>với ai</em> bạn đang nói, Sophistication nói <em>loại message gì</em> cắt qua được. Sai một trong hai → ad miss hoàn toàn."</p>
+  <small>Nguồn: Market Awareness × Sophistication synthesis [78820] — "Wrong entry point = ad that misses entirely."</small>
+</div>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-title"><span class="tag tag-blue">Market Awareness</span></div>
+    <div class="card-body">
+      <table>
+        <tr><td><strong>Level 1</strong> Unaware</td><td>Không biết vấn đề tồn tại</td></tr>
+        <tr><td><strong>Level 2</strong> Problem Aware</td><td>Biết vấn đề, chưa tìm giải pháp</td></tr>
+        <tr><td><strong>Level 3</strong> Solution Aware</td><td>Đã thử giải pháp, chưa biết sản phẩm bạn</td></tr>
+        <tr><td><strong>Level 4</strong> Product Aware</td><td>Biết sản phẩm bạn, chưa mua</td></tr>
+        <tr><td><strong>Level 5</strong> Most Aware</td><td>Đã biết, cần push cuối</td></tr>
+      </table>
+      <p style="margin-top:8px;font-size:12px"><em>Với thêu custom: khách thường ở Level 2–3 (biết muốn quà custom, đang so sánh options)</em></p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="tag tag-orange">Market Sophistication</span></div>
+    <div class="card-body">
+      <table>
+        <tr><td><strong>Stage 1–2</strong></td><td>Thị trường mới, nói thẳng benefit</td></tr>
+        <tr><td><strong>Stage 3</strong></td><td>Skepticism tăng → cần Unique Mechanism</td></tr>
+        <tr><td><strong>Stage 4</strong></td><td>Mechanism fatigue → out-innovate mechanism</td></tr>
+        <tr><td><strong>Stage 5</strong></td><td>Cynicism → identity/values play</td></tr>
+      </table>
+      <p style="margin-top:8px;font-size:12px"><em>"Almost all markets are stage 3–5. Just expect everybody to be skeptical." — CS V3 [49:25]</em></p>
+    </div>
+  </div>
+</div>
+
+<div class="cite-block">
+  <div class="cite-block-header">🎯 Ứng dụng cho shop thêu custom</div>
+  <div class="cite-block-quote">Custom embroidery = Identity product + Sophistication Stage 3–4 (thị trường đã có nhiều shop, khách đã thấy nhiều ads "high quality embroidery"). Cần Unique Mechanism: có thể là công nghệ thêu cụ thể, cam kết về màu sắc, tốc độ turnaround, hoặc niche vào một identity group cụ thể (gym wear, K-pop merch, corporate gifting).</div>
+  <div class="cite-block-links">
+    <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/78820/et-market-awareness-x-sophistication" target="_blank">📄 Awareness × Sophistication</a>
+    <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/274468/et-creative-strategy-workflow" target="_blank">📄 Creative Strategy Workflow</a>
+  </div>
+</div>
+
+<hr class="divider">
+
+<h3 style="font-size:16px;margin:0 0 16px;color:var(--text)">1.4 — Output của Research: Tài liệu 34–45 trang</h3>
+
+<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Sau khi chạy Enhanced Market Research Prompt, tài liệu output cần có:</p>
+
+<div class="output-box">
+  <div class="output-box-label">📋 Deliverables chuẩn (CS V4 [32:33]–[33:17])</div>
+  <ul>
+    <li><strong>Top 30 desire statements</strong> — xếp hạng theo frequency + emotional intensity</li>
+    <li><strong>Problem statements</strong> — xếp hạng theo urgency/pain</li>
+    <li><strong>Top 20 hooks</strong> adaptable cho sản phẩm</li>
+    <li><strong>15–20 common objections</strong> kèm cách counter</li>
+    <li><strong>Market Sophistication level</strong> + evidence</li>
+    <li><strong>Market Awareness level</strong> per target segment</li>
+    <li><strong>Top 10 belief-driving mechanisms</strong></li>
+    <li><strong>20+ niche buzzwords</strong> — ngôn ngữ thị trường</li>
+    <li><strong>15+ customer success story patterns</strong></li>
+    <li><strong>Social proof elements</strong> hiệu quả nhất</li>
+    <li><strong style="color:#d2a8ff">✦ CA: LF8 label</strong> per desire (LF1–LF8 Life Force tag)
+      <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/2359981/ca-lf8-framework" target="_blank">CA LF8</a>
+    </li>
+    <li><strong style="color:#d2a8ff">✦ CA: voice_bank</strong> phân loại DIRECT evidence vs COPYWRITING FUEL (loại bỏ FALSE evidence)
+      <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/2360066/ca-research-workflow" target="_blank">CA Research</a>
+    </li>
+    <li><strong style="color:#d2a8ff">✦ CA: Desire Map UP/DOWN</strong> — CENTER (Solution Aware) / UP (Problem Aware branches) / DOWN (objection nodes) / Unaware hooks
+      <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/2457886/ca-desire-map" target="_blank">CA Desire Map</a>
+    </li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PHẦN 2: KIẾN TRÚC AGENT -->
+<!-- ═══════════════════════════════════════════════════════ -->
+
+<div class="section-header">
+  <div class="section-num">2</div>
+  <div>
+    <h2>Kiến trúc Market Research Agent System</h2>
+    <div class="section-sub">3 agents làm việc song song, 1 orchestrator tổng hợp</div>
+  </div>
+</div>
+
+<div class="insight">
+  <div class="insight-label">💡 Nguyên tắc thiết kế</div>
+  <p>Khoá học khuyến nghị Claude + Brave Search MCP cho toàn bộ research. Kiến trúc multi-agent cho phép chạy 8 bước song song thay vì tuần tự, nén thời gian từ 10 phút xuống còn ~2–3 phút.</p>
+  <small>Nguồn: CS V4 [35:04] + CS V13 [26:55]–[30:18] — "Agency uses Claude for all creative writing and research. Brave Search MCP provides internet access."</small>
+</div>
+
+<div class="flow">
+  <div class="flow-item" style="background:var(--accent)22;border-color:var(--accent)44">
+    🎯 Orchestrator<br><small style="color:var(--muted);font-weight:400">Market Research Director</small>
+  </div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-item" style="background:var(--accent2)22;border-color:var(--accent2)44">
+    🔍 Agent A<br><small style="color:var(--muted);font-weight:400">Audience Researcher</small>
+  </div>
+  <div class="flow-arrow">+</div>
+  <div class="flow-item" style="background:var(--accent4)22;border-color:var(--accent4)44">
+    🏪 Agent B<br><small style="color:var(--muted);font-weight:400">Competitor Analyst</small>
+  </div>
+  <div class="flow-arrow">+</div>
+  <div class="flow-item" style="background:var(--accent3)22;border-color:var(--accent3)44">
+    📱 Agent C<br><small style="color:var(--muted);font-weight:400">Social Media Analyst</small>
+  </div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-item" style="background:var(--accent)22;border-color:var(--accent)44">
+    📄 Synthesizer<br><small style="color:var(--muted);font-weight:400">Report Builder</small>
+  </div>
+</div>
+
+<p style="font-size:12px;color:var(--muted);margin:8px 0 24px">Agent A + B + C chạy <strong>song song</strong> (asyncio.gather). Sau đó Orchestrator + Synthesizer chạy tuần tự để tổng hợp.</p>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PHẦN 3: KẾ HOẠCH BUILD TỪNG BƯỚC -->
+<!-- ═══════════════════════════════════════════════════════ -->
+
+<div class="section-header">
+  <div class="section-num">3</div>
+  <div>
+    <h2>Kế hoạch Build — Từng Bước Chi Tiết</h2>
+    <div class="section-sub">Từ setup môi trường đến agent chạy được production-ready</div>
+  </div>
+</div>
+
+<!-- PHASE 1 -->
+<div style="margin:24px 0 8px"><span class="phase phase-1">Phase 1 — Foundation Setup</span></div>
+<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Mục tiêu: môi trường sẵn sàng, tool use hoạt động, test được end-to-end với 1 agent đơn giản.</p>
+
+<div class="step">
+  <div class="step-header">
+    <span class="step-num">1</span>
+    <div class="step-header-text">
+      <div class="step-title">Cài đặt môi trường Python + dependencies</div>
+      <div class="step-subtitle">~30 phút</div>
+    </div>
+  </div>
+  <div class="step-body">
+    <div class="code-block"><pre><span class="cm"># Tạo virtual environment</span>
+<span class="fn">python</span> <span class="num">-m</span> venv venv
+<span class="fn">source</span> venv/bin/activate  <span class="cm"># macOS/Linux</span>
+
+<span class="cm"># Install dependencies</span>
+<span class="fn">pip</span> install anthropic<span class="num">>=0.40</span> aiohttp python-dotenv rich
+
+<span class="cm"># .env file</span>
+ANTHROPIC_API_KEY=<span class="str">sk-ant-...</span>
+BRAVE_API_KEY=<span class="str">...</span>  <span class="cm"># optional nếu dùng Brave Search MCP</span></pre></div>
+    <p><strong>Tại sao:</strong> Anthropic SDK v0.40+ hỗ trợ async natively và <code>tool_use</code> stop reason — hai thứ cốt lõi cho agentic loop.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <span class="step-num">2</span>
+    <div class="step-header-text">
+      <div class="step-title">Implement Agentic Loop cơ bản (single agent)</div>
+      <div class="step-subtitle">~1 giờ — đây là pattern trung tâm của toàn bộ hệ thống</div>
+    </div>
+  </div>
+  <div class="step-body">
+    <p>Pattern từ Anthropic documentation — loop chạy đến khi agent quyết định dừng:</p>
+    <div class="code-block"><pre><span class="kw">import</span> anthropic
+<span class="kw">import</span> asyncio
+
+<span class="var">client</span> = anthropic.Anthropic()
+
+<span class="kw">async def</span> <span class="fn">run_agent</span>(<span class="var">system</span>: str, <span class="var">messages</span>: list, <span class="var">tools</span>: list) -> str:
+    <span class="cm">"""Core agentic loop — chạy đến khi stop_reason == 'end_turn'"""</span>
+    <span class="kw">while</span> <span class="num">True</span>:
+        <span class="var">response</span> = <span class="var">client</span>.messages.create(
+            model=<span class="str">"claude-opus-4-5"</span>,
+            max_tokens=<span class="num">8096</span>,
+            system=<span class="var">system</span>,
+            messages=<span class="var">messages</span>,
+            tools=<span class="var">tools</span>
+        )
+
+        <span class="cm"># Dừng nếu agent không muốn dùng tool</span>
+        <span class="kw">if</span> <span class="var">response</span>.stop_reason == <span class="str">"end_turn"</span>:
+            <span class="kw">return</span> <span class="var">response</span>.content[<span class="num">0</span>].text
+
+        <span class="cm"># Agent muốn gọi tool — execute và trả kết quả</span>
+        <span class="kw">if</span> <span class="var">response</span>.stop_reason == <span class="str">"tool_use"</span>:
+            <span class="cm"># Thêm response của agent vào conversation</span>
+            <span class="var">messages</span>.append({<span class="str">"role"</span>: <span class="str">"assistant"</span>, <span class="str">"content"</span>: <span class="var">response</span>.content})
+
+            <span class="cm"># Execute tất cả tool calls (có thể nhiều cùng lúc)</span>
+            <span class="var">tool_results</span> = []
+            <span class="kw">for</span> <span class="var">block</span> <span class="kw">in</span> <span class="var">response</span>.content:
+                <span class="kw">if</span> <span class="var">block</span>.type == <span class="str">"tool_use"</span>:
+                    <span class="var">result</span> = <span class="kw">await</span> <span class="fn">execute_tool</span>(<span class="var">block</span>.name, <span class="var">block</span>.input)
+                    <span class="var">tool_results</span>.append({
+                        <span class="str">"type"</span>: <span class="str">"tool_result"</span>,
+                        <span class="str">"tool_use_id"</span>: <span class="var">block</span>.id,
+                        <span class="str">"content"</span>: <span class="var">result</span>
+                    })
+
+            <span class="cm"># Trả kết quả tool vào conversation để agent tiếp tục</span>
+            <span class="var">messages</span>.append({<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="var">tool_results</span>})</pre></div>
+    <p><strong>Lưu ý quan trọng:</strong> Không được break vòng loop sau khi agent gọi tool. Agent cần nhận kết quả tool rồi mới quyết định bước tiếp theo (có thể gọi thêm tool khác, hoặc return).</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <span class="step-num">3</span>
+    <div class="step-header-text">
+      <div class="step-title">Implement Tools: web_search + web_fetch</div>
+      <div class="step-subtitle">~2 giờ — đây là "internet access" cho agent</div>
+    </div>
+  </div>
+  <div class="step-body">
+    <p>Khoá học sử dụng <strong>Brave Search MCP</strong>. Trong Python code, implement bằng tool definitions:</p>
+    <div class="code-block"><pre><span class="var">RESEARCH_TOOLS</span> = [
+    {
+        <span class="str">"name"</span>: <span class="str">"web_search"</span>,
+        <span class="str">"description"</span>: <span class="str">"Search the web for current information. Use for Reddit threads, Amazon reviews, competitor ads, social media trends, and market data."</span>,
+        <span class="str">"input_schema"</span>: {
+            <span class="str">"type"</span>: <span class="str">"object"</span>,
+            <span class="str">"properties"</span>: {
+                <span class="str">"query"</span>: {<span class="str">"type"</span>: <span class="str">"string"</span>, <span class="str">"description"</span>: <span class="str">"Search query"</span>},
+                <span class="str">"num_results"</span>: {<span class="str">"type"</span>: <span class="str">"integer"</span>, <span class="str">"default"</span>: <span class="num">10</span>}
+            },
+            <span class="str">"required"</span>: [<span class="str">"query"</span>]
+        }
+    },
+    {
+        <span class="str">"name"</span>: <span class="str">"web_fetch"</span>,
+        <span class="str">"description"</span>: <span class="str">"Fetch full content from a URL. Use to read Reddit posts, Amazon product pages, competitor websites, ad spy tool pages."</span>,
+        <span class="str">"input_schema"</span>: {
+            <span class="str">"type"</span>: <span class="str">"object"</span>,
+            <span class="str">"properties"</span>: {
+                <span class="str">"url"</span>: {<span class="str">"type"</span>: <span class="str">"string"</span>}
+            },
+            <span class="str">"required"</span>: [<span class="str">"url"</span>]
+        }
+    }
+]
+
+<span class="kw">async def</span> <span class="fn">execute_tool</span>(<span class="var">name</span>: str, <span class="var">input</span>: dict) -> str:
+    <span class="kw">if</span> <span class="var">name</span> == <span class="str">"web_search"</span>:
+        <span class="kw">return await</span> <span class="fn">brave_search</span>(<span class="var">input</span>[<span class="str">"query"</span>], <span class="var">input</span>.get(<span class="str">"num_results"</span>, <span class="num">10</span>))
+    <span class="kw">elif</span> <span class="var">name</span> == <span class="str">"web_fetch"</span>:
+        <span class="kw">return await</span> <span class="fn">fetch_url</span>(<span class="var">input</span>[<span class="str">"url"</span>])
+    <span class="kw">return</span> <span class="str">"Tool not found"</span></pre></div>
+    <p><strong>Thực hiện:</strong> Nếu không có Brave API, dùng <code>aiohttp</code> để fetch trực tiếp URL, hoặc dùng <code>duckduckgo-search</code> package (miễn phí). Production thì dùng Brave API ($3/1000 queries) như khoá học recommend.</p>
+  </div>
+</div>
+
+<!-- PHASE 2 -->
+<div style="margin:32px 0 8px"><span class="phase phase-2">Phase 2 — Build 3 Specialist Agents</span></div>
+<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Mỗi agent có system prompt riêng, focus vào một phần của 8-step research framework.</p>
+
+<div class="agent-card">
+  <div class="agent-header">
+    <div class="agent-icon" style="background:var(--accent2)22">🔍</div>
+    <div class="agent-header-text">
+      <h3>Agent A — Audience & Desire Researcher</h3>
+      <p>Phụ trách Steps 1, 2, 4, 5, 6 từ 8-step framework</p>
+    </div>
+    <div style="margin-left:auto"><span class="tag tag-orange">claude-opus-4-5</span></div>
+  </div>
+  <div class="agent-body">
+    <div class="agent-meta">
+      <div class="agent-meta-item">
+        <label>Input</label>
+        <div class="val">Product name + description + target market segment</div>
+      </div>
+      <div class="agent-meta-item">
+        <label>Output</label>
+        <div class="val">30 desires, 20 problems, 15 objections, emotional state, customer language</div>
+      </div>
+    </div>
+    <div class="code-block"><pre><span class="var">AGENT_A_SYSTEM</span> = <span class="str">"""
+You are an expert market researcher specializing in understanding customer
+psychology for custom embroidery products.
+
+Your task: conduct deep audience research in 3 phases:
+
+PHASE 1 — PRODUCT ANALYSIS (CS V4 Step 1)
+- What problem/desire does custom embroidery solve?
+- Is this superior product (quality) or identity product (self-expression)?
+- List 3-5 unique mechanisms: what makes this shop different?
+- Map customer journey: unaware → most aware
+
+PHASE 2 — DESIRE & PROBLEM MAPPING (CS V4 Step 2 + CA frameworks)
+- Top 10 desires — each with LF8 tag (LF7=Care/LF8=Social Approval/LF6=Winning...)
+  (CA LF8 — Lecture 04: drive.google.com/file/d/1aohbnTMwTLygWACLelq3oKqCEsD6hxtE/view)
+- Emotions in WHEN+WHY format: "WHEN [trigger] BECAUSE [reason]" — not just adjectives
+  (CA Sub-Avatar System — Lecture 07: drive.google.com/file/d/1HZ_XOQQ4gxwsAxRU_dudPDvq1UZkO_8C/view)
+- Problem Node 3-check: Experience + Bad Emotion + Ongoing (all 3 required).
+  Missing Bad Emotion → awareness_level = "UNAWARE", not Problem Aware.
+  (CA Desire Map — Lecture 06: drive.google.com/file/d/1iK6Uv0CjNMTZ7MSfkU-319vX8zMSP28U/view)
+
+PHASE 3 — REDDIT & AMAZON MINING (CS V4 Steps 5+6 + CA Research Workflow)
+Sources and priority:
+- r/Embroidery, r/GiftIdeas, r/Etsy, r/Customclothing — vent threads preferred
+- Amazon: 3-star reviews FIRST (objection goldmine), then 5-star, then 1-star
+- Facebook Ad comments (search competitor brand + "facebook ad" comments site:reddit.com)
+  (CA Research Workflow — Lecture 09: drive.google.com/file/d/1tvPcLQPm3U8MB0iosSu6lCKG39IkEJll/view)
+
+Evidence classification per quote — 3 buckets (CA rule):
+- DIRECT: explicitly proves a desire/problem node → include in desires/problems
+- FUEL: useful language but doesn't prove node → voice_bank only
+- FALSE: inferred or paraphrased → DISCARD
+
+OUTPUT FORMAT:
+Return a structured JSON with:
+- top_desires: [{rank, desire, lf8_primary, lf8_label, intensity, evidence_quote, evidence_type}]
+- top_problems: [{problem, experience, bad_emotion_when_why, ongoing, awareness_level, urgency, evidence_quote}]
+- emotions: [{when, why, intensity, evidence_quote}]
+- voice_bank: {direct_evidence: [{quote, source_url, node_it_proves}], copywriting_fuel: [{quote, source_url, use_for}]}
+- objections: [{objection, star_rating_source, frequency, suggested_counter}]
+- identity_markers: {groups, values, visual_markers, language}
+"""</span></pre></div>
+    <div class="cite-block">
+      <div class="cite-block-header">📌 Grounded in course knowledge</div>
+      <div class="cite-block-quote">"80/20 flip: most editors spend 80% on the edit and 20% on understanding the customer. Should be reversed." — FUND V4 [05:43]</div>
+      <div class="cite-block-links">
+        <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/372957/" target="_blank">📄 FUND V4 — Customer</a>
+        <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416/" target="_blank">📄 CS V4 — Market Research</a>
+        <a class="cite cite-video" href="https://drive.google.com/file/d/1eAXZrfSsFpgT2LJmRouwfXQWOwOuAs2Y/view" target="_blank">🎬 FUND V4 Video</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="agent-card">
+  <div class="agent-header">
+    <div class="agent-icon" style="background:var(--accent4)22">🏪</div>
+    <div class="agent-header-text">
+      <h3>Agent B — Competitor & Positioning Analyst</h3>
+      <p>Phụ trách Steps 3, 4, 8 — xác định positioning và Unique Mechanism</p>
+    </div>
+    <div style="margin-left:auto"><span class="tag tag-purple">claude-sonnet-4-5</span></div>
+  </div>
+  <div class="agent-body">
+    <div class="agent-meta">
+      <div class="agent-meta-item">
+        <label>Input</label>
+        <div class="val">Product info + competitor URLs + Meta Ad Library data</div>
+      </div>
+      <div class="agent-meta-item">
+        <label>Output</label>
+        <div class="val">Sophistication level, Awareness level, Unique Mechanism, positioning strategy</div>
+      </div>
+    </div>
+    <div class="code-block"><pre><span class="var">AGENT_B_SYSTEM</span> = <span class="str">"""
+You are a competitive intelligence analyst using Eugene Schwartz's
+5x5 Matrix framework (Market Awareness × Market Sophistication).
+
+STEP 1 — COMPETITOR LANDSCAPE (CS V4 Step 3)
+Research direct and indirect competitors:
+- Direct: other custom embroidery shops (Etsy, local, Printful, etc.)
+- Indirect: DTG printing, DTF printing, iron-on patches, custom decals,
+  screen printing, sublimation — each satisfies the same "custom clothing" desire
+
+For each: USP, pricing, messaging patterns, what they promise, what they fail to deliver.
+
+STEP 2 — SOPHISTICATION ASSESSMENT (CS V4 Step 8)
+Count: (1) how many direct competitors, (2) how many alternative solution categories,
+(3) how similar their messaging, (4) are customers skeptical of category claims?
+
+CRITICAL: Sophistication is raised by ALL alternative solutions, not just direct competitors.
+(CS V3 [14:08]–[16:10])
+
+Rate sophistication Stage 1-5 with evidence.
+
+STEP 3 — AWARENESS CALIBRATION (CS V2)
+For custom embroidery buyers:
+- Are they Unaware / Problem Aware / Solution Aware / Product Aware / Most Aware?
+- Different segments may be at different levels — map each segment separately.
+
+STEP 4 — UNIQUE MECHANISM IDENTIFICATION
+Three types to look for (CS V3):
+1. Legitimate new mechanism (rare) — genuinely novel technology/process
+2. Unspoken mechanism (most common) — feature competitors don't talk about
+3. Renamed mechanism — rebrand existing feature with proprietary-sounding name
+
+STEP 5 — AD STYLE ANALYSIS
+Competitor ad patterns: UGC vs. polished, bright side vs. dark side,
+Yes Stack opportunities, emotional vs. logical, short vs. long form.
+
+OUTPUT: Structured JSON with sophistication_assessment, awareness_levels_by_segment,
+unique_mechanism_candidates, positioning_strategy, 5x5_matrix_cell, ad_style_recommendations.
+"""</span></pre></div>
+    <div class="cite-block">
+      <div class="cite-block-header">📌 Grounded in course knowledge</div>
+      <div class="cite-block-quote">"Sophistication is raised by ALL alternative solutions, not just direct competitors. For a focus supplement: coffee, energy drinks, nicotine pouches all count." — CS V3 [14:08]</div>
+      <div class="cite-block-links">
+        <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/78820/" target="_blank">📄 Awareness × Sophistication</a>
+        <a class="cite cite-video" href="https://drive.google.com/file/d/1pL5Vpg-3ENgIU2_1VpcJPxvytjWJeA0b/view" target="_blank">🎬 CS V4 Video</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="agent-card">
+  <div class="agent-header">
+    <div class="agent-icon" style="background:var(--accent3)22">📱</div>
+    <div class="agent-header-text">
+      <h3>Agent C — Social Media & Hook Analyst</h3>
+      <p>Phụ trách Step 7 — hook patterns, viral content, influencer analysis</p>
+    </div>
+    <div style="margin-left:auto"><span class="tag tag-green">claude-sonnet-4-5</span></div>
+  </div>
+  <div class="agent-body">
+    <div class="agent-meta">
+      <div class="agent-meta-item">
+        <label>Input</label>
+        <div class="val">Niche keywords + platform targets + competitor handles</div>
+      </div>
+      <div class="agent-meta-item">
+        <label>Output</label>
+        <div class="val">20–25 hook patterns, comment themes, visual patterns, content structures</div>
+      </div>
+    </div>
+    <div class="code-block"><pre><span class="var">AGENT_C_SYSTEM</span> = <span class="str">"""
+You are a social media intelligence analyst for ecommerce advertising.
+Focus: custom embroidery niche on TikTok, Instagram, YouTube.
+
+HOOK PATTERN ANALYSIS (CS V4 Step 7 [19:27]–[26:01])
+Find 20-25 most successful hooks in the custom embroidery/custom clothing niche.
+Categorize by pattern type:
+- Size of claim: "I made $X selling embroidery..."
+- Speed of claim: "Custom in 48 hours..."
+- Authority figures: "How [celebrity] gets their embroidery..."
+- Curiosity gap: "This is why your embroidery looks cheap..."
+- Problem-first: "Tried 5 shops before finding this..."
+- Identity: "If you're a [gym person/K-pop fan/pet mom]..."
+
+COMMENT SECTION ANALYSIS
+For top-performing embroidery content, analyze comments by theme:
+- Questions (what are they confused about?)
+- Objections (what holds them back?)
+- Enthusiasm (what excites them most?)
+- Fears (what are they worried about?)
+
+VISUAL PATTERN ANALYSIS
+Most effective visual elements in successful ads:
+- Environments (home studio, professional setup, delivery unboxing)
+- People types (maker showing process, customer reaction, side-by-side)
+- Visual proof (before/after, close-up detail shots, scale reference)
+
+INFLUENCER LANDSCAPE
+5-10 key content creators in embroidery/custom clothing niche:
+- Content strategy, engagement patterns, audience size
+- What angles they use, what performs best
+
+OUTPUT: JSON with hook_patterns[], comment_themes{}, visual_patterns[],
+top_hooks_to_adapt[], influencer_landscape[], content_structure_patterns[]
+"""</span></pre></div>
+  </div>
+</div>
+
+<!-- PHASE 3 -->
+<div style="margin:32px 0 8px"><span class="phase phase-3">Phase 3 — Orchestrator + Synthesizer</span></div>
+<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Chạy agents song song, tổng hợp thành tài liệu research hoàn chỉnh.</p>
+
+<div class="step">
+  <div class="step-header">
+    <span class="step-num">4</span>
+    <div class="step-header-text">
+      <div class="step-title">Implement Parallel Execution — asyncio.gather()</div>
+      <div class="step-subtitle">~1 giờ — pattern từ Anthropic official architecture docs</div>
+    </div>
+  </div>
+  <div class="step-body">
+    <div class="code-block"><pre><span class="kw">import</span> asyncio
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+
+<span class="kw">async def</span> <span class="fn">run_market_research</span>(<span class="var">product_brief</span>: dict) -> dict:
+    <span class="cm">"""
+    Orchestrator: chạy 3 specialist agents song song
+    Khoá học: Claude + Brave Search MCP cho toàn bộ research (CS V4)
+    """</span>
+
+    <span class="cm"># Tạo tasks song song — không chờ nhau</span>
+    <span class="var">task_a</span> = <span class="fn">run_agent</span>(
+        system=<span class="var">AGENT_A_SYSTEM</span>,
+        messages=[{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="fn">build_prompt_a</span>(<span class="var">product_brief</span>)}],
+        tools=<span class="var">RESEARCH_TOOLS</span>
+    )
+
+    <span class="var">task_b</span> = <span class="fn">run_agent</span>(
+        system=<span class="var">AGENT_B_SYSTEM</span>,
+        messages=[{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="fn">build_prompt_b</span>(<span class="var">product_brief</span>)}],
+        tools=<span class="var">RESEARCH_TOOLS</span>
+    )
+
+    <span class="var">task_c</span> = <span class="fn">run_agent</span>(
+        system=<span class="var">AGENT_C_SYSTEM</span>,
+        messages=[{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="fn">build_prompt_c</span>(<span class="var">product_brief</span>)}],
+        tools=<span class="var">RESEARCH_TOOLS</span>
+    )
+
+    <span class="cm"># Chạy tất cả song song — tiết kiệm ~60% thời gian vs. tuần tự</span>
+    <span class="var">results_a</span>, <span class="var">results_b</span>, <span class="var">results_c</span> = <span class="kw">await</span> asyncio.gather(
+        <span class="var">task_a</span>, <span class="var">task_b</span>, <span class="var">task_c</span>
+    )
+
+    <span class="cm"># Synthesizer: tổng hợp thành report 34-45 trang (CS V4 [32:33])</span>
+    <span class="var">final_report</span> = <span class="kw">await</span> <span class="fn">run_synthesizer</span>(<span class="var">results_a</span>, <span class="var">results_b</span>, <span class="var">results_c</span>, <span class="var">product_brief</span>)
+
+    <span class="kw">return</span> {
+        <span class="str">"audience_research"</span>: <span class="var">results_a</span>,
+        <span class="str">"competitor_analysis"</span>: <span class="var">results_b</span>,
+        <span class="str">"social_media_intel"</span>: <span class="var">results_c</span>,
+        <span class="str">"final_report"</span>: <span class="var">final_report</span>
+    }</pre></div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <span class="step-num">5</span>
+    <div class="step-header-text">
+      <div class="step-title">Synthesizer Agent — tổng hợp thành tài liệu research hoàn chỉnh</div>
+      <div class="step-subtitle">~2 giờ — quan trọng nhất, quyết định chất lượng tài liệu cuối</div>
+    </div>
+  </div>
+  <div class="step-body">
+    <div class="code-block"><pre><span class="var">SYNTHESIZER_SYSTEM</span> = <span class="str">"""
+You are a senior creative strategist. You receive raw research data from
+3 specialist agents and synthesize it into a comprehensive market research
+document following the EcomTalent framework (CS V4).
+
+SYNTHESIS RULES:
+1. Cross-reference findings — does audience research confirm what competitor
+   analysis found? Do social media patterns match stated desires?
+2. Identify contradictions and flag them
+3. Rank everything by frequency + emotional intensity
+4. Always include the Awareness × Sophistication matrix positioning
+
+REQUIRED OUTPUT SECTIONS (CS V4 [32:33]–[33:17]):
+
+## EXECUTIVE SUMMARY
+- Market Sophistication: Stage X — [evidence]
+- Market Awareness: Level X for [segment] — [evidence]
+- Unique Mechanism recommendation: [specific recommendation]
+- Top 3 angles to test immediately
+
+## TOP 30 DESIRE STATEMENTS
+Ranked by frequency + emotional intensity. Format:
+1. [Desire] — Intensity: 9/10 — Evidence: "[exact quote]"
+
+## TOP 20 PROBLEM STATEMENTS
+Ranked by urgency/pain. Format:
+1. [Problem] — Urgency: 9/10 — Evidence: "[exact quote]"
+
+## TOP 20 HOOKS TO ADAPT
+20 hooks that work in this niche, adaptable to embroidery.
+
+## 15-20 COMMON OBJECTIONS + COUNTERS
+
+## MARKET SOPHISTICATION ASSESSMENT
+Level 1-5 with detailed evidence and recommended positioning.
+
+## MARKET AWARENESS LEVELS BY SEGMENT
+Map 3-5 customer segments, each with their awareness level and
+appropriate ad entry point.
+
+## UNIQUE MECHANISM CANDIDATES
+3 options ranked by viability. For each: type (new/unspoken/renamed),
+evidence why it works, how to introduce it in ads.
+
+## YES STACK OPPORTUNITIES (CS V4 [29:12])
+5-7 sequential statements that prime the customer before product intro.
+
+## BRIGHT SIDE vs. DARK SIDE ANGLES (CS V4 [30:09])
+3 bright side concepts + 3 dark side concepts to test.
+
+## NICHE BUZZWORDS (20+)
+Exact language from Reddit/Amazon/comments.
+
+## CUSTOMER SUCCESS STORY PATTERNS (15+)
+
+## 5x5 MATRIX POSITIONING
+Which cell are we in? What does that mean for our ads?
+
+## DESIRE MAP — UP/DOWN STRUCTURE (CA Desire Map)
+Source: CA Desire Map Lecture 06 (drive.google.com/file/d/1iK6Uv0CjNMTZ7MSfkU-319vX8zMSP28U/view)
+Purpose: Script Writer agent uses this map to pick ad entry point per awareness level.
+
+CENTER — Solution Aware (warm audience): primary desire + LF8 + DIRECT evidence quote.
+Entry: product proof / social proof / mechanism reveal.
+
+UP — Problem Aware branches (cold audience, knows pain):
+| Problem Node | WHEN+WHY emotion | Awareness hook | LF8 |
+Each validated: Experience + Bad Emotion + Ongoing confirmed.
+
+DOWN — Objection Nodes (warm audience, stuck on objection):
+| Objection | 3★/1★ source | Counter strategy | Copy line |
+
+UNAWARE Hooks: 3-5 identity/curiosity hooks for cold traffic (no awareness yet).
+Rule: Unaware entry = identity or story, never problem-first.
+"""</span>
+
+<span class="kw">async def</span> <span class="fn">run_synthesizer</span>(<span class="var">results_a</span>, <span class="var">results_b</span>, <span class="var">results_c</span>, <span class="var">brief</span>) -> str:
+    <span class="var">synthesis_prompt</span> = <span class="str">f"""
+Product Brief: {brief}
+
+AUDIENCE RESEARCH (Agent A):
+{results_a}
+
+COMPETITOR ANALYSIS (Agent B):
+{results_b}
+
+SOCIAL MEDIA INTELLIGENCE (Agent C):
+{results_c}
+
+Synthesize these into a comprehensive market research document
+following the required output format above.
+"""</span>
+
+    <span class="kw">return await</span> <span class="fn">run_agent</span>(
+        system=<span class="var">SYNTHESIZER_SYSTEM</span>,
+        messages=[{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="var">synthesis_prompt</span>}],
+        tools=[]  <span class="cm"># Synthesizer không cần search — chỉ tổng hợp</span>
+    )</pre></div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <span class="step-num">6</span>
+    <div class="step-header-text">
+      <div class="step-title">Build Brand AI Knowledge Base</div>
+      <div class="step-subtitle">~1 giờ — nơi lưu trữ output để các agents sau dùng (CS V13 [21:07]–[23:12])</div>
+    </div>
+  </div>
+  <div class="step-body">
+    <p>Khoá học chỉ định: upload toàn bộ materials vào <strong>Claude Project</strong> (Brand AI). Trong code, implement bằng cách lưu research output thành files và load vào context:</p>
+    <div class="code-block"><pre><span class="kw">import</span> json
+<span class="kw">from</span> pathlib <span class="kw">import</span> Path
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+
+<span class="kw">class</span> <span class="cl">BrandAI</span>:
+    <span class="cm">"""
+    Brand AI Knowledge Base — CS V13 [21:07]–[23:12]
+    Stores: market research, brand guidelines, review exports, ad transcripts
+    This is the memory layer all downstream agents draw from
+    """</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">brand_name</span>: str):
+        <span class="var">self</span>.path = Path(<span class="str">f"brand_ai/{brand_name}"</span>)
+        <span class="var">self</span>.path.mkdir(parents=<span class="num">True</span>, exist_ok=<span class="num">True</span>)
+
+    <span class="kw">def</span> <span class="fn">save_research</span>(<span class="var">self</span>, <span class="var">research_doc</span>: dict):
+        <span class="var">timestamp</span> = datetime.now().strftime(<span class="str">"%Y%m%d_%H%M"</span>)
+        <span class="var">filepath</span> = <span class="var">self</span>.path / <span class="str">f"market_research_{timestamp}.json"</span>
+        filepath.write_text(json.dumps(<span class="var">research_doc</span>, indent=<span class="num">2</span>, ensure_ascii=<span class="num">False</span>))
+        <span class="kw">return</span> <span class="var">filepath</span>
+
+    <span class="kw">def</span> <span class="fn">get_context</span>(<span class="var">self</span>) -> str:
+        <span class="cm"># Load latest research + brand guidelines into context</span>
+        <span class="var">files</span> = sorted(<span class="var">self</span>.path.glob(<span class="str">"*.json"</span>))
+        <span class="var">context</span> = []
+        <span class="kw">for</span> <span class="var">f</span> <span class="kw">in</span> <span class="var">files</span>[-<span class="num">3</span>:]:  <span class="cm"># Latest 3 files</span>
+            <span class="var">context</span>.append(f.read_text())
+        <span class="kw">return</span> <span class="str">"\n\n---\n\n"</span>.join(<span class="var">context</span>)</pre></div>
+    <div class="cite-block">
+      <div class="cite-block-header">📌 Khoá học chỉ định rõ</div>
+      <div class="cite-block-quote">"Upload consolidated source materials into a Claude project: market research document, brand guidelines, review exports, top ad transcripts. This becomes the memory layer the AI draws on when writing copy." — CS V13 [21:07]–[23:12]</div>
+      <div class="cite-block-links">
+        <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/274468/" target="_blank">📄 Creative Strategy Workflow</a>
+        <a class="cite cite-video" href="https://drive.google.com/file/d/1p_9rZrk73NlNCDPm6a8HmDHeJTRZRta3/view" target="_blank">🎬 CS V13 Video</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <span class="step-num">7</span>
+    <div class="step-header-text">
+      <div class="step-title">Main Entry Point + CLI Interface</div>
+      <div class="step-subtitle">~1 giờ — chạy thử với product brief thực của shop thêu</div>
+    </div>
+  </div>
+  <div class="step-body">
+    <div class="code-block"><pre><span class="kw">import</span> asyncio
+<span class="kw">from</span> rich <span class="kw">import</span> print <span class="kw">as</span> rprint
+<span class="kw">from</span> rich.progress <span class="kw">import</span> Progress, SpinnerColumn, TextColumn
+
+<span class="var">EMBROIDERY_BRIEF</span> = {
+    <span class="str">"brand_name"</span>: <span class="str">"[Tên shop thêu của bạn]"</span>,
+    <span class="str">"product_description"</span>: <span class="str">"Custom embroidery on clothing — hats, hoodies, jackets, shirts. Fully customizable design, premium thread quality, 5-7 day turnaround."</span>,
+    <span class="str">"price_range"</span>: <span class="str">"$25–$80 per item"</span>,
+    <span class="str">"target_markets"</span>: [
+        <span class="str">"gym wear customization"</span>,
+        <span class="str">"corporate/team uniforms"</span>,
+        <span class="str">"custom gifts for occasions"</span>,
+        <span class="str">"streetwear/fashion enthusiasts"</span>,
+        <span class="str">"K-pop/anime fan merchandise"</span>
+    ],
+    <span class="str">"competitors"</span>: [<span class="str">"Etsy custom embroidery sellers"</span>, <span class="str">"Printful"</span>, <span class="str">"Custom Ink"</span>],
+    <span class="str">"unique_features"</span>: [<span class="str">"hand-reviewed designs"</span>, <span class="str">"color-matching guarantee"</span>]
+}
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    rprint(<span class="str">"[bold blue]🧵 Market Research Agent — Custom Embroidery[/bold blue]"</span>)
+    rprint(<span class="str">f"[dim]Running 3 parallel agents + synthesizer...[/dim]\n"</span>)
+
+    <span class="kw">with</span> Progress(SpinnerColumn(), TextColumn(<span class="str">"{task.description}"</span>)) <span class="kw">as</span> <span class="var">progress</span>:
+        <span class="var">t</span> = progress.add_task(<span class="str">"Running market research agents..."</span>)
+        <span class="var">results</span> = <span class="kw">await</span> <span class="fn">run_market_research</span>(<span class="var">EMBROIDERY_BRIEF</span>)
+        progress.update(<span class="var">t</span>, description=<span class="str">"✅ Research complete!"</span>)
+
+    <span class="cm"># Save to Brand AI knowledge base</span>
+    <span class="var">brand_ai</span> = BrandAI(<span class="str">"embroidery_shop"</span>)
+    <span class="var">saved_path</span> = brand_ai.save_research(<span class="var">results</span>)
+
+    <span class="cm"># Save final report as markdown</span>
+    Path(<span class="str">"market_research_report.md"</span>).write_text(<span class="var">results</span>[<span class="str">"final_report"</span>])
+
+    rprint(<span class="str">f"\n[green]✅ Research saved to:[/green]"</span>)
+    rprint(<span class="str">f"  Brand AI: {saved_path}"</span>)
+    rprint(<span class="str">f"  Report: market_research_report.md"</span>)
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    asyncio.run(<span class="fn">main</span>())</pre></div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-header">
+    <span class="step-num">8</span>
+    <div class="step-header-text">
+      <div class="step-title">Validate Output — "Đọc tài liệu kỹ 1–4 giờ" (Critical Step)</div>
+      <div class="step-subtitle">Bước quan trọng nhất theo khoá học — không bỏ qua</div>
+    </div>
+  </div>
+  <div class="step-body">
+    <div class="insight" style="margin:0">
+      <div class="insight-label">⚠️ Critical Rule từ CS V4</div>
+      <p>"Do NOT just feed the AI document into Claude's knowledge base and ignore it. You must read it thoroughly — ideas come from immersion, not from AI alone."</p>
+      <small>CS V4 [05:00]–[08:12]. Khoá học rất nhấn mạnh điểm này. AI nén thời gian nhưng không thay thế judgment của người làm marketing. "Garbage in = garbage out" — CS V13 [04:39].</small>
+    </div>
+    <p style="margin-top:12px">Checklist sau khi đọc tài liệu:</p>
+    <ul style="padding-left:18px;font-size:13px;color:var(--muted);margin-top:8px">
+      <li style="margin-bottom:6px">Desires và problems có khớp với những gì bạn thấy từ khách hàng thực không?</li>
+      <li style="margin-bottom:6px">Unique Mechanism candidates — cái nào thực sự credible với sản phẩm của bạn?</li>
+      <li style="margin-bottom:6px">Sophistication level có đúng không? (Thêu custom là niche nhỏ → có thể Stage 2–3, thấp hơn mass market)</li>
+      <li style="margin-bottom:6px">Customer language quotes — có nghe tự nhiên không, hay AI bịa ra?</li>
+      <li style="margin-bottom:6px">Hooks — chọn 5–10 hooks hay nhất để pass sang Script Writer Agent</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PHẦN 4: TIMELINE + NEXT STEPS -->
+<!-- ═══════════════════════════════════════════════════════ -->
+
+<div class="section-header">
+  <div class="section-num">4</div>
+  <div>
+    <h2>Timeline & What Comes Next</h2>
+    <div class="section-sub">Market Research Agent → Positioning → Script Writing → Ad Production</div>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr><th>Ngày</th><th>Task</th><th>Thời gian</th><th>Output</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Day 1</strong></td>
+      <td>Setup môi trường, implement agentic loop, test tools</td>
+      <td>~4 giờ</td>
+      <td>Loop chạy được, web_search trả kết quả</td>
+    </tr>
+    <tr>
+      <td><strong>Day 2</strong></td>
+      <td>Build Agent A + B + C system prompts, test từng agent</td>
+      <td>~5 giờ</td>
+      <td>3 agents chạy độc lập, output JSON đúng format</td>
+    </tr>
+    <tr>
+      <td><strong>Day 3</strong></td>
+      <td>Implement parallel execution + Synthesizer</td>
+      <td>~4 giờ</td>
+      <td>Full pipeline: brief → 34-page report</td>
+    </tr>
+    <tr>
+      <td><strong>Day 4</strong></td>
+      <td>Build Brand AI, validate output, refine prompts</td>
+      <td>~3 giờ</td>
+      <td>Tài liệu quality cao, sẵn sàng cho Script Writer</td>
+    </tr>
+    <tr>
+      <td><strong>Day 5+</strong></td>
+      <td>Build Script Writer Agent nhận output từ đây</td>
+      <td>—</td>
+      <td>Hooks + full ad scripts từ research data</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="flow" style="margin-top:24px">
+  <div class="flow-item" style="background:var(--accent3)22;border-color:var(--accent3)44">
+    ✅ Market Research<br><small style="font-weight:400;color:var(--muted)">You are here</small>
+  </div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-item">Positioning Matrix<br><small style="font-weight:400;color:var(--muted)">Awareness × Sophistication</small></div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-item">Script Writer<br><small style="font-weight:400;color:var(--muted)">15-page Claude prompt</small></div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-item">AI Production<br><small style="font-weight:400;color:var(--muted)">Seedream + Veo + ElevenLabs</small></div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-item">Feedback Loop<br><small style="font-weight:400;color:var(--muted)">Weekly review</small></div>
+</div>
+
+<!-- SOURCE INDEX -->
+<div class="source-index">
+  <h3>📚 Nguồn EcomTalent được tham chiếu trong tài liệu này</h3>
+
+  <div class="source-row">
+    <div class="source-id">CS V4</div>
+    <div class="source-info">
+      <div class="title">Deep Market Research With AI — 71-min lesson, 8-step framework</div>
+      <div class="links">
+        <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416/et-ecomtalent-creative-strategy-v4-deep-market-research-ai" target="_blank">📄 Wiki</a>
+        <a class="cite cite-video" href="https://drive.google.com/file/d/1pL5Vpg-3ENgIU2_1VpcJPxvytjWJeA0b/view" target="_blank">🎬 Video</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="source-row">
+    <div class="source-id">CS WF</div>
+    <div class="source-info">
+      <div class="title">Creative Strategy Workflow — Full 5-phase synthesis (Research→Positioning→Ideation→Copy→Feedback)</div>
+      <div class="links">
+        <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/274468/et-creative-strategy-workflow" target="_blank">📄 Wiki</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="source-row">
+    <div class="source-id">AW×SO</div>
+    <div class="source-info">
+      <div class="title">Market Awareness × Sophistication — 5×5 Matrix synthesis, Eugene Schwartz framework</div>
+      <div class="links">
+        <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/78820/et-market-awareness-x-sophistication" target="_blank">📄 Wiki</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="source-row">
+    <div class="source-id">FUND V4</div>
+    <div class="source-info">
+      <div class="title">Understanding Your Customer — Customer Avatar, 80/20 research rule</div>
+      <div class="links">
+        <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/372957/et-ecomtalent-fundamentals-v4-understanding-your-customer" target="_blank">📄 Wiki</a>
+        <a class="cite cite-video" href="https://drive.google.com/file/d/1eAXZrfSsFpgT2LJmRouwfXQWOwOuAs2Y/view" target="_blank">🎬 Video</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="source-row">
+    <div class="source-id">AI Stack</div>
+    <div class="source-info">
+      <div class="title">AI Marketing Stack — Claude + Brave Search MCP, Brand AI, tool comparisons</div>
+      <div class="links">
+        <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/144855/et-ai-marketing-stack" target="_blank">📄 Wiki</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="source-row">
+    <div class="source-id">CS V13</div>
+    <div class="source-info">
+      <div class="title">Prompt Engineering — Brand AI knowledge base setup, "garbage in = garbage out"</div>
+      <div class="links">
+        <a class="cite cite-video" href="https://drive.google.com/file/d/1p_9rZrk73NlNCDPm6a8HmDHeJTRZRta3/view" target="_blank">🎬 Video</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="source-row" style="border-top:1px solid #d2a8ff33;margin-top:8px;padding-top:12px">
+    <div class="source-id" style="color:#d2a8ff">CA LF8</div>
+    <div class="source-info">
+      <div class="title" style="color:#d2a8ff">Creative Avatar — 8 Life Forces (Cashvertising). LF1–LF8 tags per desire node.</div>
+      <div class="links">
+        <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/2359981/ca-lf8-framework" target="_blank">📄 Wiki</a>
+        <a class="cite cite-video" href="https://drive.google.com/file/d/1aohbnTMwTLygWACLelq3oKqCEsD6hxtE/view" target="_blank">🎬 Lecture 04</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="source-row">
+    <div class="source-id" style="color:#d2a8ff">CA DMap</div>
+    <div class="source-info">
+      <div class="title" style="color:#d2a8ff">Creative Avatar — Desire Map. CENTER (SA) / UP (PA) / DOWN (objections) / Unaware hooks. Problem Node 3-check.</div>
+      <div class="links">
+        <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/2457886/ca-desire-map" target="_blank">📄 Wiki</a>
+        <a class="cite cite-video" href="https://drive.google.com/file/d/1iK6Uv0CjNMTZ7MSfkU-319vX8zMSP28U/view" target="_blank">🎬 Lecture 06</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="source-row">
+    <div class="source-id" style="color:#d2a8ff">CA SAvt</div>
+    <div class="source-info">
+      <div class="title" style="color:#d2a8ff">Creative Avatar — Sub-Avatar System. WHEN+WHY emotion format. Core 5 Profile.</div>
+      <div class="links">
+        <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/2457920/ca-sub-avatar-system" target="_blank">📄 Wiki</a>
+        <a class="cite cite-video" href="https://drive.google.com/file/d/1HZ_XOQQ4gxwsAxRU_dudPDvq1UZkO_8C/view" target="_blank">🎬 Lecture 07</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="source-row">
+    <div class="source-id" style="color:#d2a8ff">CA Res</div>
+    <div class="source-info">
+      <div class="title" style="color:#d2a8ff">Creative Avatar — Research Workflow. Evidence 3 buckets (DIRECT/FUEL/FALSE). 3-star review priority. FB Ad comments mining.</div>
+      <div class="links">
+        <a class="cite cite-wiki" href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/2360066/ca-research-workflow" target="_blank">📄 Wiki</a>
+        <a class="cite cite-video" href="https://drive.google.com/file/d/1tvPcLQPm3U8MB0iosSu6lCKG39IkEJll/view" target="_blank">🎬 Lecture 09</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end .page -->
+</body>
+</html>

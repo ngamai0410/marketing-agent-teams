@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent Team — Nguồn trích dẫn EcomTalent</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --accent: #6c8cff;
+    --accent2: #a78bfa;
+    --accent3: #34d399;
+    --accent4: #fb923c;
+    --accent5: #f472b6;
+    --text: #e2e8f0;
+    --text-muted: #8892a4;
+    --cite-bg: #1a2035;
+    --cite-border: #2a3a60;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; font-size:15px; line-height:1.7; }
+
+  /* HERO */
+  .hero { background:linear-gradient(135deg,#0f1117 0%,#1a1d40 50%,#0f1117 100%); border-bottom:1px solid var(--border); padding:56px 40px 44px; text-align:center; }
+  .hero-badge { display:inline-block; background:rgba(108,140,255,0.12); border:1px solid var(--accent); color:var(--accent); font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:5px 14px; border-radius:20px; margin-bottom:18px; }
+  .hero h1 { font-size:34px; font-weight:800; background:linear-gradient(135deg,#fff 0%,var(--accent) 60%,var(--accent2) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1.2; margin-bottom:10px; }
+  .hero-sub { color:var(--text-muted); font-size:14px; }
+  .notice { display:inline-flex; align-items:center; gap:8px; margin-top:20px; background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.25); color:var(--accent3); font-size:12.5px; padding:8px 16px; border-radius:10px; }
+
+  /* LAYOUT */
+  .container { max-width:1060px; margin:0 auto; padding:40px 24px 80px; }
+  .divider { height:1px; background:var(--border); margin:48px 0; }
+  .section-label { font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px; }
+  .section-title { font-size:22px; font-weight:700; color:#fff; margin-bottom:22px; }
+
+  /* CITATION SYSTEM */
+  .cite {
+    display:inline-flex; align-items:center; gap:4px;
+    background:var(--cite-bg); border:1px solid var(--cite-border);
+    border-radius:5px; padding:1px 6px; font-size:11px; font-weight:600;
+    color:var(--accent); text-decoration:none; margin:0 2px;
+    vertical-align:middle; white-space:nowrap;
+    transition:background 0.15s,border-color 0.15s;
+  }
+  .cite:hover { background:#233060; border-color:var(--accent); color:#fff; }
+  .cite-wiki::before { content:'📄 '; font-size:10px; }
+  .cite-video::before { content:'🎥 '; font-size:10px; }
+  .cite-ts { font-size:10px; color:var(--text-muted); font-weight:400; }
+
+  /* CITATION BLOCK — full reference card */
+  .cite-block {
+    background:var(--cite-bg); border:1px solid var(--cite-border);
+    border-left:3px solid var(--accent); border-radius:10px;
+    padding:14px 18px; margin:10px 0; font-size:13px;
+  }
+  .cite-block.green { border-left-color:var(--accent3); }
+  .cite-block.orange { border-left-color:var(--accent4); }
+  .cite-block.purple { border-left-color:var(--accent2); }
+  .cite-block-header { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .cite-module { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; padding:2px 8px; border-radius:5px; background:rgba(108,140,255,0.15); color:var(--accent); }
+  .cite-module.green { background:rgba(52,211,153,0.12); color:var(--accent3); }
+  .cite-module.orange { background:rgba(251,146,60,0.12); color:var(--accent4); }
+  .cite-module.purple { background:rgba(167,139,250,0.12); color:var(--accent2); }
+  .cite-title { font-weight:700; color:#fff; font-size:13.5px; }
+  .cite-links { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .cite-link { display:inline-flex; align-items:center; gap:4px; font-size:12px; padding:3px 10px; border-radius:6px; text-decoration:none; border:1px solid; }
+  .cite-link.wiki { background:rgba(108,140,255,0.08); border-color:rgba(108,140,255,0.3); color:var(--accent); }
+  .cite-link.video { background:rgba(239,68,68,0.08); border-color:rgba(239,68,68,0.3); color:#f87171; }
+  .cite-link:hover { opacity:0.8; }
+  .cite-quote { font-size:12.5px; color:var(--text-muted); font-style:italic; margin-top:6px; border-top:1px solid var(--border); padding-top:6px; }
+
+  /* WORKFLOW HEADER */
+  .workflow-header { display:flex; align-items:center; gap:14px; margin-bottom:28px; padding:20px 24px; background:var(--surface); border:1px solid var(--border); border-radius:14px; border-left:4px solid var(--accent); }
+  .workflow-header.w2 { border-left-color:var(--accent2); }
+  .workflow-header.w3 { border-left-color:var(--accent3); }
+  .workflow-num { font-size:28px; font-weight:900; color:var(--accent); min-width:40px; }
+  .workflow-header.w2 .workflow-num { color:var(--accent2); }
+  .workflow-header.w3 .workflow-num { color:var(--accent3); }
+  .workflow-info h2 { font-size:19px; font-weight:700; color:#fff; }
+  .workflow-info p { font-size:13px; color:var(--text-muted); margin-top:2px; }
+
+  /* AGENT CARD */
+  .agent-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; margin-bottom:28px; overflow:hidden; }
+  .agent-header { display:flex; align-items:center; gap:16px; padding:20px 24px; border-bottom:1px solid var(--border); }
+  .agent-num { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; color:#fff; flex-shrink:0; }
+  .agent-title { font-size:17px; font-weight:700; color:#fff; }
+  .agent-subtitle { font-size:12px; color:var(--text-muted); margin-top:2px; }
+  .agent-badge { margin-left:auto; font-size:11px; font-weight:600; padding:3px 10px; border-radius:10px; white-space:nowrap; }
+  .badge-opus { background:rgba(167,139,250,0.12); color:var(--accent2); border:1px solid rgba(167,139,250,0.25); }
+  .badge-sonnet { background:rgba(52,211,153,0.1); color:var(--accent3); border:1px solid rgba(52,211,153,0.2); }
+  .agent-body { padding:24px; display:grid; gap:20px; }
+
+  /* CLAIM BLOCK */
+  .claim { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:16px 18px; }
+  .claim-label { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; }
+  .claim-text { font-size:13.5px; color:var(--text); line-height:1.7; }
+  .claim-text strong { color:#fff; }
+
+  /* PRINCIPLE GRID */
+  .principle-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media(max-width:600px){ .principle-grid{grid-template-columns:1fr;} }
+  .principle { background:var(--bg); border:1px solid var(--border); border-radius:9px; padding:14px 16px; }
+  .p-label { font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:5px; }
+  .p-text { font-size:13px; color:var(--text-muted); }
+
+  /* SYSTEM PROMPT */
+  .prompt-wrap { background:#0d0f1a; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+  .prompt-top { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; background:var(--surface2); border-bottom:1px solid var(--border); }
+  .prompt-top span { font-size:11px; font-weight:600; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase; }
+  .dots { display:flex; gap:5px; }
+  .dots div { width:10px; height:10px; border-radius:50%; }
+  .dots div:nth-child(1){background:#ef4444;} .dots div:nth-child(2){background:#f59e0b;} .dots div:nth-child(3){background:#10b981;}
+  .prompt-code { padding:16px 18px; font-family:'Courier New',monospace; font-size:12.5px; line-height:1.8; color:#a8b4cf; white-space:pre-wrap; word-break:break-word; max-height:300px; overflow-y:auto; }
+  .prompt-code::-webkit-scrollbar{width:4px;} .prompt-code::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+  .kw{color:var(--accent2);font-weight:600;} .cm{color:#4a5568;} .str{color:var(--accent3);} .hd{color:var(--accent4);font-weight:700;}
+  .prompt-footer { padding:10px 18px; background:var(--surface2); border-top:1px solid var(--border); display:flex; flex-wrap:wrap; gap:6px; }
+
+  /* IO ROW */
+  .io-tag { display:inline-block; background:rgba(108,140,255,0.08); border:1px solid rgba(108,140,255,0.2); color:var(--accent3); font-family:monospace; font-size:11.5px; padding:2px 8px; border-radius:5px; margin:2px 3px 2px 0; }
+
+  /* COLLAB */
+  .collab-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .chip { padding:4px 12px; border-radius:8px; font-size:12px; font-weight:600; border:1px solid; }
+  .chip-blue { background:rgba(108,140,255,0.1); color:var(--accent); border-color:rgba(108,140,255,0.3); }
+  .chip-green { background:rgba(52,211,153,0.1); color:var(--accent3); border-color:rgba(52,211,153,0.3); }
+  .chip-orange { background:rgba(251,146,60,0.1); color:var(--accent4); border-color:rgba(251,146,60,0.3); }
+  .chip-arrow { color:var(--text-muted); font-size:15px; }
+
+  /* DIAGNOSTIC TABLE */
+  .diag-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .diag-table th { padding:9px 12px; background:var(--bg); color:var(--text-muted); font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; border-bottom:1px solid var(--border); text-align:left; }
+  .diag-table td { padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  .diag-table tr:last-child td { border-bottom:none; }
+  .diag-table tr:hover td { background:var(--surface2); }
+
+  /* FLOW BOX */
+  .flow-box { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:28px; font-family:'Courier New',monospace; font-size:13px; color:var(--text-muted); line-height:1.9; white-space:pre; overflow-x:auto; }
+
+  /* BUILD STEPS */
+  .build-steps { display:grid; gap:10px; }
+  .build-step { display:flex; align-items:flex-start; gap:14px; padding:14px 18px; background:var(--surface2); border:1px solid var(--border); border-radius:10px; }
+  .build-num { min-width:28px; height:28px; border-radius:50%; background:var(--bg); border:1px solid var(--accent); color:var(--accent); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .build-text strong { color:#fff; display:block; font-size:14px; margin-bottom:2px; }
+  .build-text span { font-size:12.5px; color:var(--text-muted); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">EcomTalent · Trích dẫn đầy đủ</div>
+  <h1>AI Agent Team — Marketing Campaign<br>Shop Thêu Custom</h1>
+  <div class="hero-sub">8 Agent · 3 Workflow · Mọi đề xuất đều có nguồn từ khoá học</div>
+  <div class="notice">📌 Mỗi nguyên tắc, quy tắc, framework trong tài liệu này đều được trích từ bài học cụ thể của EcomTalent. Nhấn badge [Wiki] hoặc [🎥] để đến nguồn gốc.</div>
+</div>
+
+<div class="container">
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  FOUNDATION: TẠI SAO DÙNG AGENT TEAM                 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section-label">Cơ sở từ khoá học</div>
+<div class="section-title">Tại sao AI Agent Team? EcomTalent đã nói gì</div>
+
+<div class="cite-block purple">
+  <div class="cite-block-header">
+    <span class="cite-module purple">CS V13 · Prompt Engineering</span>
+    <span class="cite-title">Tầm nhìn agentic pipeline — instructor tự đề xuất</span>
+  </div>
+  <div class="claim-text">Trong bài CS V13, instructor đã mô tả trực tiếp một pipeline agent gồm 6 agent tuần tự: <strong>Ad Ideation Agent → Script Writing Agent → Graphic Design Agent → Video Editing Agent → Media Buying Agent → Ad Review Agent</strong> — mỗi agent feed vào agent tiếp theo. <span class="cite-ts">[26:55]–[30:18]</span></div>
+  <div class="cite-quote">"Cost of making ads → virtually zero. Human 'operator' remains essential to guide agents and catch quality failures." <span class="cite-ts">[30:18]–[32:25]</span></div>
+  <div class="cite-links">
+    <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/275080" class="cite-link wiki" target="_blank">📄 CS V13 · Wiki page 275080</a>
+    <a href="https://drive.google.com/file/d/1p_9rZrk73NlNCDPm6a8HmDHeJTRZRta3/view" class="cite-link video" target="_blank">🎥 Video bài giảng CS V13</a>
+  </div>
+</div>
+
+<div class="cite-block">
+  <div class="cite-block-header">
+    <span class="cite-module">CS V13 · Prompt Engineering</span>
+    <span class="cite-title">Công thức unfair advantage của AI marketing</span>
+  </div>
+  <div class="claim-text"><strong>"Marketing psychology knowledge + AI knowledge = unfair advantage."</strong> Không cái nào đủ một mình. AI khuếch đại kiến thức có sẵn — không thay thế được nó. <span class="cite-ts">[06:23]–[06:42]</span> / <strong>"Garbage in = garbage out."</strong> Nếu không hiểu customer pain points, objections, psychological triggers, AI không thể suy ra được chúng. <span class="cite-ts">[04:39]–[05:26]</span></div>
+  <div class="cite-links">
+    <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/275080" class="cite-link wiki" target="_blank">📄 Wiki 275080</a>
+    <a href="https://drive.google.com/file/d/1p_9rZrk73NlNCDPm6a8HmDHeJTRZRta3/view" class="cite-link video" target="_blank">🎥 CS V13</a>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  WORKFLOW 1 — RESEARCH                                -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="workflow-header">
+  <div class="workflow-num">01</div>
+  <div class="workflow-info">
+    <h2>Research & Positioning</h2>
+    <p>Không workflow nào tiếp theo được bắt đầu trước khi có <code style="background:var(--surface2);padding:1px 6px;border-radius:4px;font-size:12px">positioning_matrix.json</code></p>
+  </div>
+</div>
+
+<!-- AGENT 1 -->
+<div class="agent-card">
+  <div class="agent-header">
+    <div class="agent-num">1</div>
+    <div>
+      <div class="agent-title">Market Research Agent</div>
+      <div class="agent-subtitle">EcomTalent 8-step Deep Market Research → Brand Intelligence Report 34–45 trang</div>
+    </div>
+    <span class="agent-badge badge-opus">claude-opus-4-6</span>
+  </div>
+  <div class="agent-body">
+
+    <!-- FRAMEWORK SOURCE -->
+    <div class="claim">
+      <div class="claim-label">📌 Nguồn framework — 8-step research</div>
+      <div class="claim-text">
+        Toàn bộ cấu trúc 8 bước của agent này lấy từ bài <strong>Creative Strategy V4</strong>. Instructor demo live với real client FlowPouch (mushroom focus pouches) — từng bước đều có trong bài giảng 71 phút.
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416" class="cite cite-wiki" target="_blank">Wiki 145416</a>
+        <a href="https://drive.google.com/file/d/1pL5Vpg-3ENgIU2_1VpcJPxvytjWJeA0b/view" class="cite cite-video" target="_blank">🎥 CS V4</a>
+      </div>
+      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="principle"><div class="p-label" style="color:var(--accent)">Step 1–2</div><div class="p-text">Brand/Product Analysis + Desire & Problem Mapping <span class="cite-ts">[03:27]–[12:03]</span></div></div>
+        <div class="principle"><div class="p-label" style="color:var(--accent)">Step 3–4</div><div class="p-text">Competitor Research + Identity Markers <span class="cite-ts">[12:04]–[16:33]</span></div></div>
+        <div class="principle"><div class="p-label" style="color:var(--accent)">Step 5–6</div><div class="p-text">Amazon Research (review scrapers) + Reddit Research <span class="cite-ts">[16:36]–[19:26]</span></div></div>
+        <div class="principle"><div class="p-label" style="color:var(--accent)">Step 7–8</div><div class="p-text">Social Media Deep Dive + Ad Style & Sophistication Assessment <span class="cite-ts">[19:27]–[33:17]</span></div></div>
+      </div>
+    </div>
+
+    <!-- TIME COMPRESSION CLAIM -->
+    <div class="cite-block green">
+      <div class="cite-block-header">
+        <span class="cite-module green">CS V4 · [35:04]–[35:12]</span>
+        <span class="cite-title">Tại sao AI cho research, không phải manual</span>
+      </div>
+      <div class="cite-quote">"6 months ago this research took a week. With Claude + internet access, it takes ~10 minutes to produce a 34-page document."</div>
+      <div class="claim-text" style="margin-top:8px">Lý do agent này dùng <span class="io-tag">web_search</span> + <span class="io-tag">web_fetch</span> là vì khoá học khuyên dùng Claude với internet access cho toàn bộ research phase.</div>
+      <div class="cite-links">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416" class="cite-link wiki" target="_blank">📄 Wiki 145416</a>
+        <a href="https://drive.google.com/file/d/1pL5Vpg-3ENgIU2_1VpcJPxvytjWJeA0b/view" class="cite-link video" target="_blank">🎥 CS V4 (71 phút)</a>
+      </div>
+    </div>
+
+    <!-- CRITICAL READ RULE -->
+    <div class="cite-block orange">
+      <div class="cite-block-header">
+        <span class="cite-module orange">CS V4 · [05:00]–[08:12]</span>
+        <span class="cite-title">Rule: Agent phải deliver để NGƯỜI ĐỌC immerse — không chỉ dump vào knowledge base</span>
+      </div>
+      <div class="cite-quote">"Do not just feed the AI document into Claude's knowledge base and ignore it. You MUST read it thoroughly — ideas come from immersion, not from AI alone."</div>
+      <div class="claim-text" style="margin-top:8px">→ Vì vậy system prompt của agent này yêu cầu output gồm <strong>cả JSON lẫn narrative 5–10 trang</strong> — để người review có thể đọc và extract insight mà AI có thể bỏ lỡ.</div>
+      <div class="cite-links">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416" class="cite-link wiki" target="_blank">📄 Wiki 145416</a>
+        <a href="https://drive.google.com/file/d/1pL5Vpg-3ENgIU2_1VpcJPxvytjWJeA0b/view" class="cite-link video" target="_blank">🎥 CS V4</a>
+      </div>
+    </div>
+
+    <!-- OUTPUT SPEC SOURCE -->
+    <div class="claim">
+      <div class="claim-label">📌 Nguồn — output deliverables spec</div>
+      <div class="claim-text">Danh sách output 8 categories (30 desires, 20 hooks, 15 objections, sophistication level, awareness level, mechanisms, buzzwords, success patterns) lấy trực tiếp từ CS V4:
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416" class="cite cite-wiki" target="_blank">Wiki 145416</a>
+        <span class="cite-ts">[32:33]–[33:17]</span>
+      </div>
+    </div>
+
+    <!-- PROMPT BOX -->
+    <div class="prompt-wrap">
+      <div class="prompt-top">
+        <div class="dots"><div></div><div></div><div></div></div>
+        <span>System Prompt — Market Research Agent</span>
+      </div>
+      <div class="prompt-code"><span class="kw">You are</span> an expert market research analyst for a custom embroidery shop.
+<span class="cm"># Framework: EcomTalent CS V4 — 8-step Enhanced Market Research Prompt</span>
+<span class="cm"># Source: https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416</span>
+
+<span class="hd">STEP 1 — Brand & Product Analysis</span> <span class="cm"># CS V4 [03:27]–[07:08]</span>
+<span class="cm"># What problem/desire does the product address?</span>
+<span class="cm"># 3-5 unique mechanisms; positioning vs. direct + indirect competitors</span>
+
+<span class="hd">STEP 2 — Desire & Problem Mapping</span> <span class="cm"># CS V4 [08:33]–[12:03]</span>
+<span class="cm"># Primary desires ranked 1-10; emotional state of market</span>
+<span class="cm"># Exact customer language per problem (5-7 examples each)</span>
+
+<span class="hd">STEP 3 — Competitor Research</span> <span class="cm"># CS V4 [12:04]–[14:03]</span>
+<span class="cm"># Direct + 7-10 indirect competitors; Atria / Meta Ad Library analysis</span>
+
+<span class="hd">STEP 5 — Amazon Research</span> <span class="cm"># CS V4 [16:36]–[18:02]</span>
+<span class="cm"># Reviews: desires, complaints, objections, language patterns</span>
+
+<span class="hd">STEP 6 — Reddit Research</span> <span class="cm"># CS V4 [18:03]–[19:26]</span>
+<span class="cm"># "One of my favorite sources for figuring out who the fuck is my target audience"</span>
+
+<span class="hd">STEP 7 — Social Media Deep Dive</span> <span class="cm"># CS V4 [19:27]–[26:01]</span>
+<span class="cm"># TikTok/YouTube: 20-25 most successful hooks in niche</span>
+<span class="cm"># Comment section: group by objections, fears, enthusiasm</span>
+
+<span class="hd">STEP 8 — Sophistication Assessment</span> <span class="cm"># CS V4 [26:35]–[33:17]</span>
+<span class="cm"># Stage 1-5 per Eugene Schwartz / Breakthrough Advertising</span>
+<span class="cm"># Test both Bright Side AND Dark Side angles (CS V4 [30:09]–[31:44])</span>
+
+<span class="hd">OUTPUT SPEC</span> <span class="cm"># per CS V4 [32:33]–[33:17]:</span>
+<span class="str">→ Top 30 desire statements ranked by frequency + emotional intensity
+→ Problem statements ranked by urgency/pain
+→ Top 20 hooks adaptable to the product
+→ 15-20 objections with counter-strategies
+→ Market sophistication level (1-5)
+→ Market awareness level per segment
+→ Top 10 belief-driving mechanisms
+→ 20+ niche buzzwords · 15+ customer success story patterns</span>
+
+<span class="kw">CRITICAL:</span> Do NOT hallucinate. All insights from actual web search results.</div>
+      <div class="prompt-footer">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416" class="cite cite-wiki" target="_blank">Wiki 145416 — CS V4 Deep Market Research</a>
+        <a href="https://drive.google.com/file/d/1pL5Vpg-3ENgIU2_1VpcJPxvytjWJeA0b/view" class="cite cite-video" target="_blank">🎥 Video CS V4</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- AGENT 2 -->
+<div class="agent-card">
+  <div class="agent-header">
+    <div class="agent-num" style="background:linear-gradient(135deg,#10b981,#34d399)">2</div>
+    <div>
+      <div class="agent-title">Customer Avatar Builder</div>
+      <div class="agent-subtitle">4 psychographic avatars — Fundamentals V4 framework</div>
+    </div>
+    <span class="agent-badge badge-sonnet">claude-sonnet-4-6</span>
+  </div>
+  <div class="agent-body">
+
+    <div class="cite-block green">
+      <div class="cite-block-header">
+        <span class="cite-module green">FUND V4 · Understanding Your Customer</span>
+        <span class="cite-title">Tại sao avatar phải cực kỳ cụ thể, không phải demographic</span>
+      </div>
+      <div class="cite-quote">"99% of bad marketers obsess over hooks, editing styles, and copying competitors. Winners focus on deeply understanding who they're selling to." <span class="cite-ts">[00:00]–[00:22]</span></div>
+      <div class="cite-quote">"Spend 80% of time on research and the ad 'practically makes itself.'" <span class="cite-ts">[05:43]–[05:55]</span></div>
+      <div class="cite-links">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/372957" class="cite-link wiki" target="_blank">📄 Wiki 372957 — FUND V4</a>
+        <a href="https://drive.google.com/file/d/1eAXZrfSsFpgT2LJmRouwfXQWOwOuAs2Y/view" class="cite-link video" target="_blank">🎥 Video FUND V4</a>
+      </div>
+    </div>
+
+    <div class="claim">
+      <div class="claim-label">📌 3-Step Avatar Build — FUND V4 [04:30]–[05:21]</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px">
+        <div class="principle"><div class="p-label" style="color:var(--accent3)">Bước 1</div><div class="p-text"><strong>"Not women 24–45, but successful moms who feel guilty about not having enough time for their kids."</strong> <span class="cite-ts">[04:30]–[04:37]</span></div></div>
+        <div class="principle"><div class="p-label" style="color:var(--accent3)">Bước 2</div><div class="p-text">Observe online: Amazon, Reddit, comments — language used, content engaged, problem descriptions. <span class="cite-ts">[04:49]–[05:04]</span></div></div>
+        <div class="principle"><div class="p-label" style="color:var(--accent3)">Bước 3</div><div class="p-text">Make them real — name, face, story. "More concrete = ads speak more precisely." <span class="cite-ts">[05:05]–[05:21]</span></div></div>
+      </div>
+    </div>
+
+    <div class="claim">
+      <div class="claim-label">📌 Ví dụ thực tế từ khoá học — FUND V4</div>
+      <div class="claim-text" style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="principle"><div class="p-label" style="color:var(--accent)">Boazu Survival Gear</div><div class="p-text">Nam 45t, râu, outdoorsy, ghét marketing hào nhoáng → Ad style: ảnh vintage như tạp chí outdoor cũ → "the ad his grandfather would respect." <span class="cite-ts">[01:55]–[03:23]</span></div></div>
+        <div class="principle"><div class="p-label" style="color:var(--accent)">Jewelry Brand</div><div class="p-text">Nữ 21t, theo trend, "main character", không muốn bị bán hàng → Ad: iPhone video ở biển, không copy sales. <span class="cite-ts">[03:29]–[04:09]</span></div></div>
+      </div>
+      <div style="margin-top:8px">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/372957" class="cite cite-wiki" target="_blank">Wiki 372957 — FUND V4</a>
+        <a href="https://drive.google.com/file/d/1eAXZrfSsFpgT2LJmRouwfXQWOwOuAs2Y/view" class="cite cite-video" target="_blank">🎥 Video FUND V4</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- AGENT 3 -->
+<div class="agent-card">
+  <div class="agent-header">
+    <div class="agent-num" style="background:linear-gradient(135deg,#f59e0b,#fb923c)">3</div>
+    <div>
+      <div class="agent-title">Positioning Strategist</div>
+      <div class="agent-subtitle">Market Awareness × Sophistication matrix + Unique Mechanism — Eugene Schwartz / Breakthrough Advertising</div>
+    </div>
+    <span class="agent-badge badge-opus">claude-opus-4-6</span>
+  </div>
+  <div class="agent-body">
+
+    <div class="cite-block orange">
+      <div class="cite-block-header">
+        <span class="cite-module orange">CS V2 · Market Awareness</span>
+        <span class="cite-title">5-level Awareness spectrum — entry point của mọi ad</span>
+      </div>
+      <div class="claim-text">
+        5 cấp độ awareness từ Eugene Schwartz's Breakthrough Advertising, được khoá học áp dụng trực tiếp để quyết định ad entry point và structure. <span class="cite-ts">[02:59]–[21:50]</span>
+      </div>
+      <div style="overflow-x:auto;margin-top:10px">
+        <table class="diag-table">
+          <thead><tr><th>Level</th><th>Entry Point</th><th>Ad Structure</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1 — Unaware</strong></td><td>Hidden problem hook</td><td>Walk all 5 levels in one ad (conspiracy/curiosity)</td></tr>
+            <tr><td><strong>2 — Problem Aware</strong></td><td>Relatable pain hook</td><td>Problem → solution intro → product</td></tr>
+            <tr><td><strong>3 — Solution Aware</strong></td><td>Comparison/differentiation</td><td>Skip problem education; lead with differentiation</td></tr>
+            <tr><td><strong>4 — Product Aware</strong></td><td>Superiority / USP</td><td>Address why you over competitors</td></tr>
+            <tr><td><strong>5 — Most Aware</strong></td><td>Offer / urgency</td><td>Short; no education; just close</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="cite-links" style="margin-top:10px">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/79516" class="cite-link wiki" target="_blank">📄 Wiki 79516 — CS V2 Market Awareness</a>
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/78820" class="cite-link wiki" target="_blank">📄 Wiki 78820 — Synthesis: Awareness × Sophistication</a>
+        <a href="https://drive.google.com/file/d/1a2XeVn-D1uuk7owlGGi0vUJjc7BMR66h/view" class="cite-link video" target="_blank">🎥 Video CS V2</a>
+      </div>
+    </div>
+
+    <div class="cite-block orange">
+      <div class="cite-block-header">
+        <span class="cite-module orange">CS V3 · Market Sophistication</span>
+        <span class="cite-title">Default assumption: mọi market đều skeptical</span>
+      </div>
+      <div class="cite-quote">"Almost all markets are stage 3–5. Just expect everybody to be skeptical." — Call Recordings V3 <span class="cite-ts">[49:25]–[49:58]</span></div>
+      <div class="claim-text" style="margin-top:8px">→ Vì vậy agent này <strong>mặc định đặt embroidery market ở Stage 3–4</strong> và tìm Unique Mechanism ngay từ đầu.</div>
+      <div class="cite-links" style="margin-top:8px">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/79533" class="cite-link wiki" target="_blank">📄 Wiki 79533 — CS V3 Market Sophistication</a>
+        <a href="https://drive.google.com/file/d/19ENIPkVHsERYUEMD1_50bYTBi1HPFuns/view" class="cite-link video" target="_blank">🎥 Video CS V3</a>
+      </div>
+    </div>
+
+    <div class="cite-block orange">
+      <div class="cite-block-header">
+        <span class="cite-module orange">CS Synthesis · Unique Mechanism</span>
+        <span class="cite-title">3 loại Unique Mechanism — và quy tắc timing</span>
+      </div>
+      <div class="claim-text" style="margin-top:4px">
+        <strong>Type 1:</strong> Legitimate new mechanism (rare). <strong>Type 2:</strong> Unspoken mechanism (most common — e.g., stainless steel humidifier). <strong>Type 3:</strong> Renamed mechanism (commodity renamed proprietary-sounding). <span class="cite-ts">Call Recordings V4 [48:24]–[48:57]</span>
+      </div>
+      <div class="cite-quote" style="margin-top:8px"><strong>Quy tắc timing:</strong> "Mechanism introduced ONLY after problem belief is built. Wrong order = audience has no context for why it matters." — CS V16 (Metaglow case study) <span class="cite-ts">[14:39]–[25:46]</span></div>
+      <div class="cite-links" style="margin-top:8px">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/78820" class="cite-link wiki" target="_blank">📄 Wiki 78820 — Awareness × Sophistication Synthesis</a>
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145399" class="cite-link wiki" target="_blank">📄 Wiki 145399 — CS V16 Metaglow Case</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  WORKFLOW 2 — COPY PRODUCTION                         -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="workflow-header w2">
+  <div class="workflow-num">02</div>
+  <div class="workflow-info">
+    <h2>Copy & Creative Production</h2>
+    <p>Hooks → Scripts → Static Copy. Agent 5+6 chạy song song sau Hook Library.</p>
+  </div>
+</div>
+
+<!-- AGENT 4 -->
+<div class="agent-card">
+  <div class="agent-header">
+    <div class="agent-num" style="background:linear-gradient(135deg,#a78bfa,#7c3aed)">4</div>
+    <div>
+      <div class="agent-title">Hook Generator</div>
+      <div class="agent-subtitle">Two-Hook Model · H1/H2/H3 variants · Video Ads Mastery V11</div>
+    </div>
+    <span class="agent-badge badge-sonnet">claude-sonnet-4-6</span>
+  </div>
+  <div class="agent-body">
+
+    <div class="cite-block purple">
+      <div class="cite-block-header">
+        <span class="cite-module purple">VIDEO ADS V11 · Video Hooks</span>
+        <span class="cite-title">Two-Hook Model — mọi hook phải gồm visual + text</span>
+      </div>
+      <div class="claim-text">
+        <strong>Visual hook</strong> = stops the scroll; first thing the eye registers. <strong>Text hook</strong> = reasons to stay. <strong>"Text must appear from frame one — no animations, no slide-ins. By the time an animation finishes, the viewer is 3 videos down."</strong> <span class="cite-ts">[05:35]–[06:00]</span>
+      </div>
+      <div class="cite-links" style="margin-top:8px">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/274485" class="cite-link wiki" target="_blank">📄 Wiki 274485 — Video Ad Creation System Synthesis</a>
+        <a href="https://drive.google.com/file/d/1VzwVwlNgjYRD657KcHEtknvpDoUdOaah/view" class="cite-link video" target="_blank">🎥 Video V11 — Video Hooks</a>
+      </div>
+    </div>
+
+    <div class="cite-block purple">
+      <div class="cite-block-header">
+        <span class="cite-module purple">VIDEO ADS V11 · [09:43]–[15:46]</span>
+        <span class="cite-title">H1/H2/H3 testing protocol — tại sao luôn có 3 variants</span>
+      </div>
+      <div class="cite-quote">"Always produce 2–3 hook variants × 1 hold body = 2–3 exported ads per concept. Test messaging OR visuals — never both simultaneously. Winning hook → new baseline → test 3 variations against it." <span class="cite-ts">[09:43]–[15:46]</span></div>
+      <div class="claim-text" style="margin-top:8px">→ Agent luôn generate H1 (control) + H2 (alt messaging) + H3 (alt visual) để sẵn sàng A/B test ngay khi deploy.</div>
+      <div class="cite-links" style="margin-top:8px">
+        <a href="https://drive.google.com/file/d/1VzwVwlNgjYRD657KcHEtknvpDoUdOaah/view" class="cite-link video" target="_blank">🎥 Video V11 — Hook Testing</a>
+      </div>
+    </div>
+
+    <div class="claim">
+      <div class="claim-label">📌 Hook Types by Awareness Level — CS V2 [02:59]–[21:50]</div>
+      <div style="overflow-x:auto;margin-top:8px">
+        <table class="diag-table">
+          <thead><tr><th>Awareness</th><th>Hook Approach</th><th>Nguồn</th></tr></thead>
+          <tbody>
+            <tr><td>Unaware</td><td>Conspiracy/curiosity — "The real reason…" Không đề cập sản phẩm</td><td><a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/79516" class="cite cite-wiki" style="font-size:10px" target="_blank">CS V2</a></td></tr>
+            <tr><td>Problem Aware</td><td>Audience call-out — "If [their exact pain], give me 60 seconds"</td><td><a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/79516" class="cite cite-wiki" style="font-size:10px" target="_blank">CS V2</a></td></tr>
+            <tr><td>Solution Aware</td><td>Comparison frame — "Looking for [category]?" Skip problem education</td><td><a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/79516" class="cite cite-wiki" style="font-size:10px" target="_blank">CS V2</a></td></tr>
+            <tr><td>Product Aware</td><td>Direct superiority claim; short CTA-forward hook</td><td><a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/79516" class="cite cite-wiki" style="font-size:10px" target="_blank">CS V2</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- AGENT 5 -->
+<div class="agent-card">
+  <div class="agent-header">
+    <div class="agent-num" style="background:linear-gradient(135deg,#06b6d4,#38bdf8)">5</div>
+    <div>
+      <div class="agent-title">Video Script Writer</div>
+      <div class="agent-subtitle">UGC 8-element structure + Retention Techniques — Video Ads V5 + V12</div>
+    </div>
+    <span class="agent-badge badge-opus">claude-opus-4-6</span>
+  </div>
+  <div class="agent-body">
+
+    <div class="cite-block">
+      <div class="cite-block-header">
+        <span class="cite-module">VIDEO ADS V5 · UGC · [03:44]–[09:07]</span>
+        <span class="cite-title">8-Element UGC Script Structure — nguồn gốc từng element</span>
+      </div>
+      <div style="overflow-x:auto;margin-top:10px">
+        <table class="diag-table">
+          <thead><tr><th>#</th><th>Element</th><th>Rule từ khoá học</th><th>Timestamp</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1</strong></td><td>Hook</td><td>Calls out the target viewer — "this video is for me" signal</td><td>[03:44]</td></tr>
+            <tr><td><strong>2</strong></td><td>Problem</td><td>Stated in customer's exact language; no brand-speak</td><td>[04:10]</td></tr>
+            <tr><td><strong>3</strong></td><td>Twist the Knife</td><td>Amplify emotional impact; show current solutions fail = PAS "Agitate"</td><td>[04:40]</td></tr>
+            <tr><td><strong>4</strong></td><td>Product Intro</td><td>Natural "aha" pivot; NOT before ~25-30 seconds. "Not a forced sell."</td><td>[05:10]</td></tr>
+            <tr><td><strong>5</strong></td><td>Feature/Benefit</td><td>Each feature → specific customer benefit. "So what?" chain.</td><td>[05:50]</td></tr>
+            <tr><td><strong>6</strong></td><td>Bad Alternative</td><td>Past/competing solutions that failed; builds empathy-credibility</td><td>[06:20]</td></tr>
+            <tr><td><strong>7</strong></td><td>Results</td><td>Specific and believable proof; before/after, others' results</td><td>[07:00]</td></tr>
+            <tr><td><strong>8</strong></td><td>CTA</td><td>One action; urgency or incentive</td><td>[08:30]</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="cite-links" style="margin-top:10px">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/373144" class="cite-link wiki" target="_blank">📄 Wiki 373144 — VIDEO ADS V5 UGC</a>
+        <a href="https://drive.google.com/file/d/1fiSRbtfX8nTDujh9rSbAigjH9w7c8hy6/view" class="cite-link video" target="_blank">🎥 Video V5 — UGC</a>
+      </div>
+    </div>
+
+    <div class="cite-block">
+      <div class="cite-block-header">
+        <span class="cite-module">VIDEO ADS V12 · MrBeast Retention</span>
+        <span class="cite-title">3 Retention Techniques — tại sao embed vào script</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px">
+        <div class="principle"><div class="p-label" style="color:var(--accent)">Open Loops</div><div class="p-text">Show impressive result → "how did they do it?" Product reveal delayed until loops stacked. "Loops shift skepticism to hope." <span class="cite-ts">[03:44]–[04:47]</span></div></div>
+        <div class="principle"><div class="p-label" style="color:var(--accent)">Visual Variety</div><div class="p-text">Something changes every 1–2 seconds. Gen Z → every second; 60+ → slow pace. <span class="cite-ts">[06:42]–[07:51]</span></div></div>
+        <div class="principle"><div class="p-label" style="color:var(--accent)">Progress Bar</div><div class="p-text">"See results in 15 seconds." People watch longer when they know how much longer. <span class="cite-ts">[08:43]–[10:16]</span></div></div>
+      </div>
+      <div class="cite-links" style="margin-top:10px">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/274485" class="cite-link wiki" target="_blank">📄 Wiki 274485 — Video Ad Creation Synthesis</a>
+        <a href="https://drive.google.com/file/d/1o35NkO5Yk8NYvMLBRnyx43QRhJZFIBh_/view" class="cite-link video" target="_blank">🎥 Video V12 — MrBeast Retention</a>
+      </div>
+    </div>
+
+    <div class="cite-block">
+      <div class="cite-block-header">
+        <span class="cite-module">FUND V5 · Buying Psychology</span>
+        <span class="cite-title">Authenticity rules — tại sao script không được corporate</span>
+      </div>
+      <div class="cite-quote">"Nobody gives a damn about your revolutionary formula or premium materials — they care about their problems, desires, and fears." — Benefits vs Features</div>
+      <div class="claim-text" style="margin-top:8px">→ System prompt hardcode: more "you" than "I" · verbatim customer language from Comment Mining · talent speaks from "I had your problem" không phải "this product is great"</div>
+      <div class="cite-links" style="margin-top:8px">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/372974" class="cite-link wiki" target="_blank">📄 Wiki 372974 — FUND V5 Buying Psychology</a>
+        <a href="https://drive.google.com/file/d/10OlFsU2HSkPzQ0QbZPRkhGTvkPZLeA5F/view" class="cite-link video" target="_blank">🎥 Video FUND V5</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- AGENT 6 -->
+<div class="agent-card">
+  <div class="agent-header">
+    <div class="agent-num" style="background:linear-gradient(135deg,#f472b6,#ec4899)">6</div>
+    <div>
+      <div class="agent-title">Static Ad Copy Writer</div>
+      <div class="agent-subtitle">The Art of One Frame — Static Ads V1 + FUND V5 Show Don't Tell</div>
+    </div>
+    <span class="agent-badge badge-sonnet">claude-sonnet-4-6</span>
+  </div>
+  <div class="agent-body">
+
+    <div class="cite-block purple">
+      <div class="cite-block-header">
+        <span class="cite-module purple">STATIC ADS V1 · Art of One Frame</span>
+        <span class="cite-title">Tại sao static ad khác video ad — và quy tắc headline</span>
+      </div>
+      <div class="cite-quote">"You have ONE image and ONE chance. No earned attention, no sequence, no second chance. The brain decides in milliseconds."</div>
+      <div class="claim-text" style="margin-top:8px">
+        5 Headline Emotional Triggers (Ogilvy/Cashvertising) được khoá học dạy cho static ads:
+        Self-interest · Curiosity · News/novelty · Social proof · Urgency/scarcity.
+        <strong>Rule: Lead với dominant desire, không phải product feature.</strong>
+      </div>
+      <div class="cite-links" style="margin-top:8px">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/144872" class="cite-link wiki" target="_blank">📄 Wiki 144872 — Buying Psychology Playbook</a>
+        <a href="https://drive.google.com/file/d/1jn2Qbr309dY2L7upoJzU9H0CQl07Fqme/view" class="cite-link video" target="_blank">🎥 Video Static Ads V1</a>
+      </div>
+    </div>
+
+    <div class="cite-block purple">
+      <div class="cite-block-header">
+        <span class="cite-module purple">STATIC ADS V2 · Safezone Guidelines</span>
+        <span class="cite-title">Safe zone rule — tại sao content phải trong center 75%</span>
+      </div>
+      <div class="cite-quote">"Meta crops 9:16 verticals. Content in outer 25% may be hidden on some placements."</div>
+      <div class="claim-text" style="margin-top:6px">→ System prompt của agent này hardcode: tất cả headline, visual critical content phải nằm trong center 75% của frame.</div>
+      <div class="cite-links" style="margin-top:8px">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/79771" class="cite-link wiki" target="_blank">📄 Wiki 79771 — Video Ad Safezone</a>
+        <a href="https://drive.google.com/file/d/1mIYUcupksi-VeVKGZI_IIVfLTEw0L889/view" class="cite-link video" target="_blank">🎥 Video Static Ads V2</a>
+      </div>
+    </div>
+
+    <div class="cite-block purple">
+      <div class="cite-block-header">
+        <span class="cite-module purple">FUND V5 · Show Don't Tell · [04:26]–[06:00]</span>
+        <span class="cite-title">Tại sao visual direction bắt buộc trong output</span>
+      </div>
+      <div class="cite-quote">"Visual demonstration triggers belief; verbal claims trigger skepticism."</div>
+      <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="principle"><div class="p-label" style="color:#f472b6">Telling (weak)</div><div class="p-text">❌ "Best protection on the market"</div></div>
+        <div class="principle"><div class="p-label" style="color:var(--accent3)">Showing (strong)</div><div class="p-text">✅ Throw phone against wall; screen survives <span class="cite-ts">[04:32]–[04:56]</span></div></div>
+        <div class="principle"><div class="p-label" style="color:#f472b6">Telling (weak)</div><div class="p-text">❌ "Slims and supports"</div></div>
+        <div class="principle"><div class="p-label" style="color:var(--accent3)">Showing (strong)</div><div class="p-text">✅ Real woman: struggles to zip jeans → product → jeans fit → mirror reaction <span class="cite-ts">[05:02]–[05:39]</span></div></div>
+      </div>
+      <div class="cite-links" style="margin-top:10px">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/372974" class="cite-link wiki" target="_blank">📄 Wiki 372974 — FUND V5</a>
+        <a href="https://drive.google.com/file/d/10OlFsU2HSkPzQ0QbZPRkhGTvkPZLeA5F/view" class="cite-link video" target="_blank">🎥 Video FUND V5</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  WORKFLOW 3 — QA & FEEDBACK                           -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="workflow-header w3">
+  <div class="workflow-num">03</div>
+  <div class="workflow-info">
+    <h2>Quality Control & Feedback Loop</h2>
+    <p>QA blocking gate + weekly performance analysis. Đây là "critical missing step" theo khoá học.</p>
+  </div>
+</div>
+
+<!-- AGENT 7 -->
+<div class="agent-card">
+  <div class="agent-header">
+    <div class="agent-num" style="background:linear-gradient(135deg,#ef4444,#f87171)">7</div>
+    <div>
+      <div class="agent-title">Quality Check Agent</div>
+      <div class="agent-subtitle">8-Question Diagnostic + Buying Psychology Checklist — CS V14</div>
+    </div>
+    <span class="agent-badge badge-sonnet">claude-sonnet-4-6</span>
+  </div>
+  <div class="agent-body">
+
+    <div class="cite-block green">
+      <div class="cite-block-header">
+        <span class="cite-module green">CS V14 · Feedback Loop · [17:32]–[18:49]</span>
+        <span class="cite-title">8-question diagnostic — lấy nguyên văn từ bài giảng</span>
+      </div>
+      <div class="claim-text" style="margin-top:4px">Toàn bộ 8 câu hỏi trong QA agent lấy trực tiếp từ bài CS V14, được instructor demo live với Flow static ad review session:</div>
+      <div style="display:grid;gap:6px;margin-top:10px">
+        <div style="display:flex;gap:10px;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:7px;font-size:13px">
+          <span style="color:var(--accent3);font-weight:700;min-width:24px">Q1</span>
+          Do the first 1–2 seconds hook the right user and keep them hooked?
+          <span class="cite-ts" style="margin-left:auto;white-space:nowrap">[17:32]</span>
+        </div>
+        <div style="display:flex;gap:10px;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:7px;font-size:13px">
+          <span style="color:var(--accent3);font-weight:700;min-width:24px">Q2</span>
+          Does this ad spark curiosity in the right target audience?
+          <span class="cite-ts" style="margin-left:auto;white-space:nowrap">[17:42]</span>
+        </div>
+        <div style="display:flex;gap:10px;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:7px;font-size:13px">
+          <span style="color:var(--accent3);font-weight:700;min-width:24px">Q3</span>
+          Is this an ad your potential customers would WANT to see?
+          <span class="cite-ts" style="margin-left:auto;white-space:nowrap">[17:52]</span>
+        </div>
+        <div style="display:flex;gap:10px;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:7px;font-size:13px">
+          <span style="color:var(--accent3);font-weight:700;min-width:24px">Q4</span>
+          Does the copywriting create a clear visual image in the user's mind?
+          <span class="cite-ts" style="margin-left:auto;white-space:nowrap">[18:02]</span>
+        </div>
+        <div style="display:flex;gap:10px;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:7px;font-size:13px">
+          <span style="color:var(--accent3);font-weight:700;min-width:24px">Q5</span>
+          Does this video feel native to the platform?
+          <span class="cite-ts" style="margin-left:auto;white-space:nowrap">[18:10]</span>
+        </div>
+        <div style="display:flex;gap:10px;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:7px;font-size:13px">
+          <span style="color:var(--accent3);font-weight:700;min-width:24px">Q6</span>
+          Does this feel authentic, or does it feel like a corporate ad?
+          <span class="cite-ts" style="margin-left:auto;white-space:nowrap">[18:22]</span>
+        </div>
+        <div style="display:flex;gap:10px;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:7px;font-size:13px">
+          <span style="color:var(--accent3);font-weight:700;min-width:24px">Q7</span>
+          What learnings from previous winning ads have we applied here?
+          <span class="cite-ts" style="margin-left:auto;white-space:nowrap">[18:32]</span>
+        </div>
+        <div style="display:flex;gap:10px;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:7px;font-size:13px">
+          <span style="color:var(--accent3);font-weight:700;min-width:24px">Q8</span>
+          Does the ad (a) tell an emotionally interesting story, OR (b) entertain, OR (c) educate on a believable mechanism?
+          <span class="cite-ts" style="margin-left:auto;white-space:nowrap">[18:40]</span>
+        </div>
+      </div>
+      <div class="cite-links" style="margin-top:12px">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/275097" class="cite-link wiki" target="_blank">📄 Wiki 275097 — CS V14 Feedback Loop</a>
+        <a href="https://drive.google.com/file/d/1khxmkzz1cR4fhZQAzi9veqhJuJhItzC1/view" class="cite-link video" target="_blank">🎥 Video CS V14</a>
+      </div>
+    </div>
+
+    <div class="cite-block green">
+      <div class="cite-block-header">
+        <span class="cite-module green">Wiki 144872 · Buying Psychology Playbook</span>
+        <span class="cite-title">Persuasion Checklist — synthesis page</span>
+      </div>
+      <div class="claim-text">QA agent cũng chạy full persuasion checklist từ Buying Psychology Playbook synthesis page — bao gồm: dominant desire named? transformation as hook? features → benefits → dominant desire chain? key claims shown not stated?</div>
+      <div class="cite-links" style="margin-top:8px">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/144872" class="cite-link wiki" target="_blank">📄 Wiki 144872 — Buying Psychology Playbook</a>
+      </div>
+    </div>
+
+    <div class="cite-block green">
+      <div class="cite-block-header">
+        <span class="cite-module green">VIDEO ADS V11 · Diagnosis Table</span>
+        <span class="cite-title">Hook Rate / Hold Rate diagnostic — symptom → fix</span>
+      </div>
+      <div style="overflow-x:auto;margin-top:8px">
+        <table class="diag-table">
+          <thead><tr><th>Triệu chứng</th><th>Chẩn đoán từ khoá học</th><th>Fix</th><th>Nguồn</th></tr></thead>
+          <tbody>
+            <tr><td>Không spend</td><td><em>"If your ad gets no spend, the hook sucks. I will stand on that."</em></td><td>New hooks</td><td><a href="https://drive.google.com/file/d/1VzwVwlNgjYRD657KcHEtknvpDoUdOaah/view" class="cite cite-video" style="font-size:10px" target="_blank">🎥 V11</a></td></tr>
+            <tr><td>Good hook, low hold</td><td>Body retention failure</td><td>Open loops, visual variety, progress bar</td><td><a href="https://drive.google.com/file/d/1o35NkO5Yk8NYvMLBRnyx43QRhJZFIBh_/view" class="cite cite-video" style="font-size:10px" target="_blank">🎥 V12</a></td></tr>
+            <tr><td>Both low</td><td>Wrong format/avatar/awareness entry</td><td>Restart Workflow 1</td><td><a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/274485" class="cite cite-wiki" style="font-size:10px" target="_blank">📄 274485</a></td></tr>
+            <tr><td>Spend, CVR thấp</td><td>Landing page problem — not the ad</td><td>Check page, not creative</td><td><a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/274485" class="cite cite-wiki" style="font-size:10px" target="_blank">📄 274485</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- AGENT 8 -->
+<div class="agent-card">
+  <div class="agent-header">
+    <div class="agent-num" style="background:linear-gradient(135deg,#34d399,#10b981)">8</div>
+    <div>
+      <div class="agent-title">Feedback Loop Analyst</div>
+      <div class="agent-subtitle">Weekly review · Metrics · Iteration Ratio — CS V14 + Call Recordings V3</div>
+    </div>
+    <span class="agent-badge badge-sonnet">claude-sonnet-4-6</span>
+  </div>
+  <div class="agent-body">
+
+    <div class="cite-block green">
+      <div class="cite-block-header">
+        <span class="cite-module green">CS V14 · [00:14]–[02:13]</span>
+        <span class="cite-title">Tại sao Feedback Loop là "critical missing step"</span>
+      </div>
+      <div class="cite-quote">"Common broken loop: idea → script → edit → test → (winning ad: swap hooks) | (losing ad: nothing). No learning from losing ads = random iteration = slow improvement."</div>
+      <div class="cite-quote">"Correct loop: data → strategy → execution → testing → process learnings → data (repeat). Every ad, win or lose, feeds back into the data layer."</div>
+      <div class="cite-links" style="margin-top:8px">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/275097" class="cite-link wiki" target="_blank">📄 Wiki 275097 — CS V14</a>
+        <a href="https://drive.google.com/file/d/1khxmkzz1cR4fhZQAzi9veqhJuJhItzC1/view" class="cite-link video" target="_blank">🎥 Video CS V14</a>
+      </div>
+    </div>
+
+    <div class="claim">
+      <div class="claim-label">📌 Metrics to review — CS V14 [05:44]–[06:09]</div>
+      <div class="claim-text" style="margin-top:8px">
+        <span class="io-tag">amount spent</span>
+        <span class="io-tag">purchases</span>
+        <span class="io-tag">cost per purchase</span>
+        <span class="io-tag">AOV</span>
+        <span class="io-tag">CVR</span>
+        <span class="io-tag">hook rate</span>
+        <span class="io-tag">hold rate</span>
+        <span class="io-tag">avg play time</span>
+        <span class="io-tag">outbound CTR</span>
+        <span class="io-tag">CPC</span>
+        <span class="io-tag">CPM</span>
+        <div style="margin-top:8px;font-size:12.5px;color:var(--text-muted)">Note từ khoá học: <em>"Soft metrics (add-to-cart, etc.) de-prioritized: focus is spend + purchases + creative metrics."</em> <span class="cite-ts">[06:13]–[06:29]</span></div>
+      </div>
+    </div>
+
+    <div class="cite-block green">
+      <div class="cite-block-header">
+        <span class="cite-module green">Weekly cadence — CS V14 [03:50]–[03:58]</span>
+        <span class="cite-title">Tại sao review mỗi tuần, không phải realtime</span>
+      </div>
+      <div class="cite-quote">"End of every week; review all ads launched that week." Testing window: 3–7 days minimum before judging. "Day-one data is unreliable." — FUND V2 <span class="cite-ts">[05:15]–[05:52]</span></div>
+      <div class="cite-links" style="margin-top:8px">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/275097" class="cite-link wiki" target="_blank">📄 Wiki 275097 — CS V14</a>
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/372940" class="cite-link wiki" target="_blank">📄 Wiki 372940 — FUND V2 How Ads Work</a>
+        <a href="https://drive.google.com/file/d/1L1CvsiRweBmuostm51661LOW7V22Zs-E/view" class="cite-link video" target="_blank">🎥 Video FUND V2</a>
+      </div>
+    </div>
+
+    <div class="cite-block green">
+      <div class="cite-block-header">
+        <span class="cite-module green">CS Synthesis · Call Recordings V3 [52:58]–[54:08]</span>
+        <span class="cite-title">Iteration Ratio Rules — dựa trên campaign state</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px">
+        <div class="principle"><div class="p-label" style="color:var(--accent3)">No winners yet</div><div class="p-text">80–90% new angles · 10–20% iterations <span class="cite-ts">[52:58]</span></div></div>
+        <div class="principle"><div class="p-label" style="color:var(--accent3)">Found winner</div><div class="p-text">80% iterations · 20% new <span class="cite-ts">[53:30]</span></div></div>
+        <div class="principle"><div class="p-label" style="color:var(--accent4)">Winner fatiguing</div><div class="p-text">Shift gradually back to net-new <span class="cite-ts">[54:08]</span></div></div>
+      </div>
+      <div class="cite-block" style="margin-top:10px;padding:12px">
+        <div class="p-label" style="color:#ef4444;margin-bottom:4px">RESET PROTOCOL — 3 tuần không có winner</div>
+        <div class="cite-quote">"Come back to the mean. What are we selling?" Root cause: almost always insufficient customer understanding → return to Phase 1 (Market Research). — Call Recordings V3 <span class="cite-ts">[16:41]–[20:15]</span></div>
+      </div>
+      <div class="cite-links" style="margin-top:8px">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/274468" class="cite-link wiki" target="_blank">📄 Wiki 274468 — Creative Strategy Workflow Synthesis</a>
+      </div>
+    </div>
+
+    <div class="cite-block green">
+      <div class="cite-block-header">
+        <span class="cite-module green">CS V14 · Live Case Study</span>
+        <span class="cite-title">Ví dụ thực tế từ khoá học: Flow Statics (3 variations)</span>
+      </div>
+      <div style="overflow-x:auto;margin-top:8px">
+        <table class="diag-table">
+          <thead><tr><th>Variation</th><th>Headline</th><th>Result</th><th>Learning</th></tr></thead>
+          <tbody>
+            <tr><td>V1</td><td>"Stop Fiending, Start Flowing"</td><td style="color:#f87171">FAIL</td><td>Weak, communicates nothing to new customer</td></tr>
+            <tr><td>V2</td><td>"Hits the Same Every Time"</td><td style="color:#f87171">FAIL</td><td>Confusing to someone unfamiliar with tolerance concept</td></tr>
+            <tr><td style="color:var(--accent3)">V3 ✓</td><td style="color:var(--accent3)">"Addiction Free Focus Hack"</td><td style="color:var(--accent3)">TOP SPEND</td><td>"Addiction free" messaging = confirmed nicotine-quitter angle</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="cite-quote" style="margin-top:10px">Learning từ case này: "Background matters for statics. V3 had mushroom/green visuals; V1+V2 had plain green. More interesting background → more spend." <span class="cite-ts">[07:22]–[07:43]</span></div>
+      <div class="cite-links" style="margin-top:8px">
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/275097" class="cite-link wiki" target="_blank">📄 Wiki 275097 — CS V14</a>
+        <a href="https://drive.google.com/file/d/1khxmkzz1cR4fhZQAzi9veqhJuJhItzC1/view" class="cite-link video" target="_blank">🎥 Video CS V14</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  FULL SOURCE INDEX                                     -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="section-label">Index nguồn đầy đủ</div>
+<div class="section-title">Tất cả tài liệu được trích dẫn trong document này</div>
+
+<div style="display:grid;gap:10px">
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px">
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px">🔬 MODULE 02 — FUNDAMENTALS</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px">V2 — How Ads Work</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">CPM, CTR, CVR, ROAS, CPA. Testing window 3–7 days.</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/372940" class="cite-link wiki" style="font-size:11px" target="_blank">📄 372940</a>
+          <a href="https://drive.google.com/file/d/1L1CvsiRweBmuostm51661LOW7V22Zs-E/view" class="cite-link video" style="font-size:11px" target="_blank">🎥 V2</a>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px">V4 — Understanding Your Customer</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Avatar framework. 80/20 research rule. Boazu + Jewelry examples.</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/372957" class="cite-link wiki" style="font-size:11px" target="_blank">📄 372957</a>
+          <a href="https://drive.google.com/file/d/1eAXZrfSsFpgT2LJmRouwfXQWOwOuAs2Y/view" class="cite-link video" style="font-size:11px" target="_blank">🎥 V4</a>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px">V5 — Buying Psychology</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Mass desire, transformational product, Show Don't Tell, so-what chain.</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/372974" class="cite-link wiki" style="font-size:11px" target="_blank">📄 372974</a>
+          <a href="https://drive.google.com/file/d/10OlFsU2HSkPzQ0QbZPRkhGTvkPZLeA5F/view" class="cite-link video" style="font-size:11px" target="_blank">🎥 V5</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px">
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px">🎬 MODULE 03 — VIDEO ADS MASTERY</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:4px">V5 — UGC</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">8-element UGC structure. Product intro ≥25s rule. PAS engine.</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/373144" class="cite-link wiki" style="font-size:11px" target="_blank">📄 373144</a>
+          <a href="https://drive.google.com/file/d/1fiSRbtfX8nTDujh9rSbAigjH9w7c8hy6/view" class="cite-link video" style="font-size:11px" target="_blank">🎥 V5</a>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:4px">V11 — Video Hooks</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Two-hook model. H1/H2/H3 testing. Frame-1 text rule. Hook by awareness level.</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/274485" class="cite-link wiki" style="font-size:11px" target="_blank">📄 Synthesis 274485</a>
+          <a href="https://drive.google.com/file/d/1VzwVwlNgjYRD657KcHEtknvpDoUdOaah/view" class="cite-link video" style="font-size:11px" target="_blank">🎥 V11</a>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:4px">V12 — MrBeast Retention</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Open loops, visual variety pacing, progress bar psychology.</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <a href="https://drive.google.com/file/d/1o35NkO5Yk8NYvMLBRnyx43QRhJZFIBh_/view" class="cite-link video" style="font-size:11px" target="_blank">🎥 V12</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px">
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px">🧠 MODULE 07 — CREATIVE STRATEGY</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--accent3);margin-bottom:4px">V2 — Market Awareness</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">5-level spectrum. Hook types by level. Ad structure per level.</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/79516" class="cite-link wiki" style="font-size:11px" target="_blank">📄 79516</a>
+          <a href="https://drive.google.com/file/d/1a2XeVn-D1uuk7owlGGi0vUJjc7BMR66h/view" class="cite-link video" style="font-size:11px" target="_blank">🎥 V2</a>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--accent3);margin-bottom:4px">V3 — Market Sophistication</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Stage 1-5. "Expect everybody to be skeptical." Unique mechanism selection.</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/79533" class="cite-link wiki" style="font-size:11px" target="_blank">📄 79533</a>
+          <a href="https://drive.google.com/file/d/19ENIPkVHsERYUEMD1_50bYTBi1HPFuns/view" class="cite-link video" style="font-size:11px" target="_blank">🎥 V3</a>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--accent3);margin-bottom:4px">V4 — Deep Market Research</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">8-step Enhanced Market Research Prompt. FlowPouch demo. 1 week → 10 min.</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145416" class="cite-link wiki" style="font-size:11px" target="_blank">📄 145416</a>
+          <a href="https://drive.google.com/file/d/1pL5Vpg-3ENgIU2_1VpcJPxvytjWJeA0b/view" class="cite-link video" style="font-size:11px" target="_blank">🎥 V4 (71 phút)</a>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--accent3);margin-bottom:4px">V13 — Prompt Engineering</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">AI workflow stack. Agentic pipeline vision. "Marketing + AI = unfair advantage."</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/275080" class="cite-link wiki" style="font-size:11px" target="_blank">📄 275080</a>
+          <a href="https://drive.google.com/file/d/1p_9rZrk73NlNCDPm6a8HmDHeJTRZRta3/view" class="cite-link video" style="font-size:11px" target="_blank">🎥 V13</a>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--accent3);margin-bottom:4px">V14 — Feedback Loop</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">8-question diagnostic. Metrics list. Weekly cadence. Flow statics case study.</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/275097" class="cite-link wiki" style="font-size:11px" target="_blank">📄 275097</a>
+          <a href="https://drive.google.com/file/d/1khxmkzz1cR4fhZQAzi9veqhJuJhItzC1/view" class="cite-link video" style="font-size:11px" target="_blank">🎥 V14</a>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--accent3);margin-bottom:4px">V16 — Losing → Winning Ad</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Metaglow case: mechanism timing rule. Problem belief trước, mechanism sau.</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/145399" class="cite-link wiki" style="font-size:11px" target="_blank">📄 145399</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px">
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px">⭐ SYNTHESIS PAGES</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--accent4);margin-bottom:4px">Creative Strategy Workflow</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">5-phase end-to-end system. Iteration ratios. Reset protocol.</div>
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/274468" class="cite-link wiki" style="font-size:11px" target="_blank">📄 274468</a>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--accent4);margin-bottom:4px">Buying Psychology Playbook</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Full persuasion checklist. Life-Force 8. Show Don't Tell worked examples.</div>
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/144872" class="cite-link wiki" style="font-size:11px" target="_blank">📄 144872</a>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--accent4);margin-bottom:4px">Market Awareness × Sophistication</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">5×5 matrix. CareAir, Spartan Hair, Metaglow, FlowPouch worked examples.</div>
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/78820" class="cite-link wiki" style="font-size:11px" target="_blank">📄 78820</a>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--accent4);margin-bottom:4px">Video Ad Creation System</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">6-step decision framework. Hook types. UGC 8-element. Retention techniques.</div>
+        <a href="https://getifyco.atlassian.net/wiki/spaces/MarketingK3/pages/274485" class="cite-link wiki" style="font-size:11px" target="_blank">📄 274485</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:36px;padding:18px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;text-align:center;color:var(--text-muted);font-size:12px">
+  Tài liệu này được xây dựng từ 77/77 transcripts đã ingested trong EcomTalent Wiki · 1,136 citations tổng · 6 synthesis pages · 76 concept pages<br>
+  <span style="color:var(--border)">──</span> EcomTalent Course · Eugene Schwartz — Breakthrough Advertising · Claude API Official Docs <span style="color:var(--border)">──</span>
+</div>
+
+</div>
+</body>
+</html>

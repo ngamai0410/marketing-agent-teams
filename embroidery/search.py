@@ -68,7 +68,7 @@ class BraveSearch(SearchProvider):
 
 class DuckDuckGoSearch(SearchProvider):
     async def search(self, query: str, num_results: int = 10) -> str:
-        from duckduckgo_search import DDGS
+        from ddgs import DDGS
 
         results = []
         with DDGS() as ddgs:

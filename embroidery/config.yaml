@@ -15,7 +15,7 @@ llm:
 # Options: brave | duckduckgo
 # ─────────────────────────────────────────────
 search:
-  provider: duckduckgo   # free, no API key needed
+  provider: brave        # needs BRAVE_API_KEY in .env | or: duckduckgo (free, less reliable)
   max_searches: 20       # per agent run — cost/rate-limit guard
 
 # ─────────────────────────────────────────────
@@ -30,52 +30,52 @@ agents:
   #   openai:    gpt-4o-mini | gpt-4o
   #   gemini:    gemini-2.5-flash | gemini-2.5-pro
   audience_researcher:
-    model: claude-haiku-4-5       # anthropic | or: gpt-4o-mini for openai | gemini-2.5-flash for gemini
-    max_tokens: 8096
+    model: gemini-2.5-pro          # flash emits MALFORMED_FUNCTION_CALL on large write_file payloads — needs pro
+    max_tokens: 16000
 
   competitor_analyst:
-    model: claude-haiku-4-5
+    model: gemini-2.5-flash
     max_tokens: 8096
 
   social_media_analyst:
-    model: claude-haiku-4-5
+    model: gemini-2.5-flash
     max_tokens: 8096
 
   synthesizer:
-    model: claude-haiku-4-5       # no tools — pure synthesis
+    model: gemini-2.5-flash        # no tools — pure synthesis
     max_tokens: 16000
 
   # --- Copy agents (Stage 3) ---
   avatar_builder:
-    model: claude-sonnet-4-6
+    model: gemini-2.5-flash
     max_tokens: 8096
 
   positioning_strategist:
-    model: claude-opus-4-8
+    model: gemini-2.5-pro
     max_tokens: 8096
 
   hook_generator:
-    model: claude-sonnet-4-6
+    model: gemini-2.5-flash
     max_tokens: 8096
 
   script_writer:
-    model: claude-opus-4-8
+    model: gemini-2.5-pro
     max_tokens: 16000
 
   static_copy_writer:
-    model: claude-sonnet-4-6
+    model: gemini-2.5-flash
     max_tokens: 8096
 
   qa_reviewer:
-    model: claude-sonnet-4-6
+    model: gemini-2.5-flash
     max_tokens: 4096
 
   feedback_analyst:
-    model: claude-sonnet-4-6
+    model: gemini-2.5-flash
     max_tokens: 8096
 
   orchestrator:
-    model: claude-opus-4-8
+    model: gemini-2.5-pro
     max_tokens: 8096
 
 # ─────────────────────────────────────────────
