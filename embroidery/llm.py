@@ -243,11 +243,16 @@ class GeminiProvider(LLMProvider):
                 if e.code == 429 and attempt < 2:
                     import re
                     err_str = str(e)
-                    # limit: 0 means billing is not enabled — retrying won't help
+                    # Non-retriable billing errors — fail fast with clear message
                     if "limit: 0" in err_str:
                         raise RuntimeError(
-                            "Gemini API key has free-tier quota limit=0. "
+                            "Gemini free-tier quota is limit=0. "
                             "Enable billing at console.cloud.google.com for this project."
+                        ) from e
+                    if "prepayment credits are depleted" in err_str:
+                        raise RuntimeError(
+                            "Gemini prepaid credits are depleted. "
+                            "Top up at https://aistudio.google.com/plan or switch to pay-as-you-go billing."
                         ) from e
                     delay_match = re.search(r"retryDelay.*?(\d+)s", err_str)
                     delay = int(delay_match.group(1)) + 2 if delay_match else 60

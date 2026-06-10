@@ -16,52 +16,25 @@ config.yaml  ──►  config.py  ──►  ModelSettings / Config
                                 ▼
                           agent_loop.py
                           run_agent()
-                          │  • calls LLM provider
-                          │  • executes tool calls
-                          │  • caps search usage
-                          │  • logs response.usage
+                          │  • calls LLM provider          ──► logger.py
+                          │  • executes tool calls              │  INFO  → stdout
+                          │  • caps search usage                │  DEBUG → logs/<run_id>.log
+                          │  • logs every call + tool      ◄───┘
                           ▼
-                      output files
+                      output/
                   (market_research_report.json, etc.)
 ```
 
-Provider-agnostic agentic loop for the custom embroidery shop campaign. LLM engine and search engine are configured in `config.yaml` — no code changes needed to switch.
+Provider-agnostic agentic loop for the custom embroidery shop campaign. Provider and search engine switch via one line in `config.yaml`.
 
 ## Setup
 
 ```bash
-# Python 3.11 required (system Python 3.14 has a broken pip on this machine)
+# Python 3.11 — system Python 3.14 has broken pip
 ~/.pyenv/versions/3.11.9/bin/python3 -m venv venv
 venv/bin/pip install "anthropic>=0.40" aiohttp python-dotenv rich pyyaml openai duckduckgo-search "google-genai>=1.0"
-
-# API keys
-cp .env.example .env
-# edit .env and add your keys
-```
-
-## Running
-
-```bash
-# Smoke test — verifies agentic loop, tool execution, and file write
-venv/bin/python smoke_test.py
-```
-
-## Configuration — `config.yaml`
-
-All settings live here. No other file needs to change.
-
-```yaml
-llm:
-  provider: anthropic     # or: openai | gemini
-
-search:
-  provider: duckduckgo    # or: brave (requires BRAVE_API_KEY)
-  max_searches: 20        # per-run cap to control costs
-
-agents:
-  audience_researcher:
-    model: claude-haiku-4-5   # change to sonnet/opus after prompt is validated
-    max_tokens: 8096
+cp .env.example .env   # then add API keys
+venv/bin/python smoke_test.py   # verifies loop + tools + file write
 ```
 
 ## Files
@@ -72,19 +45,21 @@ agents:
 | `config.py` | Loads `config.yaml` + env vars into typed `Config` / `ModelSettings` objects |
 | `llm.py` | `AnthropicProvider`, `OpenAIProvider`, `GeminiProvider` — all implement `LLMProvider` |
 | `search.py` | `BraveSearch` and `DuckDuckGoSearch` — both implement `SearchProvider` |
+| `logger.py` | `get_logger(name)` — shared log sink: INFO→stdout, DEBUG→`logs/<run_id>.log` |
 | `agent_loop.py` | `run_agent()` — the single agentic loop used by every agent |
 | `smoke_test.py` | Verifies the full stack end-to-end with two tool calls |
 | `.env` | API keys (gitignored) |
 | `.env.example` | Key names with placeholder values (committed) |
+| `logs/` | Per-run log files (gitignored); one file per process, named by timestamp |
 
 ## Adding a new agent
 
 1. Write a system prompt string.
 2. Define tool schemas in Anthropic JSON format.
 3. Add an entry under `agents:` in `config.yaml` with the target model.
-4. Call `run_agent(system, messages, tools, settings.agents.<your_agent>)`.
+4. Call `run_agent(system, messages, tools, settings.agents.<your_agent>, agent_name="<your_agent>")`.
 
-The loop, tool execution, usage logging, and search limits are all handled automatically.
+The loop, tool execution, token usage logging, search limits, and file logging are all handled automatically. Pass `agent_name` so log lines are labelled correctly.
 
 ## Env keys
 

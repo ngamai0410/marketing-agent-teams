@@ -12,7 +12,9 @@ from pathlib import Path
 
 from config import settings, ModelSettings
 from llm import get_provider, LLMProvider
+from logger import get_logger
 
+_log = get_logger("agent_loop")
 
 # Module-level singletons — instantiated once, reused across all agents
 _provider: LLMProvider | None = None
@@ -54,6 +56,7 @@ async def run_agent(
     tools: list[dict],
     model_settings: ModelSettings | None = None,
     max_tool_calls: int = 50,
+    agent_name: str = "agent",
 ) -> str:
     """
     Run an agent until it produces a final text response.
@@ -64,6 +67,7 @@ async def run_agent(
         tools:          Tool definitions in Anthropic JSON schema format.
         model_settings: Model + max_tokens. Defaults to haiku (dev/test).
         max_tool_calls: Safety ceiling on total tool calls per run.
+        agent_name:     Human-readable name included in log lines.
 
     Returns:
         The agent's final text response.
@@ -73,6 +77,10 @@ async def run_agent(
 
     provider = _get_provider()
     call_count = 0
+    total_in = 0
+    total_out = 0
+
+    _log.info("agent=%s model=%s max_tokens=%d starting", agent_name, model_settings.model, model_settings.max_tokens)
 
     while call_count < max_tool_calls:
         response = provider.create_message(
@@ -83,10 +91,16 @@ async def run_agent(
             tools=tools,
         )
 
-        _log_usage(response.usage, model_settings.model, call_count)
+        total_in += response.usage.input_tokens
+        total_out += response.usage.output_tokens
+        _log_usage(response.usage, model_settings.model, call_count, agent_name)
         call_count += 1
 
         if response.stop_reason == "end_turn":
+            _log.info(
+                "agent=%s done calls=%d total_in=%d total_out=%d",
+                agent_name, call_count, total_in, total_out,
+            )
             return response.text
 
         if response.stop_reason == "tool_use":
@@ -94,7 +108,9 @@ async def run_agent(
 
             tool_results = []
             for tc in response.tool_calls:
+                _log.debug("agent=%s tool=%s inputs=%s", agent_name, tc.name, _truncate(str(tc.input), 120))
                 result = await _execute_tool(tc.name, tc.input)
+                _log.debug("agent=%s tool=%s result_chars=%d", agent_name, tc.name, len(str(result)))
                 tool_results.append({
                     "type": "tool_result",
                     "tool_use_id": tc.id,
@@ -103,13 +119,22 @@ async def run_agent(
             messages.append({"role": "user", "content": tool_results})
             continue
 
+        _log.info("agent=%s done calls=%d total_in=%d total_out=%d", agent_name, call_count, total_in, total_out)
         return response.text
 
+    _log.warning("agent=%s max_tool_calls=%d reached", agent_name, max_tool_calls)
     return "[max_tool_calls reached]"
 
 
-def _log_usage(usage, model: str, call_num: int) -> None:
-    print(f"  [usage] call={call_num} in={usage.input_tokens} out={usage.output_tokens} model={model}")
+def _log_usage(usage, model: str, call_num: int, agent_name: str = "agent") -> None:
+    _log.info(
+        "agent=%s call=%d model=%s in=%d out=%d",
+        agent_name, call_num, model, usage.input_tokens, usage.output_tokens,
+    )
+
+
+def _truncate(s: str, n: int) -> str:
+    return s if len(s) <= n else s[:n] + "…"
 
 
 # ─────────────────────────────────────────────
@@ -123,20 +148,28 @@ async def _execute_tool(name: str, inputs: dict) -> str:
         return inputs.get("message", "")
 
     if name == "write_file":
-        return _tool_write_file(inputs["filename"], inputs["content"])
+        result = _tool_write_file(inputs["filename"], inputs["content"])
+        _log.info("tool=write_file file=%s", inputs["filename"])
+        return result
 
     if name == "read_file":
-        return _tool_read_file(inputs["filename"])
+        result = _tool_read_file(inputs["filename"])
+        _log.debug("tool=read_file file=%s chars=%d", inputs["filename"], len(result))
+        return result
 
     if name == "web_search":
         if _search_count >= settings.search.max_searches:
+            _log.warning("tool=web_search search_limit=%d reached", settings.search.max_searches)
             return f"[search limit reached: {settings.search.max_searches} searches per run]"
         _search_count += 1
+        _log.info("tool=web_search count=%d query=%s", _search_count, inputs["query"])
         return await _get_search().search(inputs["query"], inputs.get("num_results", 10))
 
     if name == "web_fetch":
+        _log.info("tool=web_fetch url=%s", inputs["url"])
         return await _get_search().fetch(inputs["url"])
 
+    _log.warning("tool=%s unknown — no handler registered", name)
     return f"[unknown tool: {name}]"
 
 

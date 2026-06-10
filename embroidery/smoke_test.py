@@ -57,7 +57,7 @@ async def main():
         system=SYSTEM,
         messages=messages,
         tools=[ECHO_TOOL, WRITE_FILE_TOOL],
-        model_settings=ModelSettings("claude-haiku-4-5"),
+        model_settings=ModelSettings("gemini-2.5-flash"),
     )
 
     print(f"\nFinal response: {result}")

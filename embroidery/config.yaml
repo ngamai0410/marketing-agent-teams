@@ -5,10 +5,10 @@
 # anthropic → set ANTHROPIC_API_KEY in .env
 # openai    → set OPENAI_API_KEY in .env
 # gemini    → set GEMINI_API_KEY in .env
-#             model examples: gemini-2.0-flash, gemini-2.5-pro
+#             model examples: gemini-2.5-flash, gemini-2.5-pro
 # ─────────────────────────────────────────────
 llm:
-  provider: anthropic
+  provider: gemini
 
 # ─────────────────────────────────────────────
 # Search Engine
@@ -28,9 +28,9 @@ agents:
   # Model options by provider:
   #   anthropic: claude-haiku-4-5 | claude-sonnet-4-6 | claude-opus-4-8
   #   openai:    gpt-4o-mini | gpt-4o
-  #   gemini:    gemini-2.0-flash | gemini-2.5-pro
+  #   gemini:    gemini-2.5-flash | gemini-2.5-pro
   audience_researcher:
-    model: claude-haiku-4-5       # anthropic | or: gpt-4o-mini for openai | gemini-2.0-flash for gemini
+    model: claude-haiku-4-5       # anthropic | or: gpt-4o-mini for openai | gemini-2.5-flash for gemini
     max_tokens: 8096
 
   competitor_analyst:
