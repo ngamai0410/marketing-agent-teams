@@ -36,13 +36,13 @@
   .badge.done { background: rgba(63,185,80,.15); color: var(--ok); }
   .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
   /* prompts panel */
-  details#promptsPanel { background: var(--panel); border: 1px solid var(--line);
+  details#promptsPanel, details#testPanel { background: var(--panel); border: 1px solid var(--line);
                          border-radius: 10px; margin-bottom: 20px; }
-  details#promptsPanel > summary { cursor: pointer; padding: 12px 16px; font-weight: 600;
+  details#promptsPanel > summary, details#testPanel > summary { cursor: pointer; padding: 12px 16px; font-weight: 600;
                                     list-style: none; user-select: none; }
   details#promptsPanel > summary::-webkit-details-marker { display: none; }
-  details#promptsPanel > summary::before { content: "▸ "; color: var(--muted); }
-  details#promptsPanel[open] > summary::before { content: "▾ "; }
+  details#promptsPanel > summary::before, details#testPanel > summary::before { content: "▸ "; color: var(--muted); }
+  details#promptsPanel[open] > summary::before, details#testPanel[open] > summary::before { content: "▾ "; }
   .promptlist { padding: 0 16px 12px; }
   .prompt { border-top: 1px solid var(--line); }
   .prompt > summary { cursor: pointer; padding: 10px 4px; list-style: none;
@@ -113,6 +113,25 @@
     <div id="promptList" class="promptlist">loading…</div>
   </details>
 
+  <details id="testPanel">
+    <summary>🧪 Test / run — pick a workflow, stage range, seed fixtures</summary>
+    <div class="promptlist">
+      <div class="prow">
+        <label class="pstage">Run</label>
+        <select id="t-target"></select>
+        <label class="pstage">from</label>
+        <select id="t-start"></select>
+        <label class="pstage">to</label>
+        <select id="t-stop"></select>
+      </div>
+      <div id="t-seed" class="phint"></div>
+      <div class="prow">
+        <button id="t-dryrun">Dry-run prompts (no tokens)</button>
+      </div>
+      <pre id="t-preview" class="hide" style="background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;white-space:pre-wrap;max-height:300px;overflow:auto"></pre>
+    </div>
+  </details>
+
   <div class="rail" id="rail"></div>
   <div id="lanes"><p class="stage" style="text-align:center">No agents running yet.</p></div>
   <p class="stage" id="grandtotal" style="text-align:right"></p>
@@ -152,7 +171,39 @@ async function loadWorkflows() {
   const res = await fetch("/workflows");
   workflowsMeta = (await res.json()).workflows;
   renderRail();
+  const tgt = $("t-target");
+  tgt.innerHTML = `<option value="team">Full team</option>` +
+    workflowsMeta.map(w => `<option value="${w.id}">${esc(w.label)}</option>`).join("");
+  tgt.onchange = refreshTestPanel;
+  refreshTestPanel();
 }
+
+async function refreshTestPanel() {
+  const id = $("t-target").value;
+  const meta = workflowsMeta.find(w => w.id === id);
+  const stages = meta ? meta.stages.map(s => s.name) : [];
+  const opts = stages.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join("");
+  $("t-start").innerHTML = `<option value="">(first)</option>` + opts;
+  $("t-stop").innerHTML = `<option value="">(last)</option>` + opts;
+  const arts = (await (await fetch("/artifacts")).json()).files;
+  const need = (meta ? meta.inputs : []).filter(f => !arts.includes(f));
+  const seedable = need.filter(f => (meta.fixtures || []).includes(f));
+  $("t-seed").innerHTML = need.length
+    ? `Missing inputs: ${need.map(f => `<code>${esc(f)}</code>`).join(" ")}` +
+      (seedable.length ? ` — <label><input type="checkbox" id="t-doseed" checked> seed ${seedable.length} from fixtures</label>` : ` <b style="color:var(--bad)">(no fixtures — run upstream first)</b>`)
+    : `All declared inputs present.`;
+  $("t-seed").dataset.seedable = JSON.stringify(seedable);
+}
+
+$("t-dryrun").onclick = async () => {
+  const open = document.querySelector("#promptList .prompt[open]");
+  const id = open ? open.dataset.id : (workflowsMeta[0] && "research.audience_researcher");
+  const text = open ? open.querySelector("textarea").value : null;
+  const res = await fetch("/prompts/preview", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, text }) });
+  const { rendered } = await res.json();
+  const pre = $("t-preview"); pre.textContent = rendered; pre.classList.remove("hide");
+};
 
 function renderRail() {
   const rail = $("rail");
@@ -362,7 +413,16 @@ $("startBtn").onclick = async () => {
   $("startBtn").disabled = true;
   $("done").style.display = "none";
   $("lanes").innerHTML = "";
-  const res = await fetch("/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+  const target = $("t-target").value;
+  const seedable = JSON.parse($("t-seed").dataset.seedable || "[]");
+  const doSeed = $("t-doseed") && $("t-doseed").checked;
+  const body = {
+    target,
+    start_stage: $("t-start").value || null,
+    stop_stage: $("t-stop").value || null,
+    seed_fixtures: doSeed ? seedable : [],
+  };
+  const res = await fetch("/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   if (!res.ok) { running = false; $("startBtn").disabled = false; setStage("Could not start (already running?)", false); }
   else { loadPrompts(); }   // lock prompt editing during the run
 };
