@@ -23,6 +23,7 @@ from pathlib import Path
 from embroidery.core.agent_loop import run_agent, reset_search_count
 from embroidery.core.config import settings
 from embroidery.core.logger import get_logger
+from embroidery.core.prompt_store import get_prompt_store, to_dollar
 from embroidery.core.tools import SEARCH_TOOLS
 
 log = get_logger(__name__)
@@ -320,7 +321,56 @@ SUBAGENTS: dict[str, SubAgentSpec] = {
 
 
 def build_system(spec: SubAgentSpec, brief: dict = SHOP_BRIEF) -> str:
-    return spec.system_template.format(shop_context=shop_context(brief), shared_rules=_SHARED_RULES)
+    """Render a sub-agent's system prompt, honouring any saved user override.
+
+    Both the per-agent prompt and the shared research rules are user-editable
+    (see core/prompt_store.py + the web dashboard). `$shop_context` / `$shared_rules`
+    are injected via safe_substitute, so a removed placeholder degrades gracefully.
+    """
+    store = get_prompt_store()
+    rules = store.text("research.shared_rules", _SHARED_RULES)
+    return store.render(
+        f"research.{spec.name}",
+        to_dollar(spec.system_template),
+        shop_context=shop_context(brief),
+        shared_rules=rules,
+    )
+
+
+# Human-readable labels for the prompt-editor UI.
+_PROMPT_LABELS = {
+    "audience_researcher": "Sub-agent A — Audience & Desire Researcher",
+    "competitor_analyst": "Sub-agent B — Competitor & Positioning Analyst",
+    "social_media_analyst": "Sub-agent C — Social Media & Hook Analyst",
+}
+
+
+def prompt_catalog() -> list[dict]:
+    """Editable prompts owned by the research sub-agents (+ shared rules)."""
+    store = get_prompt_store()
+    items: list[dict] = []
+    for spec in SUBAGENTS.values():
+        pid = f"research.{spec.name}"
+        default = to_dollar(spec.system_template)
+        items.append({
+            "id": pid,
+            "name": _PROMPT_LABELS.get(spec.name, spec.name),
+            "stage": "Research — sub-agent",
+            "placeholders": ["shop_context", "shared_rules"],
+            "default": default,
+            "text": store.text(pid, default),
+            "overridden": store.is_overridden(pid),
+        })
+    items.append({
+        "id": "research.shared_rules",
+        "name": "Shared research rules (A/B/C)",
+        "stage": "Research — shared",
+        "placeholders": [],
+        "default": _SHARED_RULES,
+        "text": store.text("research.shared_rules", _SHARED_RULES),
+        "overridden": store.is_overridden("research.shared_rules"),
+    })
+    return items
 
 
 def parse_json_output(raw: str) -> dict:

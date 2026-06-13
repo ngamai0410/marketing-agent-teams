@@ -14,6 +14,7 @@ from pathlib import Path
 from embroidery.core.config import settings, ModelSettings
 from embroidery.core.llm import get_provider, LLMProvider
 from embroidery.core.logger import get_logger
+from embroidery.core.reporter import get_reporter
 
 _log = get_logger("agent_loop")
 
@@ -84,6 +85,7 @@ async def run_agent(
     total_out = 0
 
     _log.info("agent=%s model=%s max_tokens=%d starting", agent_name, model_settings.model, model_settings.max_tokens)
+    get_reporter().agent_start(agent_name, model_settings.model, model_settings.max_tokens)
 
     while call_count < max_tool_calls:
         # Provider calls are sync (and may time.sleep in retries) — run in a
@@ -107,6 +109,7 @@ async def run_agent(
                 "agent=%s done calls=%d total_in=%d total_out=%d",
                 agent_name, call_count, total_in, total_out,
             )
+            get_reporter().agent_done(agent_name)
             return response.text
 
         if response.stop_reason == "tool_use":
@@ -126,9 +129,11 @@ async def run_agent(
             continue
 
         _log.info("agent=%s done calls=%d total_in=%d total_out=%d", agent_name, call_count, total_in, total_out)
+        get_reporter().agent_done(agent_name)
         return response.text
 
     _log.warning("agent=%s max_tool_calls=%d reached", agent_name, max_tool_calls)
+    get_reporter().agent_done(agent_name)
     return "[max_tool_calls reached]"
 
 
@@ -137,6 +142,7 @@ def _log_usage(usage, model: str, call_num: int, agent_name: str = "agent") -> N
         "agent=%s call=%d model=%s in=%d out=%d",
         agent_name, call_num, model, usage.input_tokens, usage.output_tokens,
     )
+    get_reporter().agent_call(agent_name, usage.input_tokens, usage.output_tokens)
 
 
 def _truncate(s: str, n: int) -> str:
@@ -180,6 +186,7 @@ async def _execute_tool(name: str, inputs: dict, agent_name: str = "agent") -> s
         _search_count_by_agent[agent_name] = agent_used + 1
         _log.info("tool=web_search agent=%s count=%d agent_count=%d query=%s",
                   agent_name, _search_count, agent_used + 1, inputs["query"])
+        get_reporter().agent_search(agent_name, inputs["query"])
         return await _get_search().search(inputs["query"], inputs.get("num_results", 10))
 
     if name == "web_fetch":

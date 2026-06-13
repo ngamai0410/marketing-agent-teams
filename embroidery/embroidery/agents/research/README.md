@@ -17,13 +17,30 @@ SHOP_BRIEF (in subagents.py)
    )                              │ each returns ONE JSON object as final text;
         │                         │ Python (run_subagent) parses + saves it
         ▼
+   ◆ QC GATE 1  checkpoint("Research — sub-agents A/B/C")   Approve / Edit brief & re-run A/B/C / Quit
+        ▼
    synthesizer.run_synthesizer(A, B, C)   gemini-2.5-pro, NO tools, 2 calls:
      call 1 → master JSON report   ─► data/output/market_research_report.json
      call 2 → markdown narrative   ─► data/output/brand_intelligence_report.md
+        ▼
+   ◆ QC GATE 2  checkpoint("Research — synthesis report")  Approve / Edit brief & re-run all / Quit
         │
-        └─► BrandAI snapshot ─► data/brand_ai/embroidery_shop/<timestamp>_*.{json,md}
-                                (read by Agents 2 & 3 + Agent 8's feedback loop)
+        ├─► BrandAI snapshot ─► data/brand_ai/embroidery_shop/<timestamp>_*.{json,md}
+        │                       (read by Agents 2 & 3 + Agent 8's feedback loop)
+        └─► perf digest ─► data/output/run_report.md
 ```
+
+The two **QC gates** (`core/checkpoint.py`) pause the pipeline for human review when driven
+from the dashboard (`python -m embroidery.web`); standalone runs auto-approve them. **Edit**
+returns an adjusted `SHOP_BRIEF` and re-runs from A/B/C. Live per-agent metrics stream to the
+dashboard throughout via `core/reporter.py`.
+
+**Editable prompts.** Each sub-agent's system prompt, the shared research rules, and the two
+Synthesizer prompts are user-editable from the dashboard's **⚙ Agent prompts** panel before
+Start. `build_system()` and `run_synthesizer()` render through `core/prompt_store.py` (via
+`to_dollar()` + `prompt_catalog()`), so a saved override in `data/prompts/overrides.json`
+replaces the default; `$shop_context` / `$shared_rules` / `$research_date` / `$shop_name`
+placeholders are injected safely (a removed placeholder just isn't substituted).
 
 ## Files
 
@@ -31,7 +48,7 @@ SHOP_BRIEF (in subagents.py)
 |---|---|---|
 | `subagents.py` | Sub-agents A/B/C — prompts, the `SUBAGENTS` registry, and `run_subagent(key)` which runs one sub-agent and saves its JSON. **Holds `SHOP_BRIEF`** (edit before each campaign). | `SHOP_BRIEF`, `SUBAGENTS`, `SubAgentSpec`, `run_subagent`, `parse_json_output`, `shop_context` |
 | `synthesizer.py` | Synthesizer — merges A/B/C into the master report + narrative (two `gemini-2.5-pro` calls, no tools, Python writes the files). | `run_synthesizer(a, b, c)`, `_load_static_research()` |
-| `pipeline.py` | Agent 1 entry — `gather(A,B,C)` → Synthesizer → output files + BrandAI snapshot. | `run_market_research(brief)`, `SHOP_SLUG` |
+| `pipeline.py` | Agent 1 entry — `gather(A,B,C)` → QC gate → Synthesizer → QC gate → output files + BrandAI snapshot + `run_report.md`. Returns `None` if the user quits at a gate. | `run_market_research(brief)`, `_research_digest`, `_synth_digest`, `SHOP_SLUG` |
 
 ## The three sub-agents (8-step EcomTalent framework)
 
@@ -59,7 +76,9 @@ runs on `gemini-2.5-pro` for report quality.
 
 ```bash
 # from embroidery/ (project root)
-venv/bin/python -m embroidery.agents.research.pipeline       # FULL pipeline
+venv/bin/python -m embroidery.web                            # FULL pipeline + live dashboard + QC gates
+venv/bin/python -m embroidery.agents.research.pipeline       # FULL pipeline, headless (gates auto-approve)
+venv/bin/python -m embroidery.agents.research.pipeline --yes # explicit auto-approve
 venv/bin/python -m embroidery.agents.research.subagents a    # one sub-agent: a | b | c
 venv/bin/python -m embroidery.agents.research.synthesizer    # Synthesizer only, from static research_*.json
 venv/bin/python -m tests.test_agent1_subagents               # live A/B/C schema test (or pass a|b|c)

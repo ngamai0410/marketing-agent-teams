@@ -54,11 +54,19 @@ class SearchSettings:
 
 
 @dataclass
+class WebSettings:
+    host: str = "127.0.0.1"
+    port: int = 8765
+    open_browser: bool = True
+
+
+@dataclass
 class PathSettings:
     output: Path = field(default_factory=lambda: _resolve("data/output"))
     brand_ai: Path = field(default_factory=lambda: _resolve("data/brand_ai"))
     logs: Path = field(default_factory=lambda: _resolve("data/logs"))
     fixtures: Path = field(default_factory=lambda: _resolve("fixtures"))
+    prompts: Path = field(default_factory=lambda: _resolve("data/prompts"))
 
 
 @dataclass
@@ -71,6 +79,7 @@ class Config:
     search: SearchSettings = field(default_factory=SearchSettings)
     agents: AgentSettings = field(default_factory=AgentSettings)
     paths: PathSettings = field(default_factory=PathSettings)
+    web: WebSettings = field(default_factory=WebSettings)
 
 
 def load_config(path: Path = _CONFIG_FILE) -> Config:
@@ -80,6 +89,7 @@ def load_config(path: Path = _CONFIG_FILE) -> Config:
     search_raw = raw.get("search", {})
     agents_raw = raw.get("agents", {})
     paths_raw = raw.get("paths", {})
+    web_raw = raw.get("web", {})
 
     agents = AgentSettings()
     for name, settings in agents_raw.items():
@@ -106,6 +116,12 @@ def load_config(path: Path = _CONFIG_FILE) -> Config:
             brand_ai=_resolve(paths_raw.get("brand_ai", "data/brand_ai")),
             logs=_resolve(paths_raw.get("logs", "data/logs")),
             fixtures=_resolve(paths_raw.get("fixtures", "fixtures")),
+            prompts=_resolve(paths_raw.get("prompts", "data/prompts")),
+        ),
+        web=WebSettings(
+            host=web_raw.get("host", "127.0.0.1"),
+            port=web_raw.get("port", 8765),
+            open_browser=web_raw.get("open_browser", True),
         ),
     )
 

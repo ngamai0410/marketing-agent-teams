@@ -16,6 +16,7 @@ Run:
 import asyncio
 from embroidery.core.agent_loop import run_agent, reset_search_count
 from embroidery.core.config import settings
+from embroidery.core.prompt_store import get_prompt_store
 from embroidery.core.tools import FILE_TOOLS
 
 SYSTEM_PROMPT = """You are an Ad Quality Reviewer applying the EcomTalent diagnostic framework.
@@ -127,7 +128,7 @@ async def run_qa_review() -> str:
     }]
 
     await run_agent(
-        system=SYSTEM_PROMPT,
+        system=get_prompt_store().render("qa.reviewer", SYSTEM_PROMPT),
         messages=messages,
         tools=FILE_TOOLS,
         model_settings=settings.agents.qa_reviewer,

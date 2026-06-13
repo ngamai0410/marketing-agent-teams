@@ -31,3 +31,11 @@ Thumbs.db
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Superpowers brainstorm scratch dir
+.superpowers/
+
+# ...but DO track committed design specs & implementation plans
+# (overrides the generic `plans/` ignore above)
+!docs/superpowers/plans/
+!docs/superpowers/plans/**
