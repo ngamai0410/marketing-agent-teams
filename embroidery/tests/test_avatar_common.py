@@ -72,12 +72,20 @@ def test_voc():
     check(ids == {"avatar.voc_miner"}, "voc exposes the voc_miner prompt")
 
 
+def test_reframe():
+    from embroidery.agents.avatar import reframe
+    ids = {c["id"] for c in reframe.prompt_catalog()}
+    check(ids == {"avatar.awareness_mapper", "avatar.competitor_teardown", "avatar.mechanism_builder"},
+          "reframe exposes awareness + competitor + mechanism prompts")
+
+
 def main() -> int:
     test_config()
     test_common()
     test_framing()
     test_discovery()
     test_voc()
+    test_reframe()
     if failures:
         print(f"\n✗ test_avatar_common FAILED ({len(failures)})")
         return 1
