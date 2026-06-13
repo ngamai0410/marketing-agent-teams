@@ -78,6 +78,7 @@ class AgentRecord:
     searches: int = 0
     t_start: float = field(default_factory=time.monotonic)
     t_end: float | None = None
+    steps: list = field(default_factory=list)
 
     @property
     def elapsed(self) -> float:
@@ -99,6 +100,7 @@ class AgentRecord:
             "searches": self.searches,
             "cost_usd": self.cost_usd,
             "elapsed_s": round(self.elapsed, 1),
+            "steps": self.steps,
         }
 
 
@@ -169,6 +171,7 @@ class RunReporter:
             rec.model = model
             rec.status = "running"
             rec.calls = rec.in_tokens = rec.out_tokens = rec.searches = 0
+            rec.steps = []
             rec.t_start = time.monotonic()
             rec.t_end = None
         self._publish_agents()
@@ -178,11 +181,49 @@ class RunReporter:
         rec.calls += 1
         rec.in_tokens += in_tok
         rec.out_tokens += out_tok
+        rec.steps.append({
+            "seq": len(rec.steps) + 1, "type": "call",
+            "label": f"LLM call #{rec.calls}",
+            "in_tok": in_tok, "out_tok": out_tok,
+            "cost_usd": _cost(rec.model, in_tok, out_tok),
+            "elapsed_s": round(rec.elapsed, 1),
+        })
         self._publish_agents()
 
-    def agent_search(self, name: str, query: str) -> None:
+    def agent_search(self, name: str, query: str, results: int | None = None) -> None:
         rec = self._agents.get(name) or self._ensure(name)
         rec.searches += 1
+        rec.steps.append({
+            "seq": len(rec.steps) + 1, "type": "search",
+            "label": query, "results": results,
+            "elapsed_s": round(rec.elapsed, 1),
+        })
+        self._publish_agents()
+
+    def agent_write(self, name: str, file: str) -> None:
+        rec = self._agents.get(name) or self._ensure(name)
+        rec.steps.append({
+            "seq": len(rec.steps) + 1, "type": "write",
+            "label": file, "output_file": file,
+            "elapsed_s": round(rec.elapsed, 1),
+        })
+        self._publish_agents()
+
+    def agent_fetch(self, name: str, url: str) -> None:
+        rec = self._agents.get(name) or self._ensure(name)
+        rec.steps.append({
+            "seq": len(rec.steps) + 1, "type": "fetch",
+            "label": url, "elapsed_s": round(rec.elapsed, 1),
+        })
+        self._publish_agents()
+
+    def agent_output(self, name: str, file: str) -> None:
+        rec = self._agents.get(name) or self._ensure(name)
+        rec.steps.append({
+            "seq": len(rec.steps) + 1, "type": "output",
+            "label": file, "output_file": file,
+            "elapsed_s": round(rec.elapsed, 1),
+        })
         self._publish_agents()
 
     def agent_done(self, name: str) -> None:

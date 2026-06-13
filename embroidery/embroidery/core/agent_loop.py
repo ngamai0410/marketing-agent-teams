@@ -162,6 +162,7 @@ async def _execute_tool(name: str, inputs: dict, agent_name: str = "agent") -> s
     if name == "write_file":
         result = _tool_write_file(inputs["filename"], inputs["content"])
         _log.info("tool=write_file file=%s", inputs["filename"])
+        get_reporter().agent_write(agent_name, inputs["filename"])
         return result
 
     if name == "read_file":
@@ -186,11 +187,12 @@ async def _execute_tool(name: str, inputs: dict, agent_name: str = "agent") -> s
         _search_count_by_agent[agent_name] = agent_used + 1
         _log.info("tool=web_search agent=%s count=%d agent_count=%d query=%s",
                   agent_name, _search_count, agent_used + 1, inputs["query"])
-        get_reporter().agent_search(agent_name, inputs["query"])
+        get_reporter().agent_search(agent_name, inputs["query"], inputs.get("num_results", 10))
         return await _get_search().search(inputs["query"], inputs.get("num_results", 10))
 
     if name == "web_fetch":
         _log.info("tool=web_fetch url=%s", inputs["url"])
+        get_reporter().agent_fetch(agent_name, inputs["url"])
         return await _get_search().fetch(inputs["url"])
 
     _log.warning("tool=%s unknown — no handler registered", name)
