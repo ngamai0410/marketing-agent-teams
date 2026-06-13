@@ -22,8 +22,36 @@ def test_config():
                  "competitor_teardown", "mechanism_builder", "avatar_synthesizer"):
         check(hasattr(settings.agents, name), f"settings.agents has {name}")
 
+def test_common():
+    import asyncio
+    from embroidery.agents.avatar import _common as C
+
+    agent = C.AvatarAgent(
+        name="probe_agent", label="Probe", model_key="avatar_onboarder",
+        system_template="Hello {who}. Schema: {{\"k\": 1}}", output_file=None,
+    )
+    rendered = C.build_system(agent, who="world")
+    check("Hello world" in rendered, "build_system substitutes context placeholders")
+    check('{"k": 1}' in rendered, "build_system preserves literal JSON braces")
+
+    # run_json_agent: stub run_agent, assert it parses + (here) does not write
+    captured = {}
+    async def fake_run_agent(*, system, messages, tools, model_settings, max_tool_calls, agent_name):
+        captured["agent_name"] = agent_name
+        return '{"ok": true}'
+    C.run_agent = fake_run_agent
+    out = asyncio.run(C.run_json_agent(agent, "go", tools=[], ctx={"who": "x"}))
+    check(out == {"ok": True}, "run_json_agent parses JSON-as-text final message")
+    check(captured["agent_name"] == "probe_agent", "run_json_agent passes agent_name through")
+
+    items = C.catalog_items([agent], {"probe_agent": ["who"]}, "Avatar — probe")
+    check(items[0]["id"] == "avatar.probe_agent", "catalog_items builds prefixed prompt id")
+    check(items[0]["placeholders"] == ["who"], "catalog_items carries placeholders")
+
+
 def main() -> int:
     test_config()
+    test_common()
     if failures:
         print(f"\n✗ test_avatar_common FAILED ({len(failures)})")
         return 1
