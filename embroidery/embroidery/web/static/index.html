@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agent Team Monitor</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #181b22; --line: #272b34; --txt: #e6e8ec;
+    --muted: #8b919e; --accent: #5b8cff; --ok: #3fb950; --run: #d8a657; --bad: #f0584b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--txt);
+         font: 14px/1.5 -apple-system, Segoe UI, Roboto, sans-serif; }
+  header { display: flex; align-items: center; gap: 16px; padding: 16px 24px;
+           border-bottom: 1px solid var(--line); background: var(--panel); }
+  header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+  .pill { font-size: 12px; color: var(--muted); border: 1px solid var(--line);
+          border-radius: 999px; padding: 3px 10px; }
+  button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line);
+           background: #222632; color: var(--txt); padding: 8px 14px; }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #0b0d12; font-weight: 600; }
+  button:disabled { opacity: .5; cursor: default; }
+  main { padding: 24px; max-width: 1100px; margin: 0 auto; }
+  .stage { color: var(--muted); margin: 0 0 12px; font-size: 13px; }
+  .stage b { color: var(--txt); }
+  table { width: 100%; border-collapse: collapse; background: var(--panel);
+          border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  th, td { padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--line); }
+  th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  tbody tr:last-child td { border-bottom: none; }
+  tfoot td { font-weight: 600; border-top: 2px solid var(--line); }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; }
+  .badge.running { background: rgba(216,166,87,.15); color: var(--run); }
+  .badge.done { background: rgba(63,185,80,.15); color: var(--ok); }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  /* prompts panel */
+  details#promptsPanel { background: var(--panel); border: 1px solid var(--line);
+                         border-radius: 10px; margin-bottom: 20px; }
+  details#promptsPanel > summary { cursor: pointer; padding: 12px 16px; font-weight: 600;
+                                    list-style: none; user-select: none; }
+  details#promptsPanel > summary::-webkit-details-marker { display: none; }
+  details#promptsPanel > summary::before { content: "▸ "; color: var(--muted); }
+  details#promptsPanel[open] > summary::before { content: "▾ "; }
+  .promptlist { padding: 0 16px 12px; }
+  .prompt { border-top: 1px solid var(--line); }
+  .prompt > summary { cursor: pointer; padding: 10px 4px; list-style: none;
+                      display: flex; align-items: center; gap: 10px; }
+  .prompt > summary::-webkit-details-marker { display: none; }
+  .prompt .pname { font-weight: 500; }
+  .prompt .pstage { color: var(--muted); font-size: 12px; }
+  .prompt .edited { font-size: 10px; background: rgba(91,140,255,.18); color: var(--accent);
+                    border-radius: 999px; padding: 2px 7px; }
+  .prompt textarea { min-height: 280px; margin-top: 8px; }
+  .phint { color: var(--muted); font-size: 12px; margin: 8px 0 4px; }
+  .phint code { background: var(--bg); padding: 1px 5px; border-radius: 4px; color: var(--accent); }
+  .prow { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
+  .prow .ok { color: var(--ok); font-size: 12px; }
+  .locked { color: var(--run); font-size: 12px; padding: 8px 4px; }
+  /* gate card */
+  #gate { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none;
+          align-items: center; justify-content: center; padding: 24px; }
+  #gate.show { display: flex; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+          width: min(720px, 100%); max-height: 88vh; overflow: auto; padding: 24px; }
+  .card h2 { margin: 0 0 4px; font-size: 17px; }
+  .card .sub { color: var(--muted); margin: 0 0 16px; font-size: 13px; }
+  .digest { background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+            padding: 14px; margin-bottom: 16px; }
+  .digest pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
+  textarea { width: 100%; min-height: 220px; background: var(--bg); color: var(--txt);
+             border: 1px solid var(--line); border-radius: 10px; padding: 12px;
+             font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; }
+  .actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .actions .spacer { flex: 1; }
+  .err { color: var(--bad); font-size: 12px; min-height: 16px; margin-top: 6px; }
+  #done { display: none; margin-top: 20px; padding: 16px; border-radius: 10px;
+          background: var(--panel); border: 1px solid var(--line); }
+  #done a { color: var(--accent); }
+  .hide { display: none !important; }
+  /* workflow rail + lanes */
+  .rail { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:0 0 16px; }
+  .rail .wf { font-size:12px; padding:4px 10px; border:1px solid var(--line); border-radius:6px; color:var(--muted); }
+  .rail .wf.active { border-color:var(--accent); color:var(--txt); font-weight:600; }
+  .rail .wf.done { border-color:var(--ok); color:var(--ok); }
+  .rail .wf.error { border-color:var(--bad); color:var(--bad); }
+  .rail .sep { color:var(--line); }
+  .lane { border:1px solid var(--line); border-radius:10px; margin-bottom:10px; background:var(--panel); overflow:hidden; }
+  .lane > .lane-head { display:flex; gap:12px; align-items:center; padding:10px 14px; cursor:pointer; }
+  .lane.active > .lane-head { background:rgba(91,140,255,.08); }
+  .lane .lane-title { font-weight:600; }
+  .lane .lane-meta { color:var(--muted); font-size:12px; margin-left:auto; }
+  .lane table { border:none; border-radius:0; margin:0; }
+  .lane .sub td:first-child { padding-left:30px; color:var(--muted); }
+  .gatebar { padding:8px 14px; font-size:12px; color:var(--run); border-top:1px solid var(--line); }
+  .gatebar.passed { color:var(--ok); }
+</style>
+</head>
+<body>
+<header>
+  <h1>🧵 Agent Team Monitor</h1>
+  <span id="conn" class="pill">connecting…</span>
+  <span style="flex:1"></span>
+  <button id="startBtn" class="primary">▶ Start campaign</button>
+</header>
+
+<main>
+  <p class="stage" id="stage">Idle — press <b>Start campaign</b> to run the research team.</p>
+
+  <details id="promptsPanel">
+    <summary>⚙ Agent prompts — view, edit &amp; save before Start</summary>
+    <div id="promptList" class="promptlist">loading…</div>
+  </details>
+
+  <div class="rail" id="rail"></div>
+  <div id="lanes"><p class="stage" style="text-align:center">No agents running yet.</p></div>
+  <p class="stage" id="grandtotal" style="text-align:right"></p>
+
+  <div id="done"></div>
+</main>
+
+<!-- QC gate modal -->
+<div id="gate">
+  <div class="card">
+    <h2 id="g-stage"></h2>
+    <p class="sub">Review the output below, then approve to continue, edit the request to re-run this step, or quit.</p>
+    <div class="digest"><pre id="g-digest"></pre></div>
+    <div id="g-editwrap" class="hide">
+      <label class="sub">Campaign brief (edit and re-run):</label>
+      <textarea id="g-request" spellcheck="false"></textarea>
+      <div class="err" id="g-err"></div>
+    </div>
+    <div class="actions">
+      <button class="primary" id="g-approve">✓ Approve &amp; continue</button>
+      <button id="g-edit">✎ Edit request</button>
+      <span class="spacer"></span>
+      <button id="g-quit">✕ Quit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let currentGate = null;     // { gate_id, request }
+let running = false;
+let workflowsMeta = [];     // [{id,label,stages:[{name,agents}], ...}]
+let activeStage = {};       // workflow id -> active stage name
+let openGatesByWf = {};     // workflow id -> {stage, passed}
+
+async function loadWorkflows() {
+  const res = await fetch("/workflows");
+  workflowsMeta = (await res.json()).workflows;
+  renderRail();
+}
+
+function renderRail() {
+  const rail = $("rail");
+  rail.innerHTML = workflowsMeta.map((w, i) =>
+    `${i ? '<span class="sep">→</span>' : ''}<span class="wf" data-wf="${w.id}">${esc(w.label)}</span>`
+  ).join("");
+}
+
+function money(v) { return v == null ? "—" : "$" + v.toFixed(4); }
+function num(v) { return (v ?? 0).toLocaleString(); }
+
+function renderAgents(ev) {
+  const rows = ev.rows || [];
+  const byWf = {};
+  rows.forEach(r => { (byWf[r.workflow || ""] = byWf[r.workflow || ""] || []).push(r); });
+
+  const lanes = $("lanes");
+  if (!rows.length) { lanes.innerHTML = `<p class="stage" style="text-align:center">No agents running yet.</p>`; return; }
+
+  const order = workflowsMeta.map(w => w.id).concat(Object.keys(byWf).filter(k => !workflowsMeta.find(w => w.id === k)));
+  lanes.innerHTML = order.filter(id => byWf[id]).map(id => {
+    const meta = workflowsMeta.find(w => w.id === id);
+    const wfRows = byWf[id];
+    const calls = wfRows.reduce((a, r) => a + r.calls, 0);
+    const cost = wfRows.reduce((a, r) => a + (r.cost_usd || 0), 0);
+    const anyRunning = wfRows.some(r => r.status === "running");
+    const gate = openGatesByWf[id];
+    const gbar = gate
+      ? `<div class="gatebar ${gate.passed ? 'passed' : ''}">${gate.passed ? '▣ ' + esc(gate.stage) + ' — approved' : '▢ awaiting QC: ' + esc(gate.stage)}</div>`
+      : "";
+    return `
+      <div class="lane ${anyRunning ? 'active' : ''}">
+        <div class="lane-head">
+          <span class="lane-title">${esc(meta ? meta.label : id || 'other')}</span>
+          ${activeStage[id] ? `<span class="pstage">${esc(activeStage[id])}</span>` : ""}
+          <span class="lane-meta">${calls} calls · ${money(cost)}</span>
+        </div>
+        <table><tbody>
+          ${wfRows.map(r => `
+            <tr class="${r.name.includes('synthesizer') || meta && meta.stages[0] && meta.stages[0].agents.includes(r.name) ? '' : 'sub'}">
+              <td>${esc(r.name)}</td>
+              <td class="mono" style="color:var(--muted)">${r.model || ""}</td>
+              <td><span class="badge ${r.status}">${r.status}</span></td>
+              <td style="text-align:right">${r.calls}</td>
+              <td class="mono" style="text-align:right">${num(r.in_tokens)}/${num(r.out_tokens)}</td>
+              <td>${r.searches}</td>
+              <td class="mono" style="text-align:right">${money(r.cost_usd)}</td>
+              <td class="mono" style="text-align:right">${r.elapsed_s}s</td>
+            </tr>`).join("")}
+        </tbody></table>
+        ${gbar}
+      </div>`;
+  }).join("");
+
+  const t = ev.totals || {};
+  $("grandtotal").textContent =
+    `Total: ${t.calls ?? 0} calls · ${num(t.in_tokens)} in / ${num(t.out_tokens)} out · ${money(t.cost_usd)} · ${(t.elapsed_s ?? 0)}s`;
+}
+
+function showGate(ev) {
+  currentGate = { gate_id: ev.gate_id, request: ev.request };
+  $("g-stage").textContent = ev.stage;
+  $("g-digest").textContent = JSON.stringify(ev.digest, null, 2);
+  $("g-request").value = ev.request ? JSON.stringify(ev.request, null, 2) : "";
+  $("g-editwrap").classList.add("hide");
+  $("g-err").textContent = "";
+  $("gate").classList.add("show");
+}
+
+function hideGate() { $("gate").classList.remove("show"); currentGate = null; }
+
+async function sendGate(decision, request) {
+  if (!currentGate) return;
+  await fetch("/gate", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ gate_id: currentGate.gate_id, decision, request }),
+  });
+  hideGate();
+}
+
+$("g-approve").onclick = () => sendGate("approve");
+$("g-quit").onclick = () => sendGate("quit");
+$("g-edit").onclick = () => {
+  const wrap = $("g-editwrap");
+  if (wrap.classList.contains("hide")) { wrap.classList.remove("hide"); return; }
+  // second click = submit the edit
+  let parsed;
+  try { parsed = JSON.parse($("g-request").value); }
+  catch (e) { $("g-err").textContent = "Invalid JSON: " + e.message; return; }
+  sendGate("edit", parsed);
+};
+
+function setStage(text, bold, wf) {
+  $("stage").innerHTML = bold ? `Running: <b>${esc(text)}</b>` : esc(text);
+  if (wf) {
+    activeStage[wf] = text;
+    document.querySelectorAll(".rail .wf").forEach(el => {
+      if (el.dataset.wf === wf) el.classList.add("active");
+    });
+  }
+}
+
+function showDone(ev) {
+  running = false;
+  $("startBtn").disabled = false;
+  loadPrompts();   // unlock prompt editing again
+  const d = $("done");
+  d.style.display = "block";
+  if (ev.status === "complete") {
+    const links = (ev.files || []).map(f =>
+      `<a href="/output/${f}" target="_blank">${f}</a>`).join(" · ");
+    setStage("Done ✓", false);
+    d.innerHTML = `<b style="color:var(--ok)">Campaign complete.</b><br>Artifacts: ${links}`;
+  } else if (ev.status === "aborted") {
+    setStage("Aborted", false);
+    d.innerHTML = `<b style="color:var(--run)">Run aborted</b> — ${ev.reason || ""}`;
+  } else {
+    setStage("Error", false);
+    d.innerHTML = `<b style="color:var(--bad)">Run failed</b> — ${ev.reason || ""}`;
+  }
+}
+
+function handle(ev) {
+  switch (ev.type) {
+    case "agents": renderAgents(ev); break;
+    case "stage": setStage(ev.stage, true, ev.workflow); break;
+    case "gate":
+      if (ev.workflow) openGatesByWf[ev.workflow] = { stage: ev.stage, passed: false };
+      showGate(ev);
+      break;
+    case "gate_closed":
+      if (currentGate && currentGate.gate_id === ev.gate_id) hideGate();
+      break;
+    case "done":
+      document.querySelectorAll(".rail .wf").forEach(el => {
+        el.classList.remove("active");
+        el.classList.add(ev.status === "complete" ? "done" : ev.status === "error" || ev.status === "blocked" ? "error" : "");
+      });
+      Object.keys(openGatesByWf).forEach(k => openGatesByWf[k].passed = true);
+      showDone(ev);
+      break;
+  }
+}
+
+// ---- Agent prompts (view / edit / save before Start) ----
+function esc(s) { return s.replace(/[&<>]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;" }[c])); }
+
+async function loadPrompts() {
+  const res = await fetch("/prompts");
+  const { prompts, editable } = await res.json();
+  const box = $("promptList");
+  if (!editable) {
+    box.innerHTML = `<div class="locked">Prompts are locked while a campaign is running. They'll unlock when it finishes.</div>`;
+    return;
+  }
+  box.innerHTML = prompts.map(p => {
+    const hints = p.placeholders.length
+      ? `<div class="phint">Keep these placeholders so the brief is injected: ${p.placeholders.map(h => `<code>$${h}</code>`).join(" ")}</div>`
+      : `<div class="phint">No placeholders — plain text.</div>`;
+    return `
+    <details class="prompt" data-id="${p.id}">
+      <summary>
+        <span class="pname">${esc(p.name)}</span>
+        <span class="pstage">${esc(p.stage)}</span>
+        <span class="edited" ${p.overridden ? "" : "hidden"}>edited</span>
+      </summary>
+      ${hints}
+      <textarea spellcheck="false">${esc(p.text)}</textarea>
+      <div class="prow">
+        <button class="primary p-save">Save</button>
+        <button class="p-reset">Reset to default</button>
+        <span class="ok" hidden>✓ saved</span>
+      </div>
+    </details>`;
+  }).join("");
+
+  box.querySelectorAll(".prompt").forEach(el => {
+    const id = el.dataset.id;
+    const ta = el.querySelector("textarea");
+    const okMsg = el.querySelector(".ok");
+    const badge = el.querySelector(".edited");
+    el.querySelector(".p-save").onclick = async () => {
+      await fetch("/prompts", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, text: ta.value }) });
+      badge.hidden = false; okMsg.hidden = false; setTimeout(() => okMsg.hidden = true, 1500);
+    };
+    el.querySelector(".p-reset").onclick = async () => {
+      const res = await fetch("/prompts/reset", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }) });
+      const item = await res.json();
+      ta.value = item.text; badge.hidden = true;
+      okMsg.textContent = "↺ reset"; okMsg.hidden = false; setTimeout(() => { okMsg.hidden = true; okMsg.textContent = "✓ saved"; }, 1500);
+    };
+  });
+}
+
+const es = new EventSource("/events");
+es.onopen = () => { $("conn").textContent = "● live"; $("conn").style.color = "var(--ok)"; };
+es.onerror = () => { $("conn").textContent = "● reconnecting…"; $("conn").style.color = "var(--run)"; };
+es.onmessage = (e) => { try { handle(JSON.parse(e.data)); } catch (_) {} };
+
+$("startBtn").onclick = async () => {
+  if (running) return;
+  running = true;
+  $("startBtn").disabled = true;
+  $("done").style.display = "none";
+  $("lanes").innerHTML = "";
+  const res = await fetch("/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+  if (!res.ok) { running = false; $("startBtn").disabled = false; setStage("Could not start (already running?)", false); }
+  else { loadPrompts(); }   // lock prompt editing during the run
+};
+
+loadPrompts();
+loadWorkflows();
+</script>
+</body>
+</html>
