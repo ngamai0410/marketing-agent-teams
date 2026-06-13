@@ -5,7 +5,7 @@ Console : INFO+ (human-readable, goes to stdout)
 File    : DEBUG+ → logs/<YYYYMMDD_HHMMSS>.log (one file per process)
 
 Usage in any module:
-    from logger import get_logger
+    from embroidery.core.logger import get_logger
     log = get_logger(__name__)
     log.info("something happened")
     log.debug("tool=%s input=%s", name, inputs)
@@ -14,13 +14,14 @@ Usage in any module:
 import logging
 import sys
 from datetime import datetime
-from pathlib import Path
+
+from embroidery.core.config import settings
 
 # One shared run ID + log file per Python process
 RUN_ID: str = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-_LOG_DIR = Path(__file__).parent / "logs"
-_LOG_DIR.mkdir(exist_ok=True)
+_LOG_DIR = settings.paths.logs
+_LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 _file_handler: logging.FileHandler | None = None
 

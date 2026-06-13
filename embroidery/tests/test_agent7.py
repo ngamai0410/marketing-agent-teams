@@ -9,7 +9,7 @@ output/, runs the QA agent, then asserts:
      vid_corporate_02 FAIL (with revision notes), overall FAIL
 
 Run:
-    cd embroidery && venv/bin/python test_agent7.py
+    cd embroidery && venv/bin/python -m tests.test_agent7
 """
 
 import asyncio
@@ -18,10 +18,10 @@ import shutil
 import sys
 from pathlib import Path
 
-from agent7_qa_reviewer import run_qa_review
-from config import settings
+from embroidery.agents.qa.qa_reviewer import run_qa_review
+from embroidery.core.config import settings
 
-FIXTURES = Path("fixtures")
+FIXTURES = settings.paths.fixtures
 OUTPUT = Path(settings.paths.output)
 
 

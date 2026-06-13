@@ -11,7 +11,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-_CONFIG_FILE = Path(__file__).parent / "config.yaml"
+# Project root = the outer embroidery/ directory (holds config.yaml, venv, data/).
+# config.py lives at embroidery/embroidery/core/config.py, so go up three levels.
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+_CONFIG_FILE = PROJECT_ROOT / "config.yaml"
+
+
+def _resolve(p: str | Path) -> Path:
+    """Resolve a config path against PROJECT_ROOT so it works from any CWD."""
+    p = Path(p)
+    return p if p.is_absolute() else PROJECT_ROOT / p
 
 
 @dataclass
@@ -45,8 +55,10 @@ class SearchSettings:
 
 @dataclass
 class PathSettings:
-    output: str = "output"
-    brand_ai: str = "brand_ai"
+    output: Path = field(default_factory=lambda: _resolve("data/output"))
+    brand_ai: Path = field(default_factory=lambda: _resolve("data/brand_ai"))
+    logs: Path = field(default_factory=lambda: _resolve("data/logs"))
+    fixtures: Path = field(default_factory=lambda: _resolve("fixtures"))
 
 
 @dataclass
@@ -90,8 +102,10 @@ def load_config(path: Path = _CONFIG_FILE) -> Config:
         ),
         agents=agents,
         paths=PathSettings(
-            output=paths_raw.get("output", "output"),
-            brand_ai=paths_raw.get("brand_ai", "brand_ai"),
+            output=_resolve(paths_raw.get("output", "data/output")),
+            brand_ai=_resolve(paths_raw.get("brand_ai", "data/brand_ai")),
+            logs=_resolve(paths_raw.get("logs", "data/logs")),
+            fixtures=_resolve(paths_raw.get("fixtures", "fixtures")),
         ),
     )
 

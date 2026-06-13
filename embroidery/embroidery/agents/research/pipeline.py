@@ -14,19 +14,19 @@ Stage 1 data-contract files consumed by Agents 2 and 3:
 plus a timestamped history snapshot in brand_ai/embroidery_shop/.
 
 Run:
-    cd embroidery && venv/bin/python agent1_market_research.py
+    cd embroidery && venv/bin/python -m embroidery.agents.research.pipeline
 """
 
 import asyncio
 import json
 from pathlib import Path
 
-from agent1_subagents import SHOP_BRIEF, run_subagent
-from agent1_synthesizer import run_synthesizer
-from agent_loop import reset_search_count
-from brand_store import BrandAI
-from config import settings
-from logger import get_logger
+from embroidery.agents.research.subagents import SHOP_BRIEF, run_subagent
+from embroidery.agents.research.synthesizer import run_synthesizer
+from embroidery.core.agent_loop import reset_search_count
+from embroidery.core.brand_store import BrandAI
+from embroidery.core.config import settings
+from embroidery.core.logger import get_logger
 
 log = get_logger(__name__)
 

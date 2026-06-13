@@ -1,0 +1,945 @@
+{
+  "shop": {
+    "name": "Custom Embroidery Co",
+    "research_date": "2026-06-10"
+  },
+  "segments": {
+    "A_team_pride": {
+      "awareness_level": 4,
+      "sophistication_stage": 3,
+      "size": "large",
+      "evidence": "Teams and clubs are often Product-aware, actively seeking specific services for uniforms/merch and comparing options like screen printing vs. embroidery for bulk orders. They understand different methods exist and are looking for the best fit."
+    },
+    "B_gift_giver": {
+      "awareness_level": 3,
+      "sophistication_stage": 3,
+      "size": "large",
+      "evidence": "Gift givers are Solution-aware, knowing that custom items like embroidery exist as a solution for unique gifts. They are aware of the product category but may not be deeply aware of the technical nuances of different production methods."
+    },
+    "C_brand_builder": {
+      "awareness_level": 4,
+      "sophistication_stage": 3,
+      "size": "medium",
+      "evidence": "Small businesses are typically Product-aware, researching different printing/embroidery methods for uniforms, merch, and employee gifts, considering quality, durability, and cost. They are actively comparing services."
+    },
+    "D_aesthetic_buyer": {
+      "awareness_level": 2,
+      "sophistication_stage": 3,
+      "size": "medium",
+      "evidence": "Aesthetic buyers are Problem-aware, seeking a specific 'quiet luxury' or fashionable look. They are aware of the desired outcome (the aesthetic of embroidery) but may not be aware of the specific product or service that achieves it."
+    }
+  },
+  "desires": [
+    {
+      "rank": 1,
+      "statement": "I want to give a gift that truly captures the personality of the loved one it's for, making them genuinely happy.",
+      "lf8_tag": "LF7",
+      "segment": "B",
+      "intensity": "high",
+      "sources_agreeing": 2,
+      "evidence": {
+        "quote": "She truly captured even his personality in the embroidery. I fully recommend Alina's work! It's absolutely worth spending a little more on her work.",
+        "source": "https://www.etsy.com/listing/814334576/custom-pet-sweatshirt-embroidered-or"
+      }
+    },
+    {
+      "rank": 2,
+      "statement": "I want my team to look unified and professional, feeling proud of our high-quality custom gear.",
+      "lf8_tag": "LF6",
+      "segment": "A",
+      "intensity": "high",
+      "sources_agreeing": 2,
+      "evidence": {
+        "quote": "Getting the logos on there professionally I think comes out a lot better with someone local + you usually get a chance to see what stuff will look like in more detail than an online purchase.",
+        "source": "https://www.reddit.com/r/Surveying/comments/1is3f6g/company_apparel/"
+      }
+    },
+    {
+      "rank": 3,
+      "statement": "I want my small business to project a professional image with branded apparel that isn't cheap or stiff.",
+      "lf8_tag": "LF6",
+      "segment": "C",
+      "intensity": "high",
+      "sources_agreeing": 2,
+      "evidence": {
+        "quote": "I had the same issue when looking for premium merch, not stiff or cheap shirts.",
+        "source": "https://www.reddit.com/r/Entrepreneur/comments/1popd5u/looking_for_high-quality_design-forward_custom/"
+      }
+    },
+    {
+      "rank": 4,
+      "statement": "I need my team's gear to arrive fast, before our big game or the start of the season.",
+      "lf8_tag": "LF3",
+      "segment": "A",
+      "intensity": "high",
+      "sources_agreeing": 2,
+      "evidence": {
+        "quote": "They offer excellent prices, and their turnaround time is impressively fast.",
+        "source": "https://www.reddit.com/r/FTC/comments/1blftdv/custom_team_shirts_what_did_you_do/"
+      }
+    },
+    {
+      "rank": 5,
+      "statement": "I need this personalized gift to arrive on time for the special occasion, otherwise it's pointless.",
+      "lf8_tag": "LF3",
+      "segment": "B",
+      "intensity": "high",
+      "sources_agreeing": 2,
+      "evidence": {
+        "quote": "The sign is beautiful and exactly what I expected. The item at in pre transit for several days ...",
+        "source": "https://www.etsy.com/market/gracefully_made_art"
+      }
+    },
+    {
+      "rank": 6,
+      "statement": "I need our branded apparel delivered on a tight deadline for an upcoming trade show or launch event.",
+      "lf8_tag": "LF3",
+      "segment": "C",
+      "intensity": "high",
+      "sources_agreeing": 2,
+      "evidence": {
+        "quote": "They offer excellent prices, and their turnaround time is impressively fast.",
+        "source": "https://www.reddit.com/r/FTC/comments/1blftdv/custom_team_shirts_what_did_you_do/"
+      }
+    },
+    {
+      "rank": 7,
+      "statement": "I want our team logo to look crisp and professional on our gear, not cheap or amateurish.",
+      "lf8_tag": "LF6",
+      "segment": "A",
+      "intensity": "high",
+      "sources_agreeing": 2,
+      "evidence": {
+        "quote": "delivering consistent work",
+        "source": "Agent C Comment Themes"
+      }
+    },
+    {
+      "rank": 8,
+      "statement": "I want the embroidery of my pet to be detailed and lifelike, not a generic cartoon.",
+      "lf8_tag": "LF7",
+      "segment": "B",
+      "intensity": "high",
+      "sources_agreeing": 2,
+      "evidence": {
+        "quote": "She truly captured even his personality in the embroidery.",
+        "source": "https://www.etsy.com/listing/814334576/custom-pet-sweatshirt-embroidered-or"
+      }
+    },
+    {
+      "rank": 9,
+      "statement": "I want our company logo on apparel to be durable and high-quality, reflecting our brand standards.",
+      "lf8_tag": "LF6",
+      "segment": "C",
+      "intensity": "high",
+      "sources_agreeing": 3,
+      "evidence": {
+        "quote": "durability, versatility, and premium craftsmanship",
+        "source": "Agent C Comment Themes"
+      }
+    },
+    {
+      "rank": 10,
+      "statement": "I want unique embroidered items that align with my 'quiet luxury' or cozy aesthetic.",
+      "lf8_tag": "LF8",
+      "segment": "D",
+      "intensity": "medium",
+      "sources_agreeing": 2,
+      "evidence": {
+        "quote": "Elevate Your Style with Timeless Elegance | Ethically Crafted Clothing for Every Wardrobe | Tiktok: luxury embroidery",
+        "source": "https://www.instagram.com/luxury___embroidery/"
+      }
+    },
+    {
+      "rank": 11,
+      "statement": "I want to express my personal style through unique, custom embroidered designs that nobody else has.",
+      "lf8_tag": "LF8",
+      "segment": "D",
+      "intensity": "medium",
+      "sources_agreeing": 1,
+      "evidence": {
+        "quote": "cozy Halloween shirt design, unique embroidered Halloween shirts, best fall aesthetic shirts",
+        "source": "https://www.tiktok.com/discover/embroidery-aesthetic?lang=en"
+      }
+    },
+    {
+      "rank": 12,
+      "statement": "I want to find a go-to supplier for all our team's future apparel, with consistent quality and fair pricing.",
+      "lf8_tag": "LF5",
+      "segment": "A",
+      "intensity": "medium",
+      "sources_agreeing": 1,
+      "evidence": {
+        "quote": "I've been searching for good prices and quality for awhile and they've helped tremendously",
+        "source": "https://www.reddit.com/r/smallbusiness/comments/10ajm5z/wheres_the_best_place_website_to_buy_customized/"
+      }
+    },
+    {
+      "rank": 13,
+      "statement": "I want to establish a relationship with a reliable vendor for our company's ongoing merch and uniform orders.",
+      "lf8_tag": "LF5",
+      "segment": "C",
+      "intensity": "medium",
+      "sources_agreeing": 1,
+      "evidence": {
+        "quote": "I've been searching for good prices and quality for awhile and they've helped tremendously",
+        "source": "https://www.reddit.com/r/smallbusiness/comments/10ajm5z/wheres_the_best_place_website_to_buy_customized/"
+      }
+    },
+    {
+      "rank": 14,
+      "statement": "I want my custom fashion piece quickly so I can wear it while it's still on-trend.",
+      "lf8_tag": "LF3",
+      "segment": "D",
+      "intensity": "medium",
+      "sources_agreeing": 1,
+      "evidence": {
+        "quote": "They offer excellent prices, and their turnaround time is impressively fast.",
+        "source": "https://www.reddit.com/r/FTC/comments/1blftdv/custom_team_shirts_what_did_you_do/"
+      }
+    },
+    {
+      "rank": 15,
+      "statement": "I want the embroidery to have a premium, textured feel that adds to the aesthetic.",
+      "lf8_tag": "LF8",
+      "segment": "D",
+      "intensity": "medium",
+      "sources_agreeing": 2,
+      "evidence": {
+        "quote": "the embroidery-is beautiful",
+        "source": "Agent C Comment Themes"
+      }
+    },
+    {
+      "rank": 16,
+      "statement": "I want to be able to order just one or a few items without being forced into a large bulk order.",
+      "lf8_tag": "LF5",
+      "segment": "all",
+      "intensity": "medium",
+      "sources_agreeing": 2,
+      "evidence": {
+        "quote": "good turnaround, great customer support, and very reasonable minimum order numbers",
+        "source": "Agent A Voice Bank"
+      }
+    },
+    {
+      "rank": 17,
+      "statement": "I want team jackets that are durable enough to last the whole season of wear and tear.",
+      "lf8_tag": "LF5",
+      "segment": "A",
+      "intensity": "medium",
+      "sources_agreeing": 2,
+      "evidence": {
+        "quote": "durability, versatility, and premium craftsmanship",
+        "source": "Agent C Comment Themes"
+      }
+    },
+    {
+      "rank": 18,
+      "statement": "I need employee uniforms that are durable and can withstand regular washing.",
+      "lf8_tag": "LF5",
+      "segment": "C",
+      "intensity": "medium",
+      "sources_agreeing": 2,
+      "evidence": {
+        "quote": "durability, versatility, and premium craftsmanship",
+        "source": "Agent C Comment Themes"
+      }
+    },
+    {
+      "rank": 19,
+      "statement": "I want a high-quality embroidered piece that will last for years, not just a fast-fashion item.",
+      "lf8_tag": "LF5",
+      "segment": "D",
+      "intensity": "medium",
+      "sources_agreeing": 2,
+      "evidence": {
+        "quote": "durability, versatility, and premium craftsmanship",
+        "source": "Agent C Comment Themes"
+      }
+    },
+    {
+      "rank": 20,
+      "statement": "I want to see a proof or mock-up of my design before it's stitched to make sure it's perfect.",
+      "lf8_tag": "LF5",
+      "segment": "all",
+      "intensity": "medium",
+      "sources_agreeing": 2,
+      "evidence": {
+        "quote": "you usually get a chance to see what stuff will look like in more detail than an online purchase.",
+        "source": "https://www.reddit.com/r/Surveying/comments/1is3f6g/company_apparel/"
+      }
+    },
+    {
+      "rank": 21,
+      "statement": "I want to create a meaningful keepsake to remember a special person, pet, or moment.",
+      "lf8_tag": "LF7",
+      "segment": "B",
+      "intensity": "high",
+      "sources_agreeing": 1,
+      "evidence": {
+        "quote": "made my gift recipient SO happy",
+        "source": "Agent A Voice Bank"
+      }
+    },
+    {
+      "rank": 22,
+      "statement": "I want to order team gear without the hassle of a high minimum order quantity.",
+      "lf8_tag": "LF5",
+      "segment": "A",
+      "intensity": "medium",
+      "sources_agreeing": 1,
+      "evidence": {
+        "quote": "There might be minimum order requirements that are too high for my small team or business.",
+        "source": "Agent A Objections"
+      }
+    },
+    {
+      "rank": 23,
+      "statement": "As a startup, I want to order a small batch of merch without being penalized for not ordering in bulk.",
+      "lf8_tag": "LF5",
+      "segment": "C",
+      "intensity": "medium",
+      "sources_agreeing": 1,
+      "evidence": {
+        "quote": "There might be minimum order requirements that are too high for my small team or business.",
+        "source": "Agent A Objections"
+      }
+    },
+    {
+      "rank": 24,
+      "statement": "I want to support a local business for our team's gear instead of a faceless online corporation.",
+      "lf8_tag": "LF8",
+      "segment": "A",
+      "intensity": "low",
+      "sources_agreeing": 1,
+      "evidence": {
+        "quote": "I'm going the route of supporting a local business (and a client) by getting polos and embroidery work done by them.",
+        "source": "https://www.reddit.com/r/SmallMSP/comments/15noj2w/recommended_site_to_get_company_clothesmerch/"
+      }
+    },
+    {
+      "rank": 25,
+      "statement": "I prefer to partner with a local supplier for our company apparel to support the community.",
+      "lf8_tag": "LF8",
+      "segment": "C",
+      "intensity": "low",
+      "sources_agreeing": 1,
+      "evidence": {
+        "quote": "I'm going the route of supporting a local business (and a client) by getting polos and embroidery work done by them.",
+        "source": "https://www.reddit.com/r/SmallMSP/comments/15noj2w/recommended_site_to_get_company_clothesmerch/"
+      }
+    }
+  ],
+  "problems": [
+    {
+      "rank": 1,
+      "statement": "When ordering a custom gift, I'm disappointed because cheaper vendors fail to capture the desired personality, resulting in a wasted purchase.",
+      "when": "after receiving a custom gift from a cheap vendor",
+      "emotion": "disappointed, frustrated",
+      "why": "The quality is poor and doesn't reflect the thought that went into the gift.",
+      "segment": "B",
+      "urgency": "high",
+      "evidence": {
+        "quote": "I initially tried cheaper vendors but was quite disappointed with the results (which depicted ...)",
+        "source": "https://www.etsy.com/listing/814334576/custom-pet-sweatshirt-embroidered-or"
+      }
+    },
+    {
+      "rank": 2,
+      "statement": "When sourcing company apparel, I'm frustrated because it's hard to find premium merch that isn't stiff or cheap-looking, which reflects poorly on our brand.",
+      "when": "researching suppliers for company merch",
+      "emotion": "frustrated",
+      "why": "Low-quality apparel makes the business look amateur and unprofessional.",
+      "segment": "C",
+      "urgency": "high",
+      "evidence": {
+        "quote": "I had the same issue when looking for premium merch, not stiff or cheap shirts.",
+        "source": "https://www.reddit.com/r/Entrepreneur/comments/1popd5u/looking_for_high-quality_design-forward_custom/"
+      }
+    },
+    {
+      "rank": 3,
+      "statement": "When ordering team gear, I'm anxious that slow turnaround times will mean we don't have our uniforms for an important game.",
+      "when": "placing an order with a deadline",
+      "emotion": "anxious, stressed",
+      "why": "Missing the deadline means the team looks unprepared and disorganized.",
+      "segment": "A",
+      "urgency": "high",
+      "evidence": {
+        "quote": "Decent turnaround (like 3/4 weeks).",
+        "source": "https://www.reddit.com/r/ultimate/comments/sxzq3q/what_company_did_you_use_for_your_team_store/"
+      }
+    },
+    {
+      "rank": 4,
+      "statement": "When ordering a gift, I'm worried it won't arrive in time for the special occasion, making the gift and my effort worthless.",
+      "when": "placing a gift order with a deadline",
+      "emotion": "anxious",
+      "why": "A late gift can ruin the surprise and show a lack of planning.",
+      "segment": "B",
+      "urgency": "high",
+      "evidence": {
+        "quote": "The item at in pre transit for several days ...",
+        "source": "https://www.etsy.com/market/gracefully_made_art"
+      }
+    },
+    {
+      "rank": 5,
+      "statement": "When ordering for a business event, I'm stressed that production delays will mean we don't have our merch, making us look unprofessional.",
+      "when": "placing a corporate order with a deadline",
+      "emotion": "stressed",
+      "why": "Lack of branded apparel at an event is a missed marketing opportunity and looks bad.",
+      "segment": "C",
+      "urgency": "high",
+      "evidence": {
+        "quote": "Decent turnaround (like 3/4 weeks).",
+        "source": "https://www.reddit.com/r/ultimate/comments/sxzq3q/what_company_did_you_use_for_your_team_store/"
+      }
+    },
+    {
+      "rank": 6,
+      "statement": "I'm hesitant to order a custom portrait because I'm worried the embroidery won't actually look like my pet or loved one.",
+      "when": "considering a detailed custom order",
+      "emotion": "hesitant, nervous",
+      "why": "A poor likeness would be a huge disappointment and a waste of money.",
+      "segment": "B",
+      "urgency": "medium",
+      "evidence": {
+        "quote": "I don't often embroider people, so I'm always nervous and worried about the end result.",
+        "source": "https://www.reddit.com/r/Frugal/comments/1oye4kv/does_anyone_have_any_experiences_with_custom/"
+      }
+    },
+    {
+      "rank": 7,
+      "statement": "I'm worried that the final embroidered piece won't match the minimalist, high-end aesthetic I'm going for.",
+      "when": "ordering a fashion piece",
+      "emotion": "hesitant, worried",
+      "why": "If the final product looks cheap or clumsy, it ruins the desired style.",
+      "segment": "D",
+      "urgency": "medium",
+      "evidence": {
+        "quote": "I'm always nervous and worried about the end result.",
+        "source": "https://www.reddit.com/r/Frugal/comments/1oye4kv/does_anyone_have_any_experiences_with_custom/"
+      }
+    },
+    {
+      "rank": 8,
+      "statement": "I'm frustrated by the 'hit or miss' quality of big print-on-demand sites; I never know if the item will be good or bad.",
+      "when": "using automated online services",
+      "emotion": "frustrated",
+      "why": "Inconsistent quality is unreliable and creates anxiety with every order.",
+      "segment": "all",
+      "urgency": "medium",
+      "evidence": {
+        "quote": "Inconsistent quality ('hit or miss'), scratchy backing, and less direct control over the specific embroidery process.",
+        "source": "Agent B Competitor Gaps"
+      }
+    },
+    {
+      "rank": 9,
+      "statement": "I'm worried about getting an item with a scratchy, uncomfortable backing on the inside of the embroidery.",
+      "when": "considering embroidered apparel",
+      "emotion": "worried",
+      "why": "An uncomfortable item won't be worn, no matter how good it looks.",
+      "segment": "all",
+      "urgency": "medium",
+      "evidence": {
+        "quote": "Inconsistent quality ('hit or miss'), scratchy backing...",
+        "source": "Agent B Competitor Gaps"
+      }
+    },
+    {
+      "rank": 10,
+      "statement": "When looking for trendy embroidered items, I'm overwhelmed by generic options and struggle to find something truly unique.",
+      "when": "shopping for aesthetic apparel",
+      "emotion": "overwhelmed",
+      "why": "It's hard to find designs that stand out and match a specific personal style.",
+      "segment": "D",
+      "urgency": "medium",
+      "evidence": {
+        "quote": "cozy Halloween shirt design, unique embroidered Halloween shirts, best fall aesthetic shirts...",
+        "source": "https://www.tiktok.com/discover/embroidery-aesthetic?lang=en"
+      }
+    },
+    {
+      "rank": 11,
+      "statement": "I'm worried that a mistake in our logo digitization will be costly to fix or result in unusable gear for the whole team.",
+      "when": "placing a large or complex order",
+      "emotion": "worried",
+      "why": "A single error gets multiplied across a bulk order, wasting a lot of money.",
+      "segment": "A|C",
+      "urgency": "medium",
+      "evidence": {
+        "quote": "digitizing error cost",
+        "source": "Agent C Comment Themes"
+      }
+    },
+    {
+      "rank": 12,
+      "statement": "I can't find a supplier that will do a small run of items for my small team without charging a fortune.",
+      "when": "trying to order for a small group",
+      "emotion": "frustrated",
+      "why": "High minimum order quantities exclude small clubs, teams, and businesses.",
+      "segment": "A|C",
+      "urgency": "high",
+      "evidence": {
+        "quote": "There might be minimum order requirements that are too high for my small team or business.",
+        "source": "Agent A Objections"
+      }
+    },
+    {
+      "rank": 13,
+      "statement": "I'm concerned the base garments (hats, hoodies) will be low quality, even if the embroidery is good.",
+      "when": "evaluating a new supplier",
+      "emotion": "concerned",
+      "why": "Great embroidery on a poor-quality item is still a poor-quality item.",
+      "segment": "all",
+      "urgency": "medium",
+      "evidence": {
+        "quote": "how/where you acquired your [materials/skills]",
+        "source": "Agent C Comment Themes"
+      }
+    },
+    {
+      "rank": 14,
+      "statement": "I'm worried the embroidered design won't be durable and will fall apart after a few washes.",
+      "when": "considering an embroidery purchase",
+      "emotion": "worried",
+      "why": "Lack of durability means the item is a waste of money and won't last.",
+      "segment": "all",
+      "urgency": "medium",
+      "evidence": {
+        "quote": "durability",
+        "source": "Agent C Comment Themes"
+      }
+    }
+  ],
+  "hooks": [
+    {
+      "rank": 1,
+      "visual_hook": "Close-up of a hand moving a mouse to trace a complex design on screen, then an instant cut to the embroidery machine perfectly stitching that same detail.",
+      "text_hook": "The secret to perfect embroidery? It's not the machine.",
+      "category": "curiosity-gap",
+      "segment": "all",
+      "adapted_from": "Agent C - Top Hooks to Adapt"
+    },
+    {
+      "rank": 2,
+      "visual_hook": "A shot of a cheap, peeling iron-on patch or a frayed, messy embroidery from a competitor.",
+      "text_hook": "Stop wasting money on this. Do this instead.",
+      "category": "problem-first",
+      "segment": "all",
+      "adapted_from": "Agent C - Hook Patterns"
+    },
+    {
+      "rank": 3,
+      "visual_hook": "A montage of a sports team celebrating a victory, all wearing matching, high-quality embroidered hats.",
+      "text_hook": "This is what team pride looks like.",
+      "category": "identity",
+      "segment": "A",
+      "adapted_from": "Agent C - Top Hooks to Adapt"
+    },
+    {
+      "rank": 4,
+      "visual_hook": "A person's face lighting up with genuine joy as they unwrap a sweatshirt with a perfect embroidered portrait of their pet.",
+      "text_hook": "How to give a gift they'll never forget.",
+      "category": "size-of-claim",
+      "segment": "B",
+      "adapted_from": "Agent C - Content Structure Patterns (Reaction-to-gift)"
+    },
+    {
+      "rank": 5,
+      "visual_hook": "Before: An employee in a plain, generic polo. After: The same employee looking sharp and professional in a polo with a crisp, embroidered company logo.",
+      "text_hook": "The fastest way to look more professional.",
+      "category": "speed-of-claim",
+      "segment": "C",
+      "adapted_from": "Agent C - Top Hooks to Adapt"
+    },
+    {
+      "rank": 6,
+      "visual_hook": "Aesthetic, slow-motion close-ups of delicate embroidery on a soft, neutral-colored hoodie.",
+      "text_hook": "Quiet luxury, stitched just for you.",
+      "category": "identity",
+      "segment": "D",
+      "adapted_from": "Agent C - Top Hooks to Adapt"
+    },
+    {
+      "rank": 7,
+      "visual_hook": "A calendar page flipping rapidly to a circled date, then a quick cut of a package being sealed and a shipping label printed.",
+      "text_hook": "Need it by next week? No problem.",
+      "category": "speed-of-claim",
+      "segment": "all",
+      "adapted_from": "Agent C - Top Hooks to Adapt"
+    },
+    {
+      "rank": 8,
+      "visual_hook": "Split screen: Left side shows an automated digitizing program creating a messy, simplified design. Right side shows a hand-digitized design with clean, precise lines.",
+      "text_hook": "The difference between 'custom' and 'crafted'.",
+      "category": "curiosity-gap",
+      "segment": "all",
+      "adapted_from": "Agent C - Hook Patterns"
+    },
+    {
+      "rank": 9,
+      "visual_hook": "A single custom hat being carefully embroidered with the same attention as a stack of 100 hoodies.",
+      "text_hook": "Why we don't do minimum orders.",
+      "category": "problem-first",
+      "segment": "A|C",
+      "adapted_from": "Agent A - Objections"
+    },
+    {
+      "rank": 10,
+      "visual_hook": "A sped-up video of a personalized baby blanket being embroidered, folded, wrapped in tissue paper, and placed in a gift box.",
+      "text_hook": "Watch us create the perfect keepsake.",
+      "category": "curiosity-gap",
+      "segment": "B",
+      "adapted_from": "Agent C - Top Hooks to Adapt"
+    },
+    {
+      "rank": 11,
+      "visual_hook": "A satisfying, ASMR-style loop of an embroidery machine stitching a complex logo with perfect precision.",
+      "text_hook": "It takes a hot minute... but it's worth it.",
+      "category": "curiosity-gap",
+      "segment": "all",
+      "adapted_from": "Agent C - Hook Patterns"
+    },
+    {
+      "rank": 12,
+      "visual_hook": "A small business owner proudly holding up a stack of freshly embroidered t-shirts for their team.",
+      "text_hook": "From digital design to branded reality.",
+      "category": "identity",
+      "segment": "C",
+      "adapted_from": "Agent C - Hook Patterns"
+    },
+    {
+      "rank": 13,
+      "visual_hook": "A person wearing a unique, custom embroidered sweatshirt, getting stopped on the street by someone asking where they got it.",
+      "text_hook": "The only one in the world. Made for you.",
+      "category": "identity",
+      "segment": "D",
+      "adapted_from": "Agent A - Desires"
+    },
+    {
+      "rank": 14,
+      "visual_hook": "A shot of a screen printer's messy setup vs. the clean, precise operation of an embroidery machine.",
+      "text_hook": "Why embroidery outlasts print every time.",
+      "category": "problem-first",
+      "segment": "A|C",
+      "adapted_from": "Agent B - Alternatives Considered"
+    },
+    {
+      "rank": 15,
+      "visual_hook": "A customer unboxing their order and feeling the texture of the embroidery with a smile.",
+      "text_hook": "That feeling when it's even better in person.",
+      "category": "size-of-claim",
+      "segment": "all",
+      "adapted_from": "Agent C - Content Structure Patterns"
+    }
+  ],
+  "objections": [
+    {
+      "objection": "This seems expensive. Why shouldn't I just use a cheaper printing service or a big online site?",
+      "underlying_fear": "Wasting money or not getting good value when cheaper, more convenient options seem to exist.",
+      "counter": "Emphasize that hand-digitized embroidery is an investment in durability and a premium look that printing can't replicate. Frame it as 'cost-per-wear' or the value of a lasting impression vs. a cheap, disposable item.",
+      "segment": "all"
+    },
+    {
+      "objection": "I'm worried the final product won't look like the picture in my head, especially for a detailed logo or a pet portrait.",
+      "underlying_fear": "Disappointment. The fear of spending money on a custom item that fails to capture the vision, making it a waste.",
+      "counter": "Showcase the 'Hand-Digitized Precision' mechanism. Offer a design proofing process where customers approve a digital mock-up before any stitching begins, giving them full confidence and control.",
+      "segment": "B|C|D"
+    },
+    {
+      "objection": "I need this by a specific date. How can I be sure it will arrive on time?",
+      "underlying_fear": "Missing a deadline for a gift, event, or game, which causes stress and makes the order useless.",
+      "counter": "Clearly state standard and rush turnaround times. Offer 'Worldwide Rush Craftsmanship' as a guaranteed service. Provide transparent order tracking and proactive communication.",
+      "segment": "all"
+    },
+    {
+      "objection": "I only need one or two items. Do I have to place a big order?",
+      "underlying_fear": "Being excluded or overcharged because the need is too small for traditional bulk suppliers.",
+      "counter": "Prominently feature 'No Minimum Order' as a core differentiator. Explain that the process is designed to give single items the same care as large orders.",
+      "segment": "A|C"
+    },
+    {
+      "objection": "Will the embroidery be durable? Will it fall apart in the wash?",
+      "underlying_fear": "The item is fragile and won't last, making it a poor investment.",
+      "counter": "Provide clear care instructions. Show examples of items that have been worn and washed many times. Highlight the quality of both the thread and the stitching process.",
+      "segment": "all"
+    },
+    {
+      "objection": "I'm not sure if the sweatshirts/hats/jackets you use are good quality.",
+      "underlying_fear": "Receiving a great design on a cheap, ill-fitting, or uncomfortable garment.",
+      "counter": "Be transparent about the brands and materials used. Offer a curated selection of 'premium' blanks and describe their quality (e.g., 'soft, heavyweight cotton').",
+      "segment": "all"
+    },
+    {
+      "objection": "How do I know what the price will be? Is it going to change?",
+      "underlying_fear": "Price uncertainty and the risk of hidden fees or being overcharged.",
+      "counter": "Offer clear, upfront pricing based on design complexity and size. Provide an easy-to-use quote generator or a simple pricing chart to build trust.",
+      "segment": "all"
+    },
+    {
+      "objection": "My logo is really detailed. Can it even be embroidered?",
+      "underlying_fear": "The design is too complex and will be butchered by the embroidery process.",
+      "counter": "Explain how the hand-digitizing process is specifically designed to handle intricate details. Show before-and-after examples of complex art translated into beautiful embroidery.",
+      "segment": "C|D"
+    },
+    {
+      "objection": "Why should I use you instead of a local shop down the street?",
+      "underlying_fear": "Missing out on the potential benefits of a local provider (e.g., in-person proofing, supporting local).",
+      "counter": "Highlight differentiators a local shop may not have: worldwide shipping, specialized online proofing process, specific aesthetic expertise, and the 'Hand-Digitized Precision' guarantee.",
+      "segment": "A|C"
+    },
+    {
+      "objection": "Is the backing of the embroidery going to be thick and scratchy?",
+      "underlying_fear": "The final product will be uncomfortable to wear.",
+      "counter": "Address this directly. Explain the use of soft, high-quality backing materials (stabilizers) and show close-ups of the inside of a finished garment to prove it's clean and comfortable.",
+      "segment": "all"
+    },
+    {
+      "objection": "Screen printing is better for large orders, right?",
+      "underlying_fear": "Choosing the 'wrong' or less cost-effective method for a bulk order.",
+      "counter": "Acknowledge screen printing's use case, but pivot to embroidery's benefits: higher perceived value, superior durability, and a more professional, textured look that lasts longer.",
+      "segment": "A|C"
+    },
+    {
+      "objection": "I can just get a custom shirt from Printful. What's the difference?",
+      "underlying_fear": "Overpaying for a service that a large POD company can do cheaper and faster.",
+      "counter": "Highlight the gaps in POD services: inconsistent 'hit or miss' quality, lack of direct expert consultation, and the generic feel of automated digitizing. Position your service as the reliable, expert-driven, premium alternative.",
+      "segment": "all"
+    }
+  ],
+  "market_sophistication": {
+    "stage": 3,
+    "reasoning": "The market shows awareness of different printing methods (DTG, DTF, screen printing, embroidery) and their respective pros and cons. Customers are discussing specific quality aspects like 'well-digitized files' and 'minimal puckering' from POD services, indicating they are past simple claims and are looking into the 'how' or mechanisms behind quality. The presence of detailed comparisons on Reddit further supports a Stage 3 (Mechanism) market.",
+    "observed_claims": [
+      {
+        "claim": "Printful's embroidery is the best we've seen in POD — clean stitching, well-digitized files, minimal puckering.",
+        "source": "https://podvector.ai/articles/the-complete-printful-review-quality-fulfillment-and-profitability",
+        "stage_signal": 3
+      },
+      {
+        "claim": "Screen printing will always be the most durable and long lasting way to print high quality t-shirts.",
+        "source": "https://www.reddit.com/r/TShirt/comments/1nexqtl/what_are_the_best_methods_for_highquality_custom/",
+        "stage_signal": 2
+      },
+      {
+        "claim": "DTG will print that design really good.",
+        "source": "https://www.reddit.com/r/Machine_Embroidery/comments/17pkl32/embroidery_for_detailed_art_possible_or_no/",
+        "stage_signal": 2
+      },
+      {
+        "claim": "Discover unique custom embroidery hats, perfect for personal style and thoughtful gifts.",
+        "source": "https://www.etsy.com/market/custom_embroidery_hat",
+        "stage_signal": 2
+      }
+    ]
+  },
+  "desire_map": [
+    {
+      "desire": "I want my team to look unified and professional, feeling proud of our high-quality custom gear.",
+      "up": "We are a legitimate, unified team with a strong identity.",
+      "down": "The whole team posing for a photo in their new matching jackets before a game.",
+      "segment": "A"
+    },
+    {
+      "desire": "I need my team's gear to arrive fast, before our big game or the start of the season.",
+      "up": "I am a reliable and organized team leader.",
+      "down": "Handing out the new uniforms to the team at the final practice before the tournament.",
+      "segment": "A"
+    },
+    {
+      "desire": "I want to give a gift that truly captures the personality of the loved one it's for.",
+      "up": "I am a thoughtful person who gives meaningful, unforgettable gifts.",
+      "down": "The recipient's face lighting up as they unwrap the custom sweatshirt and see their pet's face.",
+      "segment": "B"
+    },
+    {
+      "desire": "I need this personalized gift to arrive on time for the special occasion.",
+      "up": "I am a dependable person who never forgets an important moment.",
+      "down": "Handing over a beautifully wrapped gift on their actual birthday, not a week later.",
+      "segment": "B"
+    },
+    {
+      "desire": "I want my small business to project a professional image with branded apparel.",
+      "up": "My business is established, professional, and trustworthy.",
+      "down": "My staff looking sharp and unified in branded polos at our trade show booth.",
+      "segment": "C"
+    },
+    {
+      "desire": "I want to establish a relationship with a reliable vendor for our company's ongoing merch needs.",
+      "up": "I am a smart business operator who makes efficient, long-term decisions.",
+      "down": "Placing a re-order for employee welcome kits with a single email, knowing it will be perfect.",
+      "segment": "C"
+    },
+    {
+      "desire": "I want unique embroidered items that align with my 'quiet luxury' aesthetic.",
+      "up": "I have a unique and elevated personal style.",
+      "down": "Taking a mirror selfie in a unique, custom embroidered piece that gets lots of compliments.",
+      "segment": "D"
+    },
+    {
+      "desire": "I want to express my personal style through designs that nobody else has.",
+      "up": "I am an individual, not just a follower of trends.",
+      "down": "A friend asking 'Where did you get that?' about a custom embroidered hat.",
+      "segment": "D"
+    }
+  ],
+  "yes_stack": [
+    "A personalized item always means more than something off the shelf.",
+    "Embroidery has a premium, high-quality look and feel that printing just can't match.",
+    "The difference between good and bad embroidery is huge.",
+    "The final quality must depend on the materials and the process used to create it.",
+    "A design that's carefully prepared by a person is likely to turn out better than one run through an automatic program.",
+    "It's frustrating when you can't just order one or two items because of high minimums.",
+    "Getting a custom order should be an easy and reliable process from start to finish."
+  ],
+  "bright_dark_side": [
+    {
+      "desire": "A unified, professional look for my team.",
+      "bright": "Our team finally looks as professional and unified as we feel, boosting our confidence.",
+      "dark": "We show up to the event looking disorganized and amateurish next to the other teams.",
+      "segment": "A"
+    },
+    {
+      "desire": "A gift that truly captures their personality.",
+      "bright": "I gave a gift so personal and perfect, they were genuinely moved and will cherish it forever.",
+      "dark": "I spent money on a 'custom' gift that was so generic and disappointing, it felt meaningless.",
+      "segment": "B"
+    },
+    {
+      "desire": "A professional image for my small business.",
+      "bright": "Our branded apparel makes our small team look like a legitimate, established company.",
+      "dark": "Our cheap, stiff uniforms make us look like we don't care about our brand image.",
+      "segment": "C"
+    },
+    {
+      "desire": "A unique piece that matches my aesthetic.",
+      "bright": "I have a subtle, high-quality piece that perfectly fits my style and that no one else owns.",
+      "dark": "I'm just wearing the same mass-produced trends as everyone else.",
+      "segment": "D"
+    },
+    {
+      "desire": "On-time delivery for my deadline.",
+      "bright": "Everything arrived with time to spare, making the lead-up to our event stress-free.",
+      "dark": "The package arrived a day late, making the gift/uniforms completely useless.",
+      "segment": "all"
+    },
+    {
+      "desire": "A reliable supplier I can count on.",
+      "bright": "I've finally found my go-to partner for all our custom apparel; ordering is now easy and predictable.",
+      "dark": "Every time we need something, I have to start the frustrating search for a quality supplier all over again.",
+      "segment": "A|C"
+    }
+  ],
+  "unique_mechanism_candidates": [
+    {
+      "name": "Hand-Digitised Precision",
+      "type": 1,
+      "description": "Each design is meticulously hand-digitised by an expert, ensuring every stitch perfectly captures your vision and the intricate details of your artwork, unlike automated processes that can lead to compromises.",
+      "credibility": "Buyers who have experienced 'hit or miss' quality from automated or generic services (like some POD) will understand that human expertise in digitisation directly impacts the final embroidered quality. The mention of 'well-digitized files' in competitor reviews highlights this as a known quality factor.",
+      "copy_resistance": "While other embroidery shops digitise, few explicitly claim 'hand-digitised by experts' as a core mechanism. DTG/DTF printing doesn't involve embroidery digitisation, and POD services often rely on automated or less transparent digitisation processes, making it hard for them to credibly claim this level of precision."
+    },
+    {
+      "name": "No-Minimum Freedom",
+      "type": 2,
+      "description": "Our streamlined workflow is specifically designed to handle single-item orders with the same care and efficiency as bulk, freeing you from restrictive minimums and allowing true customisation for any need, big or small.",
+      "credibility": "Many competitors, especially screen printers or bulk-focused embroiderers, impose minimum order quantities. A buyer frustrated by MOQs will find a 'no minimum' claim highly credible, especially when framed as a deliberate process design.",
+      "copy_resistance": "Indirect competitors like screen printing and DTG often have inherent setup costs that necessitate minimums. While POD services offer no minimums, they often do so with less direct customer interaction or quality control. This mechanism emphasizes the *process* that enables no minimums *without sacrificing care or customisation*."
+    },
+    {
+      "name": "Worldwide Rush Craftsmanship",
+      "type": 2,
+      "description": "Our dedicated production and global shipping network allows us to offer expedited 2-3 day rush turnaround and reliable worldwide delivery, ensuring your custom embroidery arrives quickly, wherever you are, without compromising on handcrafted quality.",
+      "credibility": "Fast turnaround and international shipping are common customer pain points. Combining 'rush' with 'worldwide' and the implied 'craftsmanship' of embroidery makes this a strong and believable claim for buyers with urgent or international needs.",
+      "copy_resistance": "Local embroiderers cannot offer worldwide shipping. While some POD services ship globally, they may not guarantee specific rush turnarounds with the same level of customisation or perceived craftsmanship. This mechanism integrates speed, global reach, and quality, making it difficult for most alternatives to fully replicate."
+    }
+  ],
+  "belief_mechanisms": [
+    "Time-lapse video of the hand-digitizing process, showing an artist tracing a photo or logo on screen.",
+    "Split-screen comparison of a hand-digitized stitch-out vs. an auto-digitized one.",
+    "Macro/close-up shots of the final stitch quality, showing thread density and clean lines.",
+    "User-generated content (photos/videos) of customers wearing/using the products.",
+    "Video testimonials from team captains or business owners.",
+    "Behind-the-scenes 'packing an order' videos that show the care taken with each item.",
+    "A gallery of complex, detailed projects successfully completed.",
+    "Transparently listing the premium garment brands used as blanks."
+  ],
+  "buzzwords": [
+    "quiet luxury",
+    "aesthetic",
+    "cozy",
+    "premium merch",
+    "high-quality",
+    "hand-digitized",
+    "well-digitized",
+    "puckering",
+    "stitch count",
+    "stabilizer",
+    "custom",
+    "personalized",
+    "keepsake",
+    "team pride",
+    "brand identity",
+    "ethically crafted",
+    "handmade",
+    "ASMR",
+    "cottagecore",
+    "fast turnaround",
+    "no minimums",
+    "durable"
+  ],
+  "success_patterns": [
+    "Show the satisfying, hypnotic process of the embroidery machine running (ASMR).",
+    "Create before/after content showing a plain item transformed with a logo or design.",
+    "Feature user-generated content of customers reacting emotionally to their gifts.",
+    "Film 'packing an order' videos to show care, build trust, and create anticipation.",
+    "Educate the audience on the difference between high-quality (hand-digitized) and low-quality (auto-digitized) embroidery.",
+    "Use identity-based hooks that speak directly to teams, businesses, or gift-givers.",
+    "Create curiosity gap hooks that reveal a 'secret' or interesting part of the creation process.",
+    "Use problem-first hooks that call out common frustrations (e.g., 'Tired of cheap merch?').",
+    "Showcase the final product in aesthetically pleasing, real-world settings.",
+    "Tell the story of a specific custom piece, from the customer's idea to the finished product.",
+    "Post video testimonials from happy clients, especially for bulk orders.",
+    "Run a 'design of the week' feature to inspire new custom ideas.",
+    "Create content that directly addresses and resolves a common objection (e.g., 'Can we embroider detailed photos? Yes, here's how.').",
+    "Highlight the durability of the embroidery with wash tests or long-term wear examples.",
+    "Use quick-cut, high-energy videos to demonstrate fast turnaround speed."
+  ],
+  "voice_bank": {
+    "desire_phrases": [
+      "excellent prices",
+      "impressively fast turnaround time",
+      "fast turnaround and low prices make it all the better",
+      "decent turnaround",
+      "couple days turnaround and really nice durable quality",
+      "great quality",
+      "exactly what I expected",
+      "made my gift recipient SO happy",
+      "truly captured even his personality in the embroidery",
+      "absolutely worth spending a little more",
+      "high-quality, design-forward custom merch",
+      "premium merch, not stiff or cheap shirts",
+      "elevate your style with timeless elegance",
+      "ethically crafted clothing",
+      "cozy Halloween shirt design, unique embroidered Halloween shirts, best fall aesthetic shirts, DIY embroidery shirt tutorial, comfortable Halloween apparel, handmade cozy shirts, custom fall fashion, festive embroidery clothing, seasonal shirt designs, embroidery project ideas",
+      "subtleness of the colors and design",
+      "perfect gift to make…or buy",
+      "great beginner project",
+      "good turnaround, great customer support, and very reasonable minimum order numbers"
+    ],
+    "pain_phrases": [
+      "quite disappointed with the results (which depicted ...)",
+      "I had the same issue when looking for premium merch, not stiff or cheap shirts.",
+      "I'm always nervous and worried about the end result."
+    ],
+    "objection_phrases": [
+      "I initially tried cheaper vendors",
+      "I don't often embroider people, so I'm always nervous and worried about the end result.",
+      "Decent turnaround (like 3/4 weeks)."
+    ]
+  },
+  "coverage_gaps": []
+}

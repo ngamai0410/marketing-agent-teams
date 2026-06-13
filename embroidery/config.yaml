@@ -82,6 +82,9 @@ agents:
 # ─────────────────────────────────────────────
 # Paths
 # ─────────────────────────────────────────────
+# Resolved relative to PROJECT_ROOT (the outer embroidery/ dir) — CWD-independent.
 paths:
-  output: output
-  brand_ai: brand_ai
+  output: data/output
+  brand_ai: data/brand_ai
+  logs: data/logs
+  fixtures: fixtures

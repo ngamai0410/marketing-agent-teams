@@ -4,6 +4,16 @@
 **Target completion:** July 3, 2026 (~4 weeks)  
 **Methodology:** build in stages — validate each stage (see gates below) before adding the next.
 
+> **Reorg note (June 13, 2026):** The flat `embroidery/` layout was repackaged into the
+> `embroidery` Python package (Option B). Day-log entries below name the *original* flat files
+> (`agent1_subagents.py`, `agent7_qa_reviewer.py`, `smoke_test.py`, `output/`, `brand_ai/`,
+> `logs/`) — those records stay as written. Current locations: kernel → `embroidery/core/`
+> (config, llm, search, logger, agent_loop, tools, brand_store); agents → `embroidery/agents/<workflow>/`
+> (`research/{pipeline,subagents,synthesizer}.py`, `qa/qa_reviewer.py`); tests → `tests/`;
+> runtime artifacts → `data/{output,brand_ai,logs}` (paths anchored at `PROJECT_ROOT` in
+> `core/config.py`). Run as modules from `embroidery/`, e.g. `python -m embroidery.agents.research.pipeline`,
+> `python -m tests.smoke_test`. Smoke test re-verified green post-reorg. See `embroidery/README.md`.
+
 > **Status as of June 10, 2026 (late evening):** Days 1–4 complete — **Day 4 finished a day early** (June 10). Provider is **Gemini** (`27790f2`) — cost tables below still assume Claude pricing. **Day 4 done:** all three Day 3 carry-overs fixed and verified live (provider call in `asyncio.to_thread` — A/B/C now truly parallel, ~70s combined; per-agent search cap `max_searches_per_agent: 8` enforced in code and observed firing; Brave spacing 1.1s + 429 retry). Pipeline wired in `agent1_market_research.py` (legacy single-agent replaced): `brief → gather(A,B,C) → Synthesizer (agent1_synthesizer.py, 2 no-tool pro calls: JSON then markdown) → output files + BrandAI snapshot (brand_store.py)`. Full live run passes `test_market_research.py --full` (~4.5 min wall clock): 25 desires / 14 problems / 15 hooks / 12 objections, 100% verbatim-evidenced desires, 36.5k-char narrative. Agent 7 (pulled forward from Day 6) committed in `a7be3dd`. **Next: Day 5 manual validation read** (1–4h immersion, do not skip).
 
 ---

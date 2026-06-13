@@ -14,8 +14,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from config import settings
-from logger import get_logger
+from embroidery.core.config import settings
+from embroidery.core.logger import get_logger
 
 log = get_logger(__name__)
 

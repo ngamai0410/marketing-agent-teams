@@ -12,7 +12,7 @@ settings.agents.synthesizer (gemini-2.5-pro for report quality):
 Python writes both files; the model never emits large tool payloads.
 
 Run standalone against the static Day 3 outputs in output/ (no new searches):
-    cd embroidery && venv/bin/python agent1_synthesizer.py
+    cd embroidery && venv/bin/python -m embroidery.agents.research.synthesizer
 """
 
 import asyncio
@@ -20,10 +20,10 @@ import json
 from datetime import date
 from pathlib import Path
 
-from agent1_subagents import SHOP_BRIEF, parse_json_output, shop_context
-from agent_loop import run_agent
-from config import settings
-from logger import get_logger
+from embroidery.agents.research.subagents import SHOP_BRIEF, parse_json_output, shop_context
+from embroidery.core.agent_loop import run_agent
+from embroidery.core.config import settings
+from embroidery.core.logger import get_logger
 
 log = get_logger(__name__)
 

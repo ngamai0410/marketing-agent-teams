@@ -4,7 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## README rule
 
-After every file edit, update `README.md` in the same directory (create if absent). Must include: what the directory does, how to run it, what each file is for (skip derivable-from-filename entries), and a **workflow chart** (ASCII or Mermaid) showing component relationships and data flow. Update the chart whenever workflow, data contracts, or component relationships change.
+Each meaningful directory has a `README.md` covering: what the directory does, how to run it, what each file is for (skip derivable-from-filename entries), and a **workflow chart** (ASCII or Mermaid) showing component relationships and data flow. The package agent dirs each own one — `embroidery/README.md` (top), `embroidery/core/`, `embroidery/agents/` (index) + one **per workflow** (`agents/research/`, `agents/qa/`, future `agents/copy/`), and `tests/`.
+
+**Create or update the relevant README(s) when a change is significant** — i.e. when it alters something a README documents. Significant = any of:
+- a new file/module, agent, or directory; a renamed/moved/deleted one;
+- a changed **data contract** (a file an agent reads/writes, or its schema/fields);
+- a changed **workflow or component relationship** (who calls whom, parallel→sequential, a new tool, a model reassignment);
+- a changed **run command, entry point, or setup/dependency**;
+- new or changed config keys that affect how the directory is used.
+
+Then update **every** README that references the changed thing — a moved file or new data contract usually touches the dir's own README, the `agents/` index, and `CLAUDE.md`'s architecture/data-contract tables. Keep the workflow chart in sync; a stale chart is worse than none.
+
+**Not significant** (skip the README): typo/comment/formatting fixes, internal refactors that don't change a public interface or data flow, prompt-wording tweaks that don't change a contract, log-message changes. When unsure, ask: "would someone reading the README now be misled?" — if yes, update it.
 
 ## Plan status rule
 
@@ -21,8 +32,15 @@ EcomTalent-framework AI agent teams running end-to-end marketing campaigns (mark
 ```bash
 # Python 3.11 venv required — system Python 3.14 has broken pip
 embroidery/venv/bin/pip install "anthropic>=0.40" aiohttp python-dotenv rich pyyaml openai duckduckgo-search "google-genai>=1.0"
-cd embroidery && venv/bin/python smoke_test.py   # verifies loop + tools + file write
+cd embroidery && venv/bin/python -m tests.smoke_test   # verifies loop + tools + file write
 ```
+
+**Package layout (run everything from `embroidery/` as modules):** the code is the
+`embroidery` package — `embroidery/core/` (reusable kernel) and `embroidery/agents/<workflow>/`
+(campaign agents, grouped Research/Copy/QA). Tests live in `tests/`. Runtime artifacts go to
+`data/{output,brand_ai,logs}` (paths resolved against `PROJECT_ROOT` in `core/config.py`).
+Flat `python file.py` no longer works — use `python -m embroidery.agents.research.pipeline`,
+`python -m tests.smoke_test`, etc.
 
 `.env` keys (gitignored; `.env.example` committed): `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `BRAVE_API_KEY`
 
@@ -31,13 +49,13 @@ cd embroidery && venv/bin/python smoke_test.py   # verifies loop + tools + file 
 ## Architecture
 
 ```
-config.yaml → config.py (typed Config / ModelSettings)
+config.yaml → core/config.py (typed Config / ModelSettings; PROJECT_ROOT-anchored paths)
                    ↓
-  llm.py (Anthropic|OpenAI|GeminiProvider)  +  search.py (Brave|DuckDuckGo)
+  core/llm.py (Anthropic|OpenAI|GeminiProvider)  +  core/search.py (Brave|DuckDuckGo)
                    ↓
-  agent_loop.py: run_agent(system, messages, tools, model_settings, agent_name)
+  core/agent_loop.py: run_agent(system, messages, tools, model_settings, agent_name)
                    ↓
-  logger.py → stdout INFO+  /  logs/<YYYYMMDD_HHMMSS>.log DEBUG+
+  core/logger.py → stdout INFO+  /  data/logs/<YYYYMMDD_HHMMSS>.log DEBUG+
 ```
 
 - Tool schemas are always in **Anthropic JSON schema format** — `llm.py` converts to OpenAI/Gemini internally.
@@ -54,7 +72,7 @@ config.yaml → config.py (typed Config / ModelSettings)
 | Tool execution | `tool=write_file file=X` / `tool=web_search count=N query=X` |
 | End | `agent=X done calls=N total_in=N total_out=N` |
 
-Add to any module: `from logger import get_logger; log = get_logger(__name__)`
+Add to any module: `from embroidery.core.logger import get_logger; log = get_logger(__name__)`
 
 ---
 
@@ -80,7 +98,7 @@ Orchestrator
 - 3 consecutive weeks without a winner → restart from Agent 1.
 - Iteration ratio: no winner → 80–90% new angles; winner exists → 80% iterations on winner.
 
-**Data contracts:**
+**Data contracts** (all live in `data/output/`, overwritten each run):
 
 | File(s) | Written by | Read by |
 |---|---|---|
@@ -94,7 +112,7 @@ Orchestrator
 | `weekly_learnings.json`, `next_week_brief.json` | 8 | Orchestrator |
 
 **Tool access per agent:**
-- Agent 1: `web_search`, `web_fetch` (billed per call — budget +$0.20–0.50/run; capped by `search.max_searches` shared per run **and** `search.max_searches_per_agent`, both enforced in `agent_loop.py` — prompts alone are ignored by flash). Sub-agents A/B/C are **search-only** (`SEARCH_TOOLS`) and return JSON as final text — Python persists `output/research_*.json`; this avoids flash's MALFORMED_FUNCTION_CALL on large tool payloads. The Synthesizer has **no tools** (2 calls on pro: JSON report, then markdown narrative); `BrandAI` (`brand_store.py`) keeps timestamped history in `brand_ai/<shop>/`.
+- Agent 1: `web_search`, `web_fetch` (billed per call — budget +$0.20–0.50/run; capped by `search.max_searches` shared per run **and** `search.max_searches_per_agent`, both enforced in `core/agent_loop.py` — prompts alone are ignored by flash). Sub-agents A/B/C are **search-only** (`SEARCH_TOOLS`) and return JSON as final text — Python persists `data/output/research_*.json`; this avoids flash's MALFORMED_FUNCTION_CALL on large tool payloads. The Synthesizer has **no tools** (2 calls on pro: JSON report, then markdown narrative); `BrandAI` (`core/brand_store.py`) keeps timestamped history in `data/brand_ai/<shop>/`.
 - Agents 2–6: `read_file`, `write_file`
 - Agent 7: `read_file`, `write_file`, `call_agent`
 - Agent 8: `read_csv`, `read_file`, `write_file`, `call_orchestrator`

@@ -3,11 +3,11 @@ Day 4 test — parallel execution + Synthesizer wiring.
 
 Default run (offline checks + live Synthesizer, ~2 gemini-2.5-pro calls,
 NO new searches — uses the static Day 3 outputs in output/):
-    cd embroidery && venv/bin/python test_market_research.py
+    cd embroidery && venv/bin/python -m tests.test_market_research
 
 Full pipeline (live: gather(A,B,C) with real searches, then Synthesizer;
 ~$0.30–0.50 + Brave usage):
-    cd embroidery && venv/bin/python test_market_research.py --full
+    cd embroidery && venv/bin/python -m tests.test_market_research --full
 """
 
 import asyncio
@@ -36,8 +36,8 @@ class _StubSearch:
 
 
 async def _offline_search_caps():
-    import agent_loop
-    from config import settings
+    from embroidery.core import agent_loop
+    from embroidery.core.config import settings
 
     agent_loop._search = _StubSearch()
     settings.search.max_searches_per_agent = 3
@@ -63,7 +63,7 @@ async def _offline_search_caps():
 
     # restore real values + search singleton for any live phase that follows
     agent_loop._search = None
-    from config import load_config
+    from embroidery.core.config import load_config
     fresh = load_config()
     settings.search.max_searches = fresh.search.max_searches
     settings.search.max_searches_per_agent = fresh.search.max_searches_per_agent
@@ -71,7 +71,7 @@ async def _offline_search_caps():
 
 
 def _offline_brand_store():
-    from brand_store import BrandAI
+    from embroidery.core.brand_store import BrandAI
 
     with tempfile.TemporaryDirectory() as tmp:
         store = BrandAI("test_shop", base_dir=tmp)
@@ -139,7 +139,7 @@ def validate_report(report: dict, markdown: str):
 
 
 async def _live_synthesizer_from_static():
-    from agent1_synthesizer import _load_static_research, run_synthesizer
+    from embroidery.agents.research.synthesizer import _load_static_research, run_synthesizer
 
     a, b, c = _load_static_research()
     report, markdown = await run_synthesizer(a, b, c)
@@ -149,7 +149,7 @@ async def _live_synthesizer_from_static():
 
 async def _live_full_pipeline():
     import json
-    from agent1_market_research import run_market_research
+    from embroidery.agents.research.pipeline import run_market_research
 
     paths = await run_market_research()
     json_path = paths["market_research_report"]
@@ -158,7 +158,7 @@ async def _live_full_pipeline():
     report = json.loads(json_path.read_text(encoding="utf-8"))
     validate_report(report, md_path.read_text(encoding="utf-8"))
 
-    from brand_store import BrandAI
+    from embroidery.core.brand_store import BrandAI
     latest = BrandAI("embroidery_shop").latest_research()
     check(latest is not None and latest[0] == report, "BrandAI snapshot matches output files")
 

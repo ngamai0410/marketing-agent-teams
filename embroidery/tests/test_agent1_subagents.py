@@ -7,15 +7,15 @@ Each sub-agent is capped at 6 searches + 3 fetches by its prompt and 16 tool
 calls by the loop; the three runs together stay well under $0.30.
 
 Run all three (sequential — Brave free tier is rate-limited):
-    cd embroidery && venv/bin/python test_agent1_subagents.py
+    cd embroidery && venv/bin/python -m tests.test_agent1_subagents
 Run one:
-    cd embroidery && venv/bin/python test_agent1_subagents.py a
+    cd embroidery && venv/bin/python -m tests.test_agent1_subagents a
 """
 
 import asyncio
 import sys
 
-from agent1_subagents import SUBAGENTS, run_subagent
+from embroidery.agents.research.subagents import SUBAGENTS, run_subagent
 
 HOOK_CATEGORIES = {"size-of-claim", "speed-of-claim", "curiosity-gap", "problem-first", "identity"}
 SEGMENT_KEYS = {"A_team_pride", "B_gift_giver", "C_brand_builder", "D_aesthetic_buyer"}
@@ -93,7 +93,7 @@ VALIDATORS = {"a": validate_a, "b": validate_b, "c": validate_c}
 def main() -> int:
     keys = [sys.argv[1].lower()] if len(sys.argv) > 1 else list(SUBAGENTS)
     if any(k not in SUBAGENTS for k in keys):
-        print("Usage: python test_agent1_subagents.py [a|b|c]")
+        print("Usage: python -m tests.test_agent1_subagents [a|b|c]")
         return 2
 
     for key in keys:

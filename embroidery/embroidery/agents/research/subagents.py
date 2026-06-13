@@ -11,7 +11,7 @@ its final text message. This module parses that JSON and saves a copy to
 output/ so the Day 4 Synthesizer can be developed against static files.
 
 Run one sub-agent standalone (prompt development / Day 3 testing):
-    cd embroidery && venv/bin/python agent1_subagents.py a   # or b / c
+    cd embroidery && venv/bin/python -m embroidery.agents.research.subagents a   # or b / c
 """
 
 import asyncio
@@ -20,10 +20,10 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from agent_loop import run_agent, reset_search_count
-from config import settings
-from logger import get_logger
-from tools import SEARCH_TOOLS
+from embroidery.core.agent_loop import run_agent, reset_search_count
+from embroidery.core.config import settings
+from embroidery.core.logger import get_logger
+from embroidery.core.tools import SEARCH_TOOLS
 
 log = get_logger(__name__)
 
@@ -369,7 +369,7 @@ async def run_subagent(key: str, brief: dict = SHOP_BRIEF, reset_searches: bool 
 if __name__ == "__main__":
     arg = (sys.argv[1] if len(sys.argv) > 1 else "").lower()
     if arg not in SUBAGENTS:
-        print("Usage: python agent1_subagents.py a|b|c")
+        print("Usage: python -m embroidery.agents.research.subagents a|b|c")
         sys.exit(2)
     data = asyncio.run(run_subagent(arg))
     print(json.dumps(data, indent=2, ensure_ascii=False)[:2000])

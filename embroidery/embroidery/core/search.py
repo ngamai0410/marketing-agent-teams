@@ -11,8 +11,8 @@ from abc import ABC, abstractmethod
 
 import aiohttp
 
-from config import settings
-from logger import get_logger
+from embroidery.core.config import settings
+from embroidery.core.logger import get_logger
 
 _log = get_logger("search")
 

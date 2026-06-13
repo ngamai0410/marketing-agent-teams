@@ -8,13 +8,13 @@ Verifies:
 4. Token usage is logged on every API call
 
 Run:
-    cd embroidery && ../venv/bin/python test_tools.py
+    cd embroidery && venv/bin/python -m tests.test_tools
 """
 
 import asyncio
-from agent_loop import run_agent, reset_search_count
-from config import ModelSettings
-from tools import RESEARCH_TOOLS
+from embroidery.core.agent_loop import run_agent, reset_search_count
+from embroidery.core.config import ModelSettings, settings
+from embroidery.core.tools import RESEARCH_TOOLS
 
 SYSTEM = """You are a market research assistant. Follow these steps exactly:
 1. Call web_search with query "custom embroidery shops Etsy personalized" (num_results=5)
@@ -40,7 +40,7 @@ async def main():
     print(f"\nFinal response: {result}")
 
     from pathlib import Path
-    output_file = Path("output/day2_test.txt")
+    output_file = settings.paths.output / "day2_test.txt"
     if output_file.exists():
         print(f"\nFile written:\n{output_file.read_text()}")
         print("\n✓ Day 2 passed — web_search, write_file, and loop all work end-to-end.")

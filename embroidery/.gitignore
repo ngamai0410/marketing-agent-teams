@@ -3,4 +3,6 @@ venv/
 __pycache__/
 *.pyc
 plans/
-logs/
+# Runtime artifacts (logs + agent-written outputs). brand_ai/ history is kept.
+data/logs/
+data/output/

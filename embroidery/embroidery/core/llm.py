@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
 
-from config import settings
+from embroidery.core.config import settings
 
 
 @dataclass

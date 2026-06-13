@@ -11,17 +11,17 @@ Verifies:
 Requires GEMINI_API_KEY in .env
 
 Run:
-    cd embroidery && venv/bin/python test_gemini.py
+    cd embroidery && venv/bin/python -m tests.test_gemini
 """
 
 import asyncio
 import os
 from pathlib import Path
 
-import agent_loop
-from llm import GeminiProvider
-from config import ModelSettings
-from tools import RESEARCH_TOOLS
+from embroidery.core import agent_loop
+from embroidery.core.llm import GeminiProvider
+from embroidery.core.config import ModelSettings, settings
+from embroidery.core.tools import RESEARCH_TOOLS
 
 # gemini-2.0-flash-lite: cheapest available model, use for testing
 # gemini-2.0-flash / gemini-2.5-flash: require billing enabled
@@ -69,7 +69,7 @@ async def test_smoke() -> bool:
         model_settings=ModelSettings(GEMINI_MODEL),
     )
 
-    file_ok = Path("output/gemini_smoke.txt").exists()
+    file_ok = (settings.paths.output / "gemini_smoke.txt").exists()
     print(f"    Response : {result.strip()}")
     print(f"    File written: {file_ok}")
     return "passed" in result.lower() and file_ok
@@ -94,10 +94,10 @@ async def test_web_search() -> bool:
         model_settings=ModelSettings(GEMINI_MODEL),
     )
 
-    file_ok = Path("output/gemini_search.txt").exists()
+    file_ok = (settings.paths.output / "gemini_search.txt").exists()
     print(f"    Response : {result.strip()}")
     if file_ok:
-        print(f"    File content: {Path('output/gemini_search.txt').read_text()[:200]}")
+        print(f"    File content: {(settings.paths.output / 'gemini_search.txt').read_text()[:200]}")
     print(f"    File written: {file_ok}")
     return "passed" in result.lower() and file_ok
 

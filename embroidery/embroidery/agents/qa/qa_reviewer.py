@@ -10,13 +10,13 @@ Stage 2/3: run manually. Stage 4: Orchestrator re-runs Agents 5/6 on FAIL
 using the revision notes in qa_report.json.
 
 Run:
-    cd embroidery && venv/bin/python agent7_qa_reviewer.py
+    cd embroidery && venv/bin/python -m embroidery.agents.qa.qa_reviewer
 """
 
 import asyncio
-from agent_loop import run_agent, reset_search_count
-from config import settings
-from tools import FILE_TOOLS
+from embroidery.core.agent_loop import run_agent, reset_search_count
+from embroidery.core.config import settings
+from embroidery.core.tools import FILE_TOOLS
 
 SYSTEM_PROMPT = """You are an Ad Quality Reviewer applying the EcomTalent diagnostic framework.
 You review every ad concept before it goes to production.

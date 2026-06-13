@@ -11,9 +11,9 @@ Usage:
 import asyncio
 from pathlib import Path
 
-from config import settings, ModelSettings
-from llm import get_provider, LLMProvider
-from logger import get_logger
+from embroidery.core.config import settings, ModelSettings
+from embroidery.core.llm import get_provider, LLMProvider
+from embroidery.core.logger import get_logger
 
 _log = get_logger("agent_loop")
 
@@ -34,7 +34,7 @@ def _get_provider() -> LLMProvider:
 def _get_search():
     global _search
     if _search is None:
-        from search import get_search_provider
+        from embroidery.core.search import get_search_provider
         _search = get_search_provider()
     return _search
 

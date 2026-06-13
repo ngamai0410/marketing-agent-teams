@@ -9,12 +9,12 @@ Verifies:
 5. write_file tool saves to output/
 
 Run:
-    cd embroidery && ../venv/bin/python smoke_test.py
+    cd embroidery && venv/bin/python -m tests.smoke_test
 """
 
 import asyncio
-from agent_loop import run_agent
-from config import ModelSettings
+from embroidery.core.agent_loop import run_agent
+from embroidery.core.config import ModelSettings, settings
 
 ECHO_TOOL = {
     "name": "echo",
@@ -64,7 +64,7 @@ async def main():
 
     # Verify file was written
     from pathlib import Path
-    output_file = Path("output/smoke_test.txt")
+    output_file = settings.paths.output / "smoke_test.txt"
     if output_file.exists():
         print(f"File written: {output_file.read_text()}")
         print("\n✓ Smoke test passed — loop, tools, and file write all work.")
