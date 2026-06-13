@@ -31,7 +31,6 @@
   th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
   th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
   tbody tr:last-child td { border-bottom: none; }
-  tfoot td { font-weight: 600; border-top: 2px solid var(--line); }
   .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; }
   .badge.running { background: rgba(216,166,87,.15); color: var(--run); }
   .badge.done { background: rgba(63,185,80,.15); color: var(--ok); }
@@ -290,7 +289,9 @@ function handle(ev) {
     case "done":
       document.querySelectorAll(".rail .wf").forEach(el => {
         el.classList.remove("active");
-        el.classList.add(ev.status === "complete" ? "done" : ev.status === "error" || ev.status === "blocked" ? "error" : "");
+        const cls = ev.status === "complete" ? "done"
+          : (ev.status === "error" || ev.status === "blocked") ? "error" : null;
+        if (cls) el.classList.add(cls);   // classList.add("") throws — guard the aborted case
       });
       Object.keys(openGatesByWf).forEach(k => openGatesByWf[k].passed = true);
       showDone(ev);
