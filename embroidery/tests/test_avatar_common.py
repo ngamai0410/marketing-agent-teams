@@ -28,9 +28,9 @@ def test_common():
 
     agent = C.AvatarAgent(
         name="probe_agent", label="Probe", model_key="avatar_onboarder",
-        system_template="Hello {who}. Schema: {{\"k\": 1}}", output_file=None,
+        system_template="Hello {priority_count}. Schema: {{\"k\": 1}}", output_file=None,
     )
-    rendered = C.build_system(agent, who="world")
+    rendered = C.build_system(agent, priority_count="world")
     check("Hello world" in rendered, "build_system substitutes context placeholders")
     check('{"k": 1}' in rendered, "build_system preserves literal JSON braces")
 
@@ -40,13 +40,13 @@ def test_common():
         captured["agent_name"] = agent_name
         return '{"ok": true}'
     C.run_agent = fake_run_agent
-    out = asyncio.run(C.run_json_agent(agent, "go", tools=[], ctx={"who": "x"}))
+    out = asyncio.run(C.run_json_agent(agent, "go", tools=[], ctx={"priority_count": "x"}))
     check(out == {"ok": True}, "run_json_agent parses JSON-as-text final message")
     check(captured["agent_name"] == "probe_agent", "run_json_agent passes agent_name through")
 
-    items = C.catalog_items([agent], {"probe_agent": ["who"]}, "Avatar — probe")
+    items = C.catalog_items([agent], {"probe_agent": ["priority_count"]}, "Avatar — probe")
     check(items[0]["id"] == "avatar.probe_agent", "catalog_items builds prefixed prompt id")
-    check(items[0]["placeholders"] == ["who"], "catalog_items carries placeholders")
+    check(items[0]["placeholders"] == ["priority_count"], "catalog_items carries placeholders")
 
 
 def main() -> int:

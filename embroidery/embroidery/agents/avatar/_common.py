@@ -10,7 +10,6 @@ user-editable (avatar.<name>), with {placeholder} context and {{}} literal brace
 """
 
 import json
-import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -18,7 +17,7 @@ from embroidery.agents.research.subagents import parse_json_output  # reuse tole
 from embroidery.core.agent_loop import run_agent
 from embroidery.core.config import settings
 from embroidery.core.logger import get_logger
-from embroidery.core.prompt_store import get_prompt_store
+from embroidery.core.prompt_store import get_prompt_store, to_dollar
 from embroidery.core.reporter import get_reporter
 
 log = get_logger(__name__)
@@ -33,29 +32,10 @@ class AvatarAgent:
     output_file: str | None = None   # if set, JSON output persisted under data/output/
 
 
-def _to_dollar(format_template: str) -> str:
-    """Convert a `.format`-style template to a `string.Template` `$placeholder` form.
-
-    Steps:
-      1. Unescape `{{` → `{` and `}}` → `}` (format-style literal braces).
-      2. Convert every remaining `{name}` placeholder to `${name}`.
-
-    This generalises `prompt_store.to_dollar` to arbitrary placeholder names,
-    which avatar agents need since their context keys vary per-agent.
-    """
-    # Step 1: unescape literal braces
-    t = format_template.replace("{{", "\x00LBRACE\x00").replace("}}", "\x00RBRACE\x00")
-    # Step 2: convert {name} → ${name} for any identifier
-    t = re.sub(r"\{([A-Za-z_][A-Za-z0-9_]*)\}", r"${\1}", t)
-    # Step 3: restore literal braces
-    t = t.replace("\x00LBRACE\x00", "{").replace("\x00RBRACE\x00", "}")
-    return t
-
-
 def build_system(agent: AvatarAgent, **ctx) -> str:
     """Render an agent's system prompt, honouring any saved user override."""
     store = get_prompt_store()
-    return store.render(f"avatar.{agent.name}", _to_dollar(agent.system_template), **ctx)
+    return store.render(f"avatar.{agent.name}", to_dollar(agent.system_template), **ctx)
 
 
 async def run_json_agent(agent: AvatarAgent, kickoff: str, *, tools: list[dict],
@@ -86,7 +66,7 @@ def catalog_items(agents: list[AvatarAgent], placeholders: dict[str, list[str]],
     items: list[dict] = []
     for a in agents:
         pid = f"avatar.{a.name}"
-        default = _to_dollar(a.system_template)
+        default = to_dollar(a.system_template)
         items.append({
             "id": pid,
             "name": a.label,
