@@ -79,6 +79,30 @@ def test_reframe():
           "reframe exposes awareness + competitor + mechanism prompts")
 
 
+def test_synthesizer_writes_two_files():
+    import asyncio, json
+    from pathlib import Path
+    from embroidery.core.config import settings
+    from embroidery.agents.avatar import synthesizer as S
+
+    out = Path(settings.paths.output); out.mkdir(parents=True, exist_ok=True)
+    (out / "avatar_deep_dive.json").unlink(missing_ok=True)
+    (out / "customer_avatars.md").unlink(missing_ok=True)
+
+    calls = {"n": 0}
+    async def fake_run_agent(*, system, messages, tools, model_settings, agent_name, max_tool_calls=50):
+        calls["n"] += 1
+        return '{"avatars": []}' if calls["n"] == 1 else "# Avatar Deep Dive\n\nbody"
+    S.run_agent = fake_run_agent
+
+    stages = {"onboarding": {}, "product": {}, "discovery": {}, "qualification": {},
+              "voc": {}, "awareness": {}, "competitor": {}, "mechanism": {}}
+    report, md = asyncio.run(S.run_synthesis(stages, {"segments": {}}, priority_avatars=["X"]))
+    check((out / "avatar_deep_dive.json").exists(), "synthesizer writes avatar_deep_dive.json")
+    check((out / "customer_avatars.md").exists(), "synthesizer writes customer_avatars.md")
+    check(md.startswith("# Avatar Deep Dive"), "synthesizer returns the markdown doc")
+
+
 def main() -> int:
     test_config()
     test_common()
@@ -86,6 +110,7 @@ def main() -> int:
     test_discovery()
     test_voc()
     test_reframe()
+    test_synthesizer_writes_two_files()
     if failures:
         print(f"\n✗ test_avatar_common FAILED ({len(failures)})")
         return 1
