@@ -58,10 +58,19 @@ def test_framing():
     check(framing.ONBOARDER.output_file == "avatar_onboarding.json", "onboarder writes avatar_onboarding.json")
 
 
+def test_discovery():
+    from embroidery.agents.avatar import discovery
+    ids = {c["id"] for c in discovery.prompt_catalog()}
+    check(ids == {"avatar.reddit_scout", "avatar.amazon_voc", "avatar.fb_ad_scout", "avatar.avatar_qualifier"},
+          "discovery exposes 3 scouts + qualifier prompts")
+    check(discovery.QUALIFIER.output_file == "avatar_qualification.json", "qualifier writes avatar_qualification.json")
+
+
 def main() -> int:
     test_config()
     test_common()
     test_framing()
+    test_discovery()
     if failures:
         print(f"\n✗ test_avatar_common FAILED ({len(failures)})")
         return 1
