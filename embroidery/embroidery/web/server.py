@@ -4,13 +4,13 @@ FastAPI app behind the local monitoring dashboard.
 Endpoints
   GET  /              -> the single-page dashboard (static/index.html)
   GET  /events        -> Server-Sent Events stream of reporter + gate events
-  POST /start         -> kick off the research pipeline (idempotent)
+  POST /start         -> kick off a pipeline run via run_team (idempotent)
   POST /gate          -> resolve a pending QC gate (Approve / Edit / Quit)
   GET  /report        -> data/output/run_report.md (raw markdown)
   GET  /output/{file} -> a whitelisted output artifact for inspection during QC
 
-Everything runs in one asyncio loop: uvicorn serves while run_market_research()
-runs as a task. The reporter (core/reporter.py) is the pub/sub bus; gates
+Everything runs in one asyncio loop: uvicorn serves while run_team() runs as a
+task. The reporter (core/reporter.py) is the pub/sub bus; gates
 (core/checkpoint.py) are resolved by gate_id from POST /gate.
 """
 
@@ -145,14 +145,14 @@ async def start(body: StartBody | None = None):
 
     runner = _run_team_for_test or run_team
     if body.target == "team":
-        start = stop = None
+        wf_start = wf_stop = None
     else:
         if body.target not in {s.id for s in get_registry()}:
             raise HTTPException(404, f"unknown workflow {body.target}")
-        start = stop = body.target
+        wf_start = wf_stop = body.target
 
     _run_task = asyncio.create_task(
-        _guarded_run(runner, body.brief, start, stop, body.start_stage, body.stop_stage)
+        _guarded_run(runner, body.brief, wf_start, wf_stop, body.start_stage, body.stop_stage)
     )
     return {"status": "started", "target": body.target}
 
