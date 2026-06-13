@@ -14,7 +14,9 @@ def check(cond, msg):
 
 def test_config():
     from embroidery.core.config import settings
-    check(settings.avatar.priority_count == 2, "avatar.priority_count defaults to 2 from config.yaml")
+    check(settings.avatar.priority_count == 2, "avatar.priority_count loaded from config.yaml")
+    # proves config.yaml was actually read: 16000 differs from the Python default (8096)
+    check(settings.agents.reddit_scout.max_tokens == 16000, "reddit_scout max_tokens loaded from config.yaml")
     for name in ("avatar_onboarder", "product_analyst", "reddit_scout", "amazon_voc",
                  "fb_ad_scout", "avatar_qualifier", "voc_miner", "awareness_mapper",
                  "competitor_teardown", "mechanism_builder", "avatar_synthesizer"):
