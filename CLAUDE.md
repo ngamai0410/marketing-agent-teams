@@ -201,9 +201,11 @@ Orchestrator
 
 | Model | $/1M in | $/1M out | Assigned agents |
 |---|---|---|---|
-| `claude-haiku-4-5` | $1 | $5 | Dev/prompt validation only |
-| `claude-sonnet-4-6` | $3 | $15 | Avatar, Hooks, Static Copy, QA, Feedback |
+| `claude-haiku-4-5` | $1 | $5 | Dev/prompt validation; Avatar **search** agents (onboarder, product, Reddit/Amazon/FB scouts, VOC) |
+| `claude-sonnet-4-6` | $3 | $15 | Avatar **reasoning** agents (qualifier, awareness/competitor/mechanism reframers, synthesizer), Hooks, Static Copy, QA, Feedback |
 | `claude-opus-4-8` | $5 | $25 | Orchestrator, Market Research, Positioning, Script |
+
+> The table is the Anthropic-tier allocation. The live `config.yaml` runs everything on **Gemini** (flash ≈ haiku tier for search/JSON-as-text agents, pro ≈ sonnet/opus tier for reasoning/synthesis) — switch providers in one line (`llm.provider`).
 
 - Prompt caching: mark shared research context with `{"cache_control": {"type": "ephemeral"}}` — ~90% input cost reduction for the 5 agents that re-read it.
 - `asyncio.gather()` doesn't change total cost but exhausts rate limits simultaneously — convert to sequential if rate-limited.
