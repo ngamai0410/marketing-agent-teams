@@ -13,18 +13,24 @@ embroidery/                      ← project root (PROJECT_ROOT); run commands f
   fixtures/                      ← sample upstream outputs for testing Agent 7
   data/                          ← runtime artifacts (gitignored except brand_ai/)
     output/                        agent-written data-contract files (overwritten each run)
+                                     + run_report.md (per-run agent perf digest)
     brand_ai/<shop>/               timestamped research history (kept across runs)
     logs/                          one DEBUG log file per process
+    prompts/                       overrides.json — saved per-agent prompt edits
 
   embroidery/                    ← the importable package
     core/                          reusable framework (provider-agnostic kernel)
       config.py  llm.py  search.py  logger.py  agent_loop.py  tools.py  brand_store.py
+      reporter.py  checkpoint.py   ← live metrics bus + human-in-the-loop QC gates
+      prompt_store.py              ← view/edit/save each agent's system prompt
     agents/
       research/                    Workflow 1 — Market Research (Agents 1,2,3)
         pipeline.py  subagents.py  synthesizer.py
       copy/                        Workflow 2 — Copy (Agents 4,5,6)  [future]
       qa/                          Workflow 3 — QA & Feedback (Agents 7,8)
         qa_reviewer.py
+    web/                           local monitoring dashboard (FastAPI + SSE + QC buttons)
+      server.py  __main__.py  static/index.html
 
   tests/                         ← test + smoke scripts (run as modules)
 ```
@@ -79,7 +85,7 @@ config.yaml  ──►  core/config.py  ──►  settings (PROJECT_ROOT-anchor
 ```bash
 # Python 3.11 — system Python 3.14 has broken pip
 ~/.pyenv/versions/3.11.9/bin/python3 -m venv venv
-venv/bin/pip install "anthropic>=0.40" aiohttp python-dotenv rich pyyaml openai ddgs "google-genai>=1.0"
+venv/bin/pip install "anthropic>=0.40" aiohttp python-dotenv rich pyyaml openai ddgs "google-genai>=1.0" "fastapi>=0.110" "uvicorn[standard]>=0.27"
 cp .env.example .env   # then add API keys
 venv/bin/python -m tests.smoke_test   # verifies loop + tools + file write
 ```
@@ -89,10 +95,27 @@ no longer works because the code is a package. CWD must be the project root so `
 embroidery` resolves; all data paths are anchored at `PROJECT_ROOT`, so it is CWD-independent
 in practice, but `-m` resolution still needs you here.
 
+## Live dashboard + QC gates
+
+```bash
+venv/bin/python -m embroidery.web            # opens a browser dashboard; click Start
+venv/bin/python -m embroidery.web --no-browser
+venv/bin/python -m embroidery.web --yes      # watch live, auto-approve every gate
+```
+
+The dashboard (FastAPI + uvicorn on `127.0.0.1:8765`, configurable under `web:` in
+`config.yaml`) streams every agent's status / tokens / cost / searches / elapsed live over
+SSE, and pauses at each **QC gate** so you can **Approve**, **Edit the brief & re-run**, or
+**Quit**. Before Start, the **⚙ Agent prompts** panel lets you view, edit, and save each
+agent's system prompt (saved to `data/prompts/overrides.json`, Reset restores the default).
+Every run also writes a `data/output/run_report.md` perf digest. The reporter taps metrics
+`core/agent_loop.py` already computes — see `embroidery/web/README.md`. Run headless
+(`-m embroidery.agents.research.pipeline`) and the gates auto-approve.
+
 ## Run Agent 1 (Market Research)
 
 ```bash
-venv/bin/python -m embroidery.agents.research.pipeline       # FULL pipeline: gather(A,B,C) → Synthesizer → reports
+venv/bin/python -m embroidery.agents.research.pipeline       # FULL pipeline, headless (gates auto-approve)
 venv/bin/python -m embroidery.agents.research.subagents a    # one sub-agent standalone: a | b | c
 venv/bin/python -m embroidery.agents.research.synthesizer    # Synthesizer only, from static data/output/research_*.json
 venv/bin/python -m tests.test_agent1_subagents               # live schema test for all 3 sub-agents (or pass a|b|c)

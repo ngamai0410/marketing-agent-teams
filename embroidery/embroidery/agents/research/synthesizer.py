@@ -24,6 +24,7 @@ from embroidery.agents.research.subagents import SHOP_BRIEF, parse_json_output, 
 from embroidery.core.agent_loop import run_agent
 from embroidery.core.config import settings
 from embroidery.core.logger import get_logger
+from embroidery.core.prompt_store import get_prompt_store, to_dollar
 
 log = get_logger(__name__)
 
@@ -213,10 +214,12 @@ async def run_synthesizer(
     """Two no-tool synthesis calls: (master report dict, markdown narrative)."""
     ctx = shop_context(brief)
     model = settings.agents.synthesizer
+    store = get_prompt_store()
 
     raw = await run_agent(
-        system=SYNTH_JSON_SYSTEM_TEMPLATE.format(
-            shop_context=ctx, research_date=date.today().isoformat()
+        system=store.render(
+            "research.synthesizer_json", to_dollar(SYNTH_JSON_SYSTEM_TEMPLATE),
+            shop_context=ctx, research_date=date.today().isoformat(),
         ),
         messages=[{"role": "user", "content": SYNTH_JSON_KICKOFF_TEMPLATE.format(
             research_a=json.dumps(research_a, indent=2, ensure_ascii=False),
@@ -233,7 +236,10 @@ async def run_synthesizer(
              len(report.get("problems", [])), len(report.get("hooks", [])))
 
     markdown = await run_agent(
-        system=SYNTH_MD_SYSTEM_TEMPLATE.format(shop_context=ctx, shop_name=brief["name"]),
+        system=store.render(
+            "research.synthesizer_md", to_dollar(SYNTH_MD_SYSTEM_TEMPLATE),
+            shop_context=ctx, shop_name=brief["name"],
+        ),
         messages=[{"role": "user", "content": SYNTH_MD_KICKOFF_TEMPLATE.format(
             report_json=json.dumps(report, indent=2, ensure_ascii=False),
             research_a=json.dumps(research_a, indent=2, ensure_ascii=False),
@@ -249,6 +255,30 @@ async def run_synthesizer(
         markdown = markdown.split("\n", 1)[1].rsplit("```", 1)[0].strip()
     log.info("agent=synthesizer_md chars=%d", len(markdown))
     return report, markdown
+
+
+def prompt_catalog() -> list[dict]:
+    """Editable prompts owned by the Synthesizer (two no-tool calls)."""
+    store = get_prompt_store()
+    specs = [
+        ("research.synthesizer_json", "Synthesizer — JSON report",
+         ["shop_context", "research_date"], SYNTH_JSON_SYSTEM_TEMPLATE),
+        ("research.synthesizer_md", "Synthesizer — Markdown narrative",
+         ["shop_context", "shop_name"], SYNTH_MD_SYSTEM_TEMPLATE),
+    ]
+    items: list[dict] = []
+    for pid, name, placeholders, template in specs:
+        default = to_dollar(template)
+        items.append({
+            "id": pid,
+            "name": name,
+            "stage": "Research — synthesis",
+            "placeholders": placeholders,
+            "default": default,
+            "text": store.text(pid, default),
+            "overridden": store.is_overridden(pid),
+        })
+    return items
 
 
 def _load_static_research() -> tuple[dict, dict, dict]:

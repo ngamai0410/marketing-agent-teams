@@ -80,6 +80,15 @@ agents:
     max_tokens: 8096
 
 # ─────────────────────────────────────────────
+# Web dashboard (python -m embroidery.web)
+# Live agent monitoring + human-in-the-loop QC gates. Localhost, single-user.
+# ─────────────────────────────────────────────
+web:
+  host: 127.0.0.1
+  port: 8765
+  open_browser: true        # auto-open the browser on launch (--no-browser overrides)
+
+# ─────────────────────────────────────────────
 # Paths
 # ─────────────────────────────────────────────
 # Resolved relative to PROJECT_ROOT (the outer embroidery/ dir) — CWD-independent.
@@ -88,3 +97,4 @@ paths:
   brand_ai: data/brand_ai
   logs: data/logs
   fixtures: fixtures
+  prompts: data/prompts        # saved per-agent prompt overrides (overrides.json)

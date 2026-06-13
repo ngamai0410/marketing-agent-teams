@@ -31,8 +31,9 @@ EcomTalent-framework AI agent teams running end-to-end marketing campaigns (mark
 
 ```bash
 # Python 3.11 venv required — system Python 3.14 has broken pip
-embroidery/venv/bin/pip install "anthropic>=0.40" aiohttp python-dotenv rich pyyaml openai duckduckgo-search "google-genai>=1.0"
+embroidery/venv/bin/pip install "anthropic>=0.40" aiohttp python-dotenv rich pyyaml openai duckduckgo-search "google-genai>=1.0" "fastapi>=0.110" "uvicorn[standard]>=0.27"
 cd embroidery && venv/bin/python -m tests.smoke_test   # verifies loop + tools + file write
+cd embroidery && venv/bin/python -m embroidery.web     # live monitoring dashboard + QC gates (browser)
 ```
 
 **Package layout (run everything from `embroidery/` as modules):** the code is the
@@ -56,7 +57,78 @@ config.yaml → core/config.py (typed Config / ModelSettings; PROJECT_ROOT-ancho
   core/agent_loop.py: run_agent(system, messages, tools, model_settings, agent_name)
                    ↓
   core/logger.py → stdout INFO+  /  data/logs/<YYYYMMDD_HHMMSS>.log DEBUG+
+  core/reporter.py ← run_agent emits per-agent metrics (calls/tokens/searches/$/elapsed)
+                   ↓ async pub/sub  (workflow field tags each row to its lane)
+  core/workflow.py  WorkflowSpec registry ← each pipeline module registers itself at import
+                   ↓ load_workflows() / get_registry()
+  core/orchestrator.py  run_team(): registry walk · data-contract input gating · QA re-loop
+                   ↓
+  embroidery/web/ (FastAPI + uvicorn + SSE)  ⇄  core/checkpoint.py (QC gates, workflow= field)
+  └─ browser dashboard: lanes + rail + Test/Run panel; research + QA wired
+                        monitor (live agent rows per lane) · test (stage-range, fixture seed,
+                        prompt preview) · edit (prompts + per-gate brief) · Approve / Edit / Quit
 ```
+
+**Monitoring + human-in-the-loop layer.** `core/reporter.py` (`RunReporter` singleton) is a
+passive metrics accumulator + async event bus; `run_agent()` taps it at start/call/search/done
+(no behaviour change, no-op without subscribers). `AgentRecord` now carries a `workflow` field
+(set via `reporter.workflow_context(id)` contextmanager) so the dashboard can group rows by lane.
+`core/checkpoint.py`'s `await checkpoint(stage, digest, *, workflow="", request=...)` pauses a
+pipeline between stages, publishing a `gate` event (with `workflow=`) the dashboard renders; the
+user's decision (`APPROVE`/`EDIT`/`QUIT`) flows back so a stage can re-run with an adjusted
+request. `embroidery/web/` serves the single-page dashboard (SSE live stream + `/gate`
+resolution); standalone CLI runs auto-approve gates (`EMBROIDERY_YES=1` or no subscriber). Each
+run writes a perf digest to `data/output/run_report.md`. Web host/port: `config.yaml` → `web:`
+(default `127.0.0.1:8765`).
+
+**WorkflowSpec registry + orchestrator.** `core/workflow.py` is the single source of truth for
+the agent team: each pipeline module calls `register(WorkflowSpec(...))` at import, declaring its
+stages, async `entry_point`, `prompt_catalog`, data-contract `inputs`/`outputs`, `fixtures`, and
+`config_schema`. `load_workflows()` imports all pipeline modules in canonical order (research →
+qa; tolerant of not-yet-built ones). `core/orchestrator.py`'s `run_team()` is fully generic: it
+walks the registry `[start..stop]`, asserts each workflow's declared `inputs` exist under
+`data/output/` before it starts (the data-contract gate — **no `positioning_matrix.json` → Copy
+is blocked**, publishes a `blocked` done event), runs each `entry_point` inside
+`reporter.workflow_context(id)`, and after the `qa` workflow re-loops back to `copy` on overall
+FAIL (bounded by `max_qa_loops`). `run_team` owns the run-level `done`/`aborted`/`blocked` event
+and `run_report.md`. The web layer calls `run_team` for every `POST /start` request.
+
+**Editable prompts.** `core/prompt_store.py` lets the user view/edit/save each agent's **system
+prompt** before a run (dashboard **⚙ Agent prompts** panel). Templates are authored as
+`.format` strings (JSON braces escaped `{{}}`, context via `{shop_context}`); `to_dollar()`
+converts them once to a brace-safe `$placeholder` form for editing, overrides persist to
+`data/prompts/overrides.json`, and `build_system()` / `run_synthesizer()` render via
+`PromptStore.render` (`Template.safe_substitute` — a removed placeholder degrades gracefully).
+A new agent makes its prompts editable by exposing a `prompt_catalog()` and rendering through
+the store (see `agents/research/`).
+
+**Web UI — needs for the whole team (monitor / test / edit).** Research and QA are wired; Copy
+and Feedback remain future work. The dashboard is the single local control surface for the
+**entire 8-agent team** (Research → Copy → QA → Feedback). Build every new workflow toward these
+three pillars — each is a *requirement on the UI*, not just the pipeline:
+
+- **Monitor** — every agent across all workflows appears in the live table the moment it starts
+  (call/token/$/search/elapsed via `reporter.py`), grouped into workflow **lanes** with a
+  **rail** header. Sub-agent fan-out (A/B/C-style parallelism) is visible as distinct rows.
+  Crashes surface as a `done`/`error` event, never a silent hang. ✅ built.
+- **Test** — the user can exercise one agent or one workflow in isolation: pick a start/stop
+  stage, run against committed **fixtures** (`fixtures/`) via `seed_fixtures` in `POST /start`,
+  and dry-run a prompt edit via `POST /prompts/preview`. The 🧪 Test/Run panel in the UI wires
+  all three. Each workflow's `entry_point` is invokable standalone via `target=<id>` in
+  `POST /start`; `run_team` covers the "full team" entry. ✅ built (research + QA).
+- **Edit** — before *and between* stages: (a) any agent **system prompt** (`prompt_store.py`,
+  **⚙ Agent prompts**), (b) the **request/brief** via the `EDIT` gate decision, (c) run config
+  from the UI ☐ (phase 5). A **QC gate (`checkpoint.py`) sits at every workflow boundary** (after
+  Research ✅, after QA ✅; after Copy ☐ — not built yet). The data-contract gate is enforced by
+  the orchestrator (no `positioning_matrix.json` → Copy blocked, `blocked` event surfaced).
+
+Extending the dashboard to a workflow = give its pipeline a gate-driven loop (publish `stage`,
+`await checkpoint(workflow=id)` at boundaries), wrap in `reporter.workflow_context(id)`, pass
+`agent_name=` everywhere, expose `prompt_catalog()`, call `register(WorkflowSpec(...))` at
+import, and add the module to `load_workflows()` in `core/workflow.py`. No new endpoints needed
+until a workflow needs a contract the current `/start` · `/gate` · `/workflows` · `/prompts` ·
+`/prompts/reset` · `/prompts/preview` · `/artifacts` · `/output` · `/report` set can't express —
+add to `web/README.md` if so.
 
 - Tool schemas are always in **Anthropic JSON schema format** — `llm.py` converts to OpenAI/Gemini internally.
 - Messages accumulate in **Anthropic format** across all providers.
@@ -110,6 +182,7 @@ Orchestrator
 | `static_ad_copy.json` | 6 | 7 |
 | `qa_report.json` | 7 | Orchestrator |
 | `weekly_learnings.json`, `next_week_brief.json` | 8 | Orchestrator |
+| `run_report.md` (per-run agent perf digest: calls/tokens/$/elapsed) | `core/reporter.py` (any pipeline) | human / dashboard |
 
 **Tool access per agent:**
 - Agent 1: `web_search`, `web_fetch` (billed per call — budget +$0.20–0.50/run; capped by `search.max_searches` shared per run **and** `search.max_searches_per_agent`, both enforced in `core/agent_loop.py` — prompts alone are ignored by flash). Sub-agents A/B/C are **search-only** (`SEARCH_TOOLS`) and return JSON as final text — Python persists `data/output/research_*.json`; this avoids flash's MALFORMED_FUNCTION_CALL on large tool payloads. The Synthesizer has **no tools** (2 calls on pro: JSON report, then markdown narrative); `BrandAI` (`core/brand_store.py`) keeps timestamped history in `data/brand_ai/<shop>/`.
@@ -141,6 +214,10 @@ Orchestrator
 5. Agents 2+6 (Avatar + Static Copy) — can run in parallel with step 4
 6. Agent 8 (Feedback) — implement only after first real ad performance data exists
 7. Orchestrator — wire last; don't add until steps 1–6 work in manual runs
+
+As each workflow comes online, wire it into the dashboard the same step it's built — gate-driven
+loop, `prompt_catalog()`, standalone entry point (see **Web UI — needs for the whole team**). A
+workflow isn't "done" until you can monitor, test (fixture/per-stage), and edit it from the UI.
 
 ---
 
