@@ -88,6 +88,8 @@ _STAGES = [STAGE_SUBAGENTS, STAGE_SYNTH]
 def _active(start_stage: str | None, stop_stage: str | None) -> set[str]:
     si = _STAGES.index(start_stage) if start_stage else 0
     ei = _STAGES.index(stop_stage) if stop_stage else len(_STAGES) - 1
+    if si > ei:
+        raise ValueError(f"start_stage {start_stage!r} is after stop_stage {stop_stage!r}")
     return {s for i, s in enumerate(_STAGES) if si <= i <= ei}
 
 
