@@ -110,6 +110,8 @@ three pillars — each is a *requirement on the UI*, not just the pipeline:
 - **Monitor** — every agent across all workflows appears in the live table the moment it starts
   (call/token/$/search/elapsed via `reporter.py`), grouped into workflow **lanes** with a
   **rail** header. Sub-agent fan-out (A/B/C-style parallelism) is visible as distinct rows.
+  Each agent row **expands into a labeled step pipeline** (call/search/fetch/write) ending in
+  an inline output viewer (`reporter.py` `steps` → `GET /output/{file}`).
   Crashes surface as a `done`/`error` event, never a silent hang. ✅ built.
 - **Test** — the user can exercise one agent or one workflow in isolation: pick a start/stop
   stage, run against committed **fixtures** (`fixtures/`) via `seed_fixtures` in `POST /start`,

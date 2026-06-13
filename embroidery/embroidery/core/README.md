@@ -32,7 +32,8 @@ config.yaml ─► config.py ─► settings (typed Config/ModelSettings; PROJEC
 
 The reporter + checkpoint pair is the **monitoring / human-in-the-loop layer** the web
 dashboard (`embroidery/web/`) drives. `run_agent()` emits lifecycle events
-(start / call / search / done) to the reporter; a stage calls `checkpoint()` between
+(start / call / search / fetch / write / done) to the reporter, which records each as an
+ordered **step** on the agent so the dashboard can render a per-agent process pipeline; a stage calls `checkpoint()` between
 hand-offs to pause for the user. Both are no-ops without a subscriber, so standalone CLI
 runs and tests are unaffected.
 
@@ -49,7 +50,7 @@ the whole campaign without per-workflow code.
 | `agent_loop.py` | `run_agent()` — the single agentic loop used by every agent; tool execution + search caps live here. Emits metrics to `reporter.py`. |
 | `tools.py` | Tool schemas: `RESEARCH_TOOLS`, `SEARCH_TOOLS` (no write), `FILE_TOOLS`. |
 | `brand_store.py` | `BrandAI` — timestamped research history per shop under `data/brand_ai/<shop>/`. |
-| `reporter.py` | `RunReporter` singleton (`get_reporter()`): per-agent metrics (calls/tokens/searches/$/elapsed), async pub/sub bus, `render_markdown()` → `data/output/run_report.md`. `PRICES` table is the single source of cost truth. `AgentRecord` carries a `workflow` field (first key in `as_row()`); `workflow_context(id)` contextmanager (contextvar) tags each row with its workflow lane so the dashboard can group agents. |
+| `reporter.py` | `RunReporter` singleton (`get_reporter()`): per-agent metrics (calls/tokens/searches/$/elapsed), async pub/sub bus, `render_markdown()` → `data/output/run_report.md`. `PRICES` table is the single source of cost truth. `AgentRecord` carries a `workflow` field (first key in `as_row()`); `workflow_context(id)` contextmanager (contextvar) tags each row with its workflow lane so the dashboard can group agents. `AgentRecord` also carries an ordered `steps` list (in `as_row()`, streamed over SSE): `agent_call`/`agent_search` (takes an optional `results` count) append call/search steps, and `agent_write`/`agent_fetch`/`agent_output` append write/fetch/output steps — the dashboard renders these as a per-agent pipeline. Steps reset on agent re-run. |
 | `checkpoint.py` | `await checkpoint(stage, digest, *, workflow="", request=...)` — the QC gate. Carries `workflow` in the published `gate` event and in `open_gates()`. Blocks until `resolve_gate()` (POST /gate); returns a `Decision` (APPROVE/EDIT/QUIT). Auto-approves when `EMBROIDERY_YES=1` or no dashboard is attached. |
 | `prompt_store.py` | `get_prompt_store()` + `to_dollar()`. Lets the user view/edit/save each agent's **system prompt** before a run. Converts `.format` templates (`{{}}`-escaped) to brace-safe `$placeholder` form, persists overrides to `data/prompts/overrides.json`, renders via `Template.safe_substitute` (a removed placeholder degrades gracefully). |
 | `workflow.py` | `WorkflowSpec` registry — the single source of truth for the agent team. `Stage(name, agents, digest=None)` + `WorkflowSpec(id, label, stages, entry_point, prompt_catalog, inputs, outputs, fixtures, config_schema)`. `register(spec)` / `get_registry()` / `get_spec(id)` / `clear_registry()` (test helper). `load_workflows()` imports pipeline modules in canonical order (research → qa; tolerant of not-yet-built ones); called once at web startup (`web/server.py` at import) to populate the registry — `run_team` then reads it via `get_registry()`. |

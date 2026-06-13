@@ -25,7 +25,7 @@ single-user, no auth.
 |---|---|
 | `server.py` | FastAPI `app` + endpoints (below). Calls `load_workflows()` at import to populate the registry; routes `POST /start` through `run_team`. |
 | `__main__.py` | Launcher — `uvicorn.run(...)` + opens the browser. `--yes` / `--no-browser` flags. |
-| `static/index.html` | The whole UI: workflow **lanes** (one column per registered workflow, agent rows grouped by lane) + workflow **rail** header; **🧪 Test / run** panel (target, stage range, seed-from-fixtures, dry-run prompt preview); gate card; done panel. Vanilla HTML/CSS/JS + `EventSource`. |
+| `static/index.html` | The whole UI: workflow **lanes** (one column per registered workflow, agent rows grouped by lane) + workflow **rail** header; each agent row **expands into a process pipeline** (ordered call/search/fetch/write step nodes; output nodes load `GET /output/{file}` inline, formatted + copy); **🧪 Test / run** panel (target, stage range, seed-from-fixtures, dry-run prompt preview); gate card; done panel. Vanilla HTML/CSS/JS + `EventSource`. |
 
 ## Endpoints
 
@@ -86,6 +86,7 @@ Copy and Feedback are future work. Status: ✅ built · ◐ partial (research + 
 - ✅ Stage banner shows the current step; `done`/`error` event surfaces crashes (never a silent hang).
 - ✅ Sub-agent fan-out (A/B/C-style parallelism) renders as **distinct rows**, not collapsed into the parent.
 - ✅ Workflow **lanes** + **rail** — agent rows grouped by workflow, visible the moment `workflow_context` is entered (`reporter.py` `workflow` field).
+- ✅ **Per-agent process pipeline** — click an agent row to expand its ordered work steps (LLM call / search / fetch / write); the output node loads the produced file inline (`GET /output/{file}`, formatted + copy). A `done` agent that wrote nothing shows "(no output)". Steps stream live via the `agents` event (`reporter.py` `steps`).
 
 ### Test — exercise a part without running the whole chain
 - ✅ Pick a **start/stop stage** so one agent or one workflow runs in isolation (`start_stage`/`stop_stage` in `POST /start`).
