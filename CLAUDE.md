@@ -102,8 +102,8 @@ converts them once to a brace-safe `$placeholder` form for editing, overrides pe
 A new agent makes its prompts editable by exposing a `prompt_catalog()` and rendering through
 the store (see `agents/research/`).
 
-**Web UI — needs for the whole team (monitor / test / edit).** Research and QA are wired; Copy
-and Feedback remain future work. The dashboard is the single local control surface for the
+**Web UI — needs for the whole team (monitor / test / edit).** Research, Avatar, and QA are wired;
+Copy and Feedback remain future work. The dashboard is the single local control surface for the
 **entire 8-agent team** (Research → Copy → QA → Feedback). Build every new workflow toward these
 three pillars — each is a *requirement on the UI*, not just the pipeline:
 
@@ -117,7 +117,7 @@ three pillars — each is a *requirement on the UI*, not just the pipeline:
   stage, run against committed **fixtures** (`fixtures/`) via `seed_fixtures` in `POST /start`,
   and dry-run a prompt edit via `POST /prompts/preview`. The 🧪 Test/Run panel in the UI wires
   all three. Each workflow's `entry_point` is invokable standalone via `target=<id>` in
-  `POST /start`; `run_team` covers the "full team" entry. ✅ built (research + QA).
+  `POST /start`; `run_team` covers the "full team" entry. ✅ built (research + avatar + QA).
 - **Edit** — before *and between* stages: (a) any agent **system prompt** (`prompt_store.py`,
   **⚙ Agent prompts**), (b) the **request/brief** via the `EDIT` gate decision, (c) run config
   from the UI ☐ (phase 5). A **QC gate (`checkpoint.py`) sits at every workflow boundary** (after
