@@ -31,3 +31,6 @@ Thumbs.db
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Superpowers brainstorm scratch dir
+.superpowers/
