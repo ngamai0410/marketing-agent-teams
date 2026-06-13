@@ -13,7 +13,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from embroidery.agents.research.subagents import parse_json_output  # reuse tolerant parser
+from embroidery.core.json_utils import parse_json_output
 from embroidery.core.agent_loop import run_agent
 from embroidery.core.config import settings
 from embroidery.core.logger import get_logger
@@ -39,7 +39,7 @@ def build_system(agent: AvatarAgent, **ctx) -> str:
 
 
 async def run_json_agent(agent: AvatarAgent, kickoff: str, *, tools: list[dict],
-                         ctx: dict, max_tool_calls: int = 16) -> dict:
+                         ctx: dict[str, str], max_tool_calls: int = 16) -> dict:
     """Run one agent that returns a JSON object as final text; persist if output_file set."""
     raw = await run_agent(
         system=build_system(agent, **ctx),
@@ -82,4 +82,7 @@ def catalog_items(agents: list[AvatarAgent], placeholders: dict[str, list[str]],
 def load_json(name: str) -> dict:
     """Load a previously-saved stage output from data/output/ (for skipped stages)."""
     path = Path(settings.paths.output) / name
-    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    if not path.exists():
+        log.debug("stage output not found, returning empty file=%s", path)
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))

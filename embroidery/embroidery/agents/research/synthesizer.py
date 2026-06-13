@@ -20,9 +20,10 @@ import json
 from datetime import date
 from pathlib import Path
 
-from embroidery.agents.research.subagents import SHOP_BRIEF, parse_json_output, shop_context
+from embroidery.agents.research.subagents import SHOP_BRIEF, shop_context
 from embroidery.core.agent_loop import run_agent
 from embroidery.core.config import settings
+from embroidery.core.json_utils import parse_json_output
 from embroidery.core.logger import get_logger
 from embroidery.core.prompt_store import get_prompt_store, to_dollar
 
