@@ -16,6 +16,8 @@ runs as a task. The reporter (core/reporter.py) is the pub/sub bus; gates
 
 import asyncio
 import json
+import shutil
+import string
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -27,7 +29,8 @@ from embroidery.core.config import settings
 from embroidery.core.logger import get_logger
 from embroidery.core.prompt_store import get_prompt_store
 from embroidery.core.reporter import get_reporter
-from embroidery.core.workflow import get_registry, get_spec, load_workflows
+from embroidery.agents.research.subagents import SHOP_BRIEF, shop_context
+from embroidery.core.workflow import get_registry, load_workflows
 
 # Populate the workflow registry once at import (lazy per-module imports inside).
 load_workflows()
@@ -216,3 +219,59 @@ async def output_file(filename: str) -> FileResponse:
     if not path.exists():
         raise HTTPException(404, f"{filename} not found")
     return FileResponse(path)
+
+
+# ─────────────────────────────────────────────
+# Test pillar — artifacts, prompt preview, fixture seeding
+# ─────────────────────────────────────────────
+
+@app.get("/artifacts")
+async def list_artifacts():
+    out = Path(settings.paths.output)
+    files = sorted(p.name for p in out.glob("*") if p.suffix in (".json", ".md")) if out.exists() else []
+    return {"files": files}
+
+
+class PreviewBody(BaseModel):
+    id: str
+    text: str | None = None     # if omitted, preview the currently-saved prompt
+
+_SAMPLE_CTX = None
+
+def _sample_ctx() -> dict:
+    global _SAMPLE_CTX
+    if _SAMPLE_CTX is None:
+        _SAMPLE_CTX = {
+            "shop_context": shop_context(SHOP_BRIEF),
+            "shared_rules": "(shared research rules)",
+            "research_date": "2026-06-13",
+            "shop_name": SHOP_BRIEF["name"],
+        }
+    return _SAMPLE_CTX
+
+@app.post("/prompts/preview")
+async def preview_prompt(body: PreviewBody):
+    item = next((p for p in _prompt_catalog() if p["id"] == body.id), None)
+    if item is None:
+        raise HTTPException(404, f"unknown prompt {body.id}")
+    text = body.text if body.text is not None else item["text"]
+    rendered = string.Template(text).safe_substitute(**_sample_ctx())
+    return {"id": body.id, "rendered": rendered}
+
+
+def _seed_fixtures(files: list[str]) -> list[str]:
+    """Copy committed fixtures/<file> -> data/output/<file>. Returns copied names."""
+    src_dir = Path(settings.paths.fixtures)
+    out = Path(settings.paths.output)
+    out.mkdir(parents=True, exist_ok=True)
+    copied = []
+    for name in files:
+        if "/" in name or ".." in name:
+            raise HTTPException(400, f"invalid fixture name {name}")
+        src = src_dir / name
+        if not src.exists():
+            raise HTTPException(404, f"no fixture {name}")
+        shutil.copy(src, out / name)
+        copied.append(name)
+    log.info("seeded fixtures into output: %s", copied)
+    return copied
