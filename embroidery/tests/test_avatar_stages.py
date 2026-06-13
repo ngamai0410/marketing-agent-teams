@@ -51,6 +51,11 @@ def main() -> int:
     check(spec.outputs == ["customer_avatars.md", "avatar_deep_dive.json"],
           "avatar declares its data-contract outputs")
 
+    from embroidery.core.workflow import load_workflows
+    order = [s.id for s in load_workflows()]
+    check(order.index("research") < order.index("avatar") < order.index("qa"),
+          "load_workflows orders research -> avatar -> qa")
+
     # full run hits every stage in order
     _stub_all()
     asyncio.run(P.run_avatar_builder(gate=_approve))
