@@ -74,14 +74,23 @@ def load_workflows() -> list[WorkflowSpec]:
 
     Lazy + tolerant: a workflow whose agents aren't built yet simply isn't
     imported. The web layer / orchestrator call this once at startup.
+    Returns specs in canonical module order (not registry insertion order),
+    so ordering is stable regardless of prior imports.
     """
     import importlib
-    for module in (
+    # Module names follow the convention embroidery.agents.<workflow_id>.pipeline.
+    _CANONICAL = (
         "embroidery.agents.research.pipeline",
+        "embroidery.agents.avatar.pipeline",
         "embroidery.agents.qa.pipeline",
-    ):
+    )
+    for module in _CANONICAL:
         try:
             importlib.import_module(module)
         except ImportError as exc:           # workflow not built yet — skip
             log.debug("workflow module not loadable (%s): %s", module, exc)
-    return get_registry()
+    # Build the return list in canonical tuple order so the ordering contract
+    # holds even if a workflow module was imported before this function ran.
+    canonical_ids = [m.split(".")[-2] for m in _CANONICAL]  # e.g. "research"
+    registry = _REGISTRY
+    return [registry[wid] for wid in canonical_ids if wid in registry]

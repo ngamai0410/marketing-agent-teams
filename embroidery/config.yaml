@@ -79,6 +79,19 @@ agents:
     model: gemini-2.5-pro
     max_tokens: 8096
 
+  # --- Avatar Builder (Agent 2) ---
+  avatar_onboarder:    { model: gemini-2.5-flash, max_tokens: 8096 }
+  product_analyst:     { model: gemini-2.5-flash, max_tokens: 8096 }
+  reddit_scout:        { model: gemini-2.5-flash, max_tokens: 16000 }
+  amazon_voc:          { model: gemini-2.5-flash, max_tokens: 16000 }
+  fb_ad_scout:         { model: gemini-2.5-flash, max_tokens: 16000 }
+  avatar_qualifier:    { model: gemini-2.5-pro,   max_tokens: 8096 }
+  voc_miner:           { model: gemini-2.5-flash, max_tokens: 16000 }
+  awareness_mapper:    { model: gemini-2.5-pro,   max_tokens: 8096 }
+  competitor_teardown: { model: gemini-2.5-pro,   max_tokens: 8096 }
+  mechanism_builder:   { model: gemini-2.5-pro,   max_tokens: 8096 }
+  avatar_synthesizer:  { model: gemini-2.5-pro,   max_tokens: 16000 }
+
 # ─────────────────────────────────────────────
 # Web dashboard (python -m embroidery.web)
 # Live agent monitoring + human-in-the-loop QC gates. Localhost, single-user.
@@ -87,6 +100,12 @@ web:
   host: 127.0.0.1
   port: 8765
   open_browser: true        # auto-open the browser on launch (--no-browser overrides)
+
+# ─────────────────────────────────────────────
+# Avatar Builder (Agent 2)
+# ─────────────────────────────────────────────
+avatar:
+  priority_count: 2     # number of qualified avatars to deep-dive
 
 # ─────────────────────────────────────────────
 # Paths

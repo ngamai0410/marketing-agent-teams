@@ -46,7 +46,7 @@ placeholders are injected safely (a removed placeholder just isn't substituted).
 
 | File | Role | Key symbols |
 |---|---|---|
-| `subagents.py` | Sub-agents A/B/C — prompts, the `SUBAGENTS` registry, and `run_subagent(key)` which runs one sub-agent and saves its JSON. **Holds `SHOP_BRIEF`** (edit before each campaign). | `SHOP_BRIEF`, `SUBAGENTS`, `SubAgentSpec`, `run_subagent`, `parse_json_output`, `shop_context` |
+| `subagents.py` | Sub-agents A/B/C — prompts, the `SUBAGENTS` registry, and `run_subagent(key)` which runs one sub-agent and saves its JSON. **Holds `SHOP_BRIEF`** (edit before each campaign). | `SHOP_BRIEF`, `SUBAGENTS`, `SubAgentSpec`, `run_subagent`, `shop_context` |
 | `synthesizer.py` | Synthesizer — merges A/B/C into the master report + narrative (two `gemini-2.5-pro` calls, no tools, Python writes the files). | `run_synthesizer(a, b, c)`, `_load_static_research()` |
 | `pipeline.py` | Agent 1 entry — `gather(A,B,C)` → QC gate → Synthesizer → QC gate → output files + BrandAI snapshot + `run_report.md`. Returns `None` if the user quits at a gate. | `run_market_research(brief)`, `_research_digest`, `_synth_digest`, `SHOP_SLUG` |
 

@@ -25,8 +25,13 @@ from embroidery.core.logger import get_logger
 
 log = get_logger(__name__)
 
-# The injected placeholders across all prompts. `to_dollar` rewrites only these.
-PLACEHOLDERS = ("shop_context", "shared_rules", "research_date", "shop_name")
+# Placeholder names converted to $-form by to_dollar(). This is an explicit
+# allow-list ON PURPOSE: a generic "convert every {word}" rule would corrupt
+# escaped literal braces like {{rank}}. Any NEW context key used in an agent
+# system template (e.g. {priority_avatars}) MUST be added here, or it will not
+# substitute and will render literally.
+PLACEHOLDERS = ("shop_context", "shared_rules", "research_date", "shop_name",
+                "priority_avatars", "priority_count")
 
 
 def to_dollar(format_template: str) -> str:

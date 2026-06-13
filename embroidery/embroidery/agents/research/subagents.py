@@ -22,6 +22,7 @@ from pathlib import Path
 
 from embroidery.core.agent_loop import run_agent, reset_search_count
 from embroidery.core.config import settings
+from embroidery.core.json_utils import parse_json_output
 from embroidery.core.reporter import get_reporter
 from embroidery.core.logger import get_logger
 from embroidery.core.prompt_store import get_prompt_store, to_dollar
@@ -372,18 +373,6 @@ def prompt_catalog() -> list[dict]:
         "overridden": store.is_overridden("research.shared_rules"),
     })
     return items
-
-
-def parse_json_output(raw: str) -> dict:
-    """Parse a JSON object from a model's final text, tolerating fences/prose."""
-    text = raw.strip()
-    if text.startswith("```"):
-        text = text.split("\n", 1)[1] if "\n" in text else text
-        text = text.rsplit("```", 1)[0]
-    start, end = text.find("{"), text.rfind("}")
-    if start == -1 or end <= start:
-        raise ValueError(f"No JSON object in sub-agent output: {raw[:300]!r}")
-    return json.loads(text[start:end + 1])
 
 
 async def run_subagent(key: str, brief: dict = SHOP_BRIEF, reset_searches: bool = True) -> dict:
