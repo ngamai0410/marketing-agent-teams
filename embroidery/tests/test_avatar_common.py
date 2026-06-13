@@ -66,11 +66,18 @@ def test_discovery():
     check(discovery.QUALIFIER.output_file == "avatar_qualification.json", "qualifier writes avatar_qualification.json")
 
 
+def test_voc():
+    from embroidery.agents.avatar import voc
+    ids = {c["id"] for c in voc.prompt_catalog()}
+    check(ids == {"avatar.voc_miner"}, "voc exposes the voc_miner prompt")
+
+
 def main() -> int:
     test_config()
     test_common()
     test_framing()
     test_discovery()
+    test_voc()
     if failures:
         print(f"\n✗ test_avatar_common FAILED ({len(failures)})")
         return 1
