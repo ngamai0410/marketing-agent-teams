@@ -27,6 +27,7 @@ from pydantic import BaseModel
 from embroidery.core.checkpoint import open_gates, resolve_gate
 from embroidery.core.config import settings
 from embroidery.core.logger import get_logger
+from embroidery.core.orchestrator import run_team
 from embroidery.core.prompt_store import get_prompt_store
 from embroidery.core.reporter import get_reporter
 from embroidery.agents.research.subagents import SHOP_BRIEF, shop_context
@@ -120,8 +121,16 @@ def _sse(event: dict) -> str:
 # Control
 # ─────────────────────────────────────────────
 
+# Test seam: tests set server._run_team_for_test to capture calls.
+_run_team_for_test = None
+
+
 class StartBody(BaseModel):
+    target: str = "team"               # workflow id or "team"
+    start_stage: str | None = None
+    stop_stage: str | None = None
     brief: dict | None = None
+    seed_fixtures: list[str] = []
 
 
 @app.post("/start")
@@ -129,20 +138,30 @@ async def start(body: StartBody | None = None):
     global _run_task
     if _run_in_progress():
         raise HTTPException(409, "a run is already in progress")
+    body = body or StartBody()
 
-    # Imported lazily so core/agents never import the web layer.
-    from embroidery.agents.research.pipeline import run_market_research
+    if body.seed_fixtures:
+        _seed_fixtures(body.seed_fixtures)
 
-    brief = body.brief if body else None
-    _run_task = asyncio.create_task(_guarded_run(run_market_research, brief))
-    return {"status": "started"}
+    runner = _run_team_for_test or run_team
+    if body.target == "team":
+        start = stop = None
+    else:
+        if body.target not in {s.id for s in get_registry()}:
+            raise HTTPException(404, f"unknown workflow {body.target}")
+        start = stop = body.target
+
+    _run_task = asyncio.create_task(
+        _guarded_run(runner, body.brief, start, stop, body.start_stage, body.stop_stage)
+    )
+    return {"status": "started", "target": body.target}
 
 
-async def _guarded_run(runner, brief):
+async def _guarded_run(runner, brief, start, stop, start_stage, stop_stage):
     try:
-        await runner(brief)
-    except Exception as exc:  # surface crashes to the dashboard instead of dying silently
-        log.exception("pipeline run failed")
+        await runner(brief, start=start, stop=stop, start_stage=start_stage, stop_stage=stop_stage)
+    except Exception as exc:   # surface crashes to the dashboard instead of dying silently
+        log.exception("team run failed")
         get_reporter().publish({"type": "done", "status": "error", "reason": str(exc)})
 
 
