@@ -5,8 +5,9 @@ One subpackage per workflow stage from `../../../CLAUDE.md`. Agent numbers live 
 with that workflow's full data contracts, models, run commands, and chart:
 
 - [`research/README.md`](research/README.md) — Workflow 1: Market Research (Agent 1)
-- `copy/README.md` — Workflow 2: Copy (Agents 4–6) *(future)*
-- [`qa/README.md`](qa/README.md) — Workflow 3: QA & Feedback (Agents 7–8)
+- [`avatar/README.md`](avatar/README.md) — Workflow 2: Avatar Builder (Agent 2, 9 Evolve stages)
+- `copy/README.md` — Workflow 3: Copy (Agents 4–6) *(future)*
+- [`qa/README.md`](qa/README.md) — Workflow 4: QA & Feedback (Agents 7–8)
 
 ```
 research/   Workflow 1 — Market Research
@@ -14,12 +15,22 @@ research/   Workflow 1 — Market Research
                   Registers WorkflowSpec(id="research") at import.
   subagents.py    Agent 1 sub-agents A/B/C (search-only; return JSON as text). Holds SHOP_BRIEF.
   synthesizer.py  Agent 1 Synthesizer (no tools; merges A/B/C → master JSON + markdown)
-  (avatar.py, positioning.py = Agents 2,3 — future)
 
-copy/       Workflow 2 — Copy  [future]
+avatar/     Workflow 2 — Avatar Builder (Agent 2, 9 Evolve stages)
+  pipeline.py     Avatar workflow entry: 9-stage gated orchestration; registers WorkflowSpec(id="avatar") at import.
+                  Reads: market_research_report.json + brand_intelligence_report.md
+                  Writes: customer_avatars.md + avatar_deep_dive.json  (read by Agents 3–6)
+  _common.py      AvatarAgent + run_json_agent + prompt-catalog helpers (shared by every stage)
+  framing.py      Stage 0 onboarder + Stage 1 product analyst
+  discovery.py    Stage 2 parallel scouts (Reddit/Amazon/FB) + 4-gate qualifier
+  voc.py          Stage 3 voice-of-customer miner
+  reframe.py      Stages 4/5/6 reframers (awareness / competitor / mechanism), no tools
+  synthesizer.py  Stage 7 synthesizer — writes customer_avatars.md + avatar_deep_dive.json
+
+copy/       Workflow 3 — Copy  [future]
   (hooks.py, scripts.py, static_copy.py = Agents 4,5,6)
 
-qa/         Workflow 3 — QA & Feedback
+qa/         Workflow 4 — QA & Feedback
   pipeline.py     QA workflow entry: run_qa → QC gate; registers WorkflowSpec(id="qa") at import.
   qa_reviewer.py  Agent 7: 8-question diagnostic + psychology checklist → qa_report.json (gatekeeper)
                   Renders its system prompt via prompt_store (editable from the dashboard).

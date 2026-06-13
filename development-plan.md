@@ -197,13 +197,22 @@ Build QA *before* any content agents. Every ad script or static copy will pass t
 ## Stage 3 — Copy Production
 **Week 2–3, June 18–24 | Target: full parallel copy pipeline → QA-gated output**
 
-### Day 9 — June 18 | Agent 2: Customer Avatar Builder [~3h]
+### Day 9 — June 18 | Agent 2: Customer Avatar Builder [~3h] — ✅ DONE June 13–14 (pulled forward)
 
-- [ ] Write Avatar Builder system prompt: 4 avatars × (Demographics + Psychographics + Buying Psychology + Content Behavior + Ad Implications)
-- [ ] Test with static `market_research_report.json` on Haiku
-- [ ] Output: `customer_avatars.md` — 4 profiles + comparison matrix
+> **Deviation:** Agent 2 built as a standalone `avatar` workflow lane (9 Evolve stages:
+> onboarding→product→discovery→qualify→voc→awareness→competitor→mechanism→synthesis) rather than
+> as stages on the Research lane. Implements the Evolve deep-avatar methodology. Uses gemini-2.5-flash
+> for search agents (return JSON-as-text) and gemini-2.5-pro for qualifier/reframers/synthesizer.
+> Wired into `load_workflows()` order (research → avatar → qa), registered as `WorkflowSpec(id="avatar")`,
+> gated QC at every stage boundary, standalone entry point + fixtures committed, dashboard monitor/test/edit
+> all functional. Config: `avatar.priority_count` (default 2).
+> See: `docs/superpowers/specs/2026-06-13-avatar-builder-workflow-design.md`
 
-**Cost:** < $0.10
+- [x] Write Avatar Builder prompt catalog (9 stages × agents: onboarder, product analyst, reddit/amazon/fb scouts, qualifier, awareness/competitor/mechanism reframers, synthesizer)
+- [x] Test with static `market_research_report.json` + `brand_intelligence_report.md` (fixtures seeded)
+- [x] Output: `customer_avatars.md` + `avatar_deep_dive.json` + 8 per-stage intermediate files
+
+**Cost:** < $0.10 (fixture-seeded tests; no live search calls in unit tests)
 
 ---
 
