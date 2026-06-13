@@ -95,6 +95,23 @@
   .lane .sub td:first-child { padding-left:30px; color:var(--muted); }
   .gatebar { padding:8px 14px; font-size:12px; color:var(--run); border-top:1px solid var(--line); }
   .gatebar.passed { color:var(--ok); }
+  /* per-agent process pipeline */
+  .agent-name { cursor: pointer; user-select: none; }
+  .agent-name::before { content: "▸ "; color: var(--muted); }
+  tr.expanded .agent-name::before { content: "▾ "; }
+  .steprow > td { background: var(--bg); padding: 8px 14px 12px 30px; }
+  .pipe { display: flex; flex-direction: column; gap: 0; }
+  .pipe-node { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 12px; }
+  .pipe-node .nt { font-weight: 600; margin-right: 6px; }
+  .pipe-node.t-search .nt { color: var(--accent); }
+  .pipe-node.t-write .nt, .pipe-node.t-output .nt { color: var(--ok); }
+  .pipe-arrow { color: var(--line); text-align: center; line-height: 1.2; }
+  .pipe-meta { color: var(--muted); margin-left: 8px; }
+  .out-link { cursor: pointer; text-decoration: underline; color: var(--ok); }
+  .out-view { margin-top: 6px; white-space: pre-wrap; max-height: 280px; overflow: auto;
+              background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+  .out-copy { margin-left: 8px; cursor: pointer; font-size: 11px; }
+  .noout { color: var(--muted); font-style: italic; }
 </style>
 </head>
 <body>
@@ -166,6 +183,9 @@ let running = false;
 let workflowsMeta = [];     // [{id,label,stages:[{name,agents}], ...}]
 let activeStage = {};       // workflow id -> active stage name
 let openGatesByWf = {};     // workflow id -> {stage, passed}
+let lastAgentsEv = null;    // last "agents" event, for re-render on expand/collapse
+const expandedAgents = new Set();   // agent names whose pipeline is expanded
+const STEP_LABEL = { call: "LLM call", search: "Search", fetch: "Fetch", write: "Write", output: "Output" };
 
 async function loadWorkflows() {
   const res = await fetch("/workflows");
@@ -215,7 +235,25 @@ function renderRail() {
 function money(v) { return v == null ? "—" : "$" + v.toFixed(4); }
 function num(v) { return (v ?? 0).toLocaleString(); }
 
+function renderSteps(steps) {
+  if (!steps || !steps.length) return `<div class="noout">(no steps recorded)</div>`;
+  return `<div class="pipe">` + steps.map((s, i) => {
+    const arrow = i ? `<div class="pipe-arrow">↓</div>` : "";
+    let meta = "";
+    if (s.type === "call") meta = `${num(s.in_tok)}/${num(s.out_tok)} tok · ${money(s.cost_usd)}`;
+    else if (s.type === "search") meta = s.results != null ? `xin ${s.results} kết quả` : "";
+    let body = esc(s.label || "");
+    if (s.output_file) body = `<span class="out-link" data-file="${esc(s.output_file)}">📄 ${esc(s.output_file)}</span>`;
+    return `${arrow}<div class="pipe-node t-${s.type}">`
+         + `<span class="nt">${STEP_LABEL[s.type] || s.type}</span>${body}`
+         + (meta ? `<span class="pipe-meta">${meta} · ${s.elapsed_s ?? 0}s</span>` : "")
+         + `<div class="out-view hide" data-for="${esc(s.output_file || '')}"></div>`
+         + `</div>`;
+  }).join("") + `</div>`;
+}
+
 function renderAgents(ev) {
+  lastAgentsEv = ev;
   const rows = ev.rows || [];
   const byWf = {};
   rows.forEach(r => { (byWf[r.workflow || ""] = byWf[r.workflow || ""] || []).push(r); });
@@ -242,9 +280,13 @@ function renderAgents(ev) {
           <span class="lane-meta">${calls} calls · ${money(cost)}</span>
         </div>
         <table><tbody>
-          ${wfRows.map(r => `
-            <tr class="${r.name.includes('synthesizer') || meta && meta.stages[0] && meta.stages[0].agents.includes(r.name) ? '' : 'sub'}">
-              <td>${esc(r.name)}</td>
+          ${wfRows.map(r => {
+            const isSub = !(r.name.includes('synthesizer') || (meta && meta.stages[0] && meta.stages[0].agents.includes(r.name)));
+            const open = expandedAgents.has(r.name);
+            const noOut = r.status === "done" && !(r.steps || []).some(s => s.output_file);
+            return `
+            <tr class="${isSub ? 'sub' : ''} ${open ? 'expanded' : ''}">
+              <td><span class="agent-name" data-agent="${esc(r.name)}">${esc(r.name)}</span>${noOut ? ' <span class="noout">(no output)</span>' : ''}</td>
               <td class="mono" style="color:var(--muted)">${r.model || ""}</td>
               <td><span class="badge ${r.status}">${r.status}</span></td>
               <td style="text-align:right">${r.calls}</td>
@@ -252,7 +294,8 @@ function renderAgents(ev) {
               <td>${r.searches}</td>
               <td class="mono" style="text-align:right">${money(r.cost_usd)}</td>
               <td class="mono" style="text-align:right">${r.elapsed_s}s</td>
-            </tr>`).join("")}
+            </tr>` + (open ? `<tr class="steprow"><td colspan="8">${renderSteps(r.steps)}</td></tr>` : "");
+          }).join("")}
         </tbody></table>
         ${gbar}
       </div>`;
@@ -262,6 +305,32 @@ function renderAgents(ev) {
   $("grandtotal").textContent =
     `Total: ${t.calls ?? 0} calls · ${num(t.in_tokens)} in / ${num(t.out_tokens)} out · ${money(t.cost_usd)} · ${(t.elapsed_s ?? 0)}s`;
 }
+
+$("lanes").addEventListener("click", async (e) => {
+  const name = e.target.closest(".agent-name")?.dataset.agent;
+  if (name) {
+    expandedAgents.has(name) ? expandedAgents.delete(name) : expandedAgents.add(name);
+    renderAgents(lastAgentsEv || { rows: [], totals: {} });
+    return;
+  }
+  const link = e.target.closest(".out-link");
+  if (link) {
+    const file = link.dataset.file;
+    const view = link.closest(".pipe-node").querySelector(".out-view");
+    if (!view.classList.contains("hide")) { view.classList.add("hide"); return; }
+    view.classList.remove("hide");
+    view.textContent = "loading…";
+    try {
+      const res = await fetch("/output/" + encodeURIComponent(file));
+      if (!res.ok) { view.textContent = "file no longer available"; return; }
+      const text = await res.text();
+      let pretty = text;
+      if (file.endsWith(".json")) { try { pretty = JSON.stringify(JSON.parse(text), null, 2); } catch {} }
+      view.innerHTML = `<button class="out-copy">📋 copy</button><pre style="margin:6px 0 0">${esc(pretty)}</pre>`;
+      view.querySelector(".out-copy").onclick = () => navigator.clipboard.writeText(pretty);
+    } catch { view.textContent = "load error"; }
+  }
+});
 
 function showGate(ev) {
   currentGate = { gate_id: ev.gate_id, request: ev.request };
