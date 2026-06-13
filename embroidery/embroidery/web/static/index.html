@@ -320,6 +320,9 @@ function showDone(ev) {
   } else if (ev.status === "aborted") {
     setStage("Aborted", false);
     d.innerHTML = `<b style="color:var(--run)">Run aborted</b> — ${ev.reason || ""}`;
+  } else if (ev.status === "blocked") {
+    setStage("Blocked", false);
+    d.innerHTML = `<b style="color:var(--run)">Blocked at ${esc(ev.workflow || "")}</b> — ${esc(ev.reason || "")}`;
   } else {
     setStage("Error", false);
     d.innerHTML = `<b style="color:var(--bad)">Run failed</b> — ${ev.reason || ""}`;
