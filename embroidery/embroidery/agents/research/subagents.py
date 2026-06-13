@@ -22,6 +22,7 @@ from pathlib import Path
 
 from embroidery.core.agent_loop import run_agent, reset_search_count
 from embroidery.core.config import settings
+from embroidery.core.reporter import get_reporter
 from embroidery.core.logger import get_logger
 from embroidery.core.prompt_store import get_prompt_store, to_dollar
 from embroidery.core.tools import SEARCH_TOOLS
@@ -412,6 +413,7 @@ async def run_subagent(key: str, brief: dict = SHOP_BRIEF, reset_searches: bool 
     out_path = Path(settings.paths.output) / spec.output_file
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
+    get_reporter().agent_output(spec.name, spec.output_file)
     log.info("agent=%s output saved file=%s", spec.name, out_path)
     return result
 

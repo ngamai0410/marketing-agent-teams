@@ -167,6 +167,8 @@ async def run_market_research(
     md_path = out / "brand_intelligence_report.md"
     json_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     md_path.write_text(markdown, encoding="utf-8")
+    get_reporter().agent_output("synthesizer_json", "market_research_report.json")
+    get_reporter().agent_output("synthesizer_md", "brand_intelligence_report.md")
     BrandAI(SHOP_SLUG).save_research(report, markdown)
     log.info("research workflow done json=%s md=%s", json_path, md_path)
     return {"market_research_report": json_path, "brand_intelligence_report": md_path}
