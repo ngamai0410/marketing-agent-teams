@@ -71,7 +71,6 @@ Output ONLY the markdown document — no preamble, no fences around the whole do
 async def run_synthesis(stages: dict, research_report: dict, priority_avatars: list[str],
                         brief: dict = SHOP_BRIEF) -> tuple[dict, str]:
     """Two no-tool calls → (deep_dive dict, markdown). Writes both data-contract files."""
-    ctx = {"shop_context": shop_context(brief)}
     blob = json.dumps(stages, ensure_ascii=False)
 
     raw = await run_agent(
