@@ -49,9 +49,19 @@ def test_common():
     check(items[0]["placeholders"] == ["priority_count"], "catalog_items carries placeholders")
 
 
+def test_framing():
+    from embroidery.agents.avatar import framing
+    cat = framing.prompt_catalog()
+    ids = {c["id"] for c in cat}
+    check(ids == {"avatar.avatar_onboarder", "avatar.product_analyst"},
+          "framing exposes onboarder + product_analyst prompts")
+    check(framing.ONBOARDER.output_file == "avatar_onboarding.json", "onboarder writes avatar_onboarding.json")
+
+
 def main() -> int:
     test_config()
     test_common()
+    test_framing()
     if failures:
         print(f"\n✗ test_avatar_common FAILED ({len(failures)})")
         return 1
