@@ -69,6 +69,7 @@ def _digest(stage: str, result) -> dict:
     if stage == "voc":
         return {"coded_quotes": len(result.get("coded_quotes", []) or [])}
     if stage == "synthesis":
+        # run_synthesis returns (deep_dive_dict, markdown_str); the synthesis loader matches.
         dd, md = result
         return {"avatars": len(dd.get("avatars", []) or []), "md_chars": len(md)}
     if isinstance(result, dict):
@@ -82,7 +83,7 @@ async def run_avatar_builder(
     start_stage: str | None = None,
     stop_stage: str | None = None,
     gate=checkpoint,
-):
+) -> dict[str, Path] | None:
     """Run the 9-stage avatar workflow with a QC gate at every boundary.
 
     Returns the output paths dict, or None if the user quit / stopped early.
@@ -93,9 +94,11 @@ async def run_avatar_builder(
     research_report, _brand_md = load_research()
     st: dict = {}   # accumulated stage results (run or loaded from disk)
 
+    # Stage runners are passed as lambdas closing over `brief`, so an EDIT decision
+    # (which updates `brief` via nonlocal below) is picked up when the stage re-runs.
     async def stage(name: str, runner, *, loader):
         """Run a gated stage if active, else load its output from disk.
-        Returns (result, control) where control is 'quit' or None."""
+        Returns (result, control) where control is Decision.QUIT or None."""
         nonlocal brief
         if name not in active:
             return loader(), None
@@ -105,7 +108,7 @@ async def run_avatar_builder(
             result = await runner()
             res = await gate(name, _digest(name, result), workflow="avatar", request=brief)
             if res.decision is Decision.QUIT:
-                return result, "quit"
+                return result, Decision.QUIT
             if res.decision is Decision.EDIT:
                 brief = res.request or brief
                 continue
@@ -116,14 +119,14 @@ async def run_avatar_builder(
         st["onboarding"], ctl = await stage(
             "onboarding", lambda: run_onboarding(brief),
             loader=lambda: load_json("avatar_onboarding.json"))
-        if ctl == "quit":
+        if ctl is Decision.QUIT:
             return None
 
         # Stage 1 — product
         st["product"], ctl = await stage(
             "product", lambda: run_product(brief),
             loader=lambda: load_json("avatar_product.json"))
-        if ctl == "quit":
+        if ctl is Decision.QUIT:
             return None
 
         # Stage 2a — discovery
@@ -132,14 +135,14 @@ async def run_avatar_builder(
             loader=lambda: {"reddit": load_json("avatar_discovery_reddit.json"),
                             "amazon": load_json("avatar_discovery_amazon.json"),
                             "fb": load_json("avatar_discovery_fb.json")})
-        if ctl == "quit":
+        if ctl is Decision.QUIT:
             return None
 
         # Stage 2b — qualify (key human gate)
         st["qualification"], ctl = await stage(
             "qualify", lambda: run_qualify(st["discovery"], research_report, brief),
             loader=lambda: load_json("avatar_qualification.json"))
-        if ctl == "quit":
+        if ctl is Decision.QUIT:
             return None
         priority = st["qualification"].get("priority_avatars", [])
 
@@ -147,28 +150,28 @@ async def run_avatar_builder(
         st["voc"], ctl = await stage(
             "voc", lambda: run_voc(priority, st["discovery"], brief),
             loader=lambda: load_json("avatar_voc.json"))
-        if ctl == "quit":
+        if ctl is Decision.QUIT:
             return None
 
         # Stage 4 — awareness
         st["awareness"], ctl = await stage(
             "awareness", lambda: run_awareness(st["voc"], research_report, priority, brief),
             loader=lambda: load_json("avatar_awareness.json"))
-        if ctl == "quit":
+        if ctl is Decision.QUIT:
             return None
 
         # Stage 5 — competitor
         st["competitor"], ctl = await stage(
             "competitor", lambda: run_competitor(st["voc"], research_report, brief),
             loader=lambda: load_json("avatar_competitor.json"))
-        if ctl == "quit":
+        if ctl is Decision.QUIT:
             return None
 
         # Stage 6 — mechanism
         st["mechanism"], ctl = await stage(
             "mechanism", lambda: run_mechanism(st["voc"], research_report, brief),
             loader=lambda: load_json("avatar_mechanism.json"))
-        if ctl == "quit":
+        if ctl is Decision.QUIT:
             return None
 
         if "synthesis" not in active:
@@ -179,7 +182,7 @@ async def run_avatar_builder(
         result, ctl = await stage(
             "synthesis", lambda: run_synthesis(st, research_report, priority, brief),
             loader=lambda: (load_json("avatar_deep_dive.json"), ""))
-        if ctl == "quit":
+        if ctl is Decision.QUIT:
             return None
 
     out = Path(settings.paths.output)

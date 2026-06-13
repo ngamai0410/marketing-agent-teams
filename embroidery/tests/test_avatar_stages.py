@@ -65,9 +65,10 @@ def main() -> int:
 
     # stop at qualify -> stops after qualify
     _stub_all()
-    asyncio.run(P.run_avatar_builder(stop_stage="qualify", gate=_approve))
+    res = asyncio.run(P.run_avatar_builder(stop_stage="qualify", gate=_approve))
     check(calls == ["onboarding", "product", "discovery", "qualify"],
           "stop_stage=qualify stops after the qualify stage")
+    check(res is None, "stop_stage before synthesis returns None")
 
     # QUIT at the first gate aborts immediately
     _stub_all()
