@@ -45,6 +45,19 @@ class AgentSettings:
     feedback_analyst: ModelSettings = field(default_factory=lambda: ModelSettings("claude-sonnet-4-6"))
     orchestrator: ModelSettings = field(default_factory=lambda: ModelSettings("claude-opus-4-8"))
 
+    # --- Avatar Builder (Agent 2) sub-agents ---
+    avatar_onboarder: ModelSettings = field(default_factory=lambda: ModelSettings("claude-haiku-4-5"))
+    product_analyst: ModelSettings = field(default_factory=lambda: ModelSettings("claude-haiku-4-5"))
+    reddit_scout: ModelSettings = field(default_factory=lambda: ModelSettings("claude-haiku-4-5"))
+    amazon_voc: ModelSettings = field(default_factory=lambda: ModelSettings("claude-haiku-4-5"))
+    fb_ad_scout: ModelSettings = field(default_factory=lambda: ModelSettings("claude-haiku-4-5"))
+    avatar_qualifier: ModelSettings = field(default_factory=lambda: ModelSettings("claude-sonnet-4-6"))
+    voc_miner: ModelSettings = field(default_factory=lambda: ModelSettings("claude-haiku-4-5"))
+    awareness_mapper: ModelSettings = field(default_factory=lambda: ModelSettings("claude-sonnet-4-6"))
+    competitor_teardown: ModelSettings = field(default_factory=lambda: ModelSettings("claude-sonnet-4-6"))
+    mechanism_builder: ModelSettings = field(default_factory=lambda: ModelSettings("claude-sonnet-4-6"))
+    avatar_synthesizer: ModelSettings = field(default_factory=lambda: ModelSettings("claude-sonnet-4-6", 16000))
+
 
 @dataclass
 class SearchSettings:
@@ -58,6 +71,11 @@ class WebSettings:
     host: str = "127.0.0.1"
     port: int = 8765
     open_browser: bool = True
+
+
+@dataclass
+class AvatarSettings:
+    priority_count: int = 2   # how many qualified avatars get a deep-dive
 
 
 @dataclass
@@ -80,6 +98,7 @@ class Config:
     agents: AgentSettings = field(default_factory=AgentSettings)
     paths: PathSettings = field(default_factory=PathSettings)
     web: WebSettings = field(default_factory=WebSettings)
+    avatar: AvatarSettings = field(default_factory=AvatarSettings)
 
 
 def load_config(path: Path = _CONFIG_FILE) -> Config:
@@ -90,6 +109,7 @@ def load_config(path: Path = _CONFIG_FILE) -> Config:
     agents_raw = raw.get("agents", {})
     paths_raw = raw.get("paths", {})
     web_raw = raw.get("web", {})
+    avatar_raw = raw.get("avatar", {})
 
     agents = AgentSettings()
     for name, settings in agents_raw.items():
@@ -122,6 +142,9 @@ def load_config(path: Path = _CONFIG_FILE) -> Config:
             host=web_raw.get("host", "127.0.0.1"),
             port=web_raw.get("port", 8765),
             open_browser=web_raw.get("open_browser", True),
+        ),
+        avatar=AvatarSettings(
+            priority_count=avatar_raw.get("priority_count", 2),
         ),
     )
 
