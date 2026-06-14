@@ -51,10 +51,25 @@ def _run_in_progress() -> bool:
 
 
 def _prompt_catalog() -> list[dict]:
-    items: list[dict] = []
-    for spec in get_registry():
-        items.extend(spec.prompt_catalog())
-    return items
+    """All editable prompts, ordered to mirror the pipeline.
+
+    Shared context blocks (shop context, shared rules) come first — global ones
+    before workflow-scoped — then agent prompts in workflow-registry order, each
+    workflow keeping its catalog's emission order (which is its stage/execution
+    order). A prompt is "shared" when its stage label says so (e.g. "Shared — shop",
+    "Research — shared"); everything else is an agent prompt.
+    """
+    shared: list[tuple] = []
+    agents: list[tuple] = []
+    for wf_idx, spec in enumerate(get_registry()):
+        for emit_idx, item in enumerate(spec.prompt_catalog()):
+            is_shared = item["id"].startswith("shared.") or "shared" in item.get("stage", "").lower()
+            bucket = shared if is_shared else agents
+            bucket.append((wf_idx, emit_idx, item))
+    # shared: truly-global (shared.*) ahead of workflow-scoped, then by workflow/emit.
+    shared.sort(key=lambda t: (0 if t[2]["id"].startswith("shared.") else 1, t[0], t[1]))
+    agents.sort(key=lambda t: (t[0], t[1]))
+    return [t[2] for t in shared + agents]
 
 
 # ─────────────────────────────────────────────
