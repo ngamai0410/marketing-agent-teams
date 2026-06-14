@@ -8,6 +8,7 @@ Options: brave | duckduckgo
 import asyncio
 import time
 from abc import ABC, abstractmethod
+from urllib.parse import urlparse
 
 import aiohttp
 
@@ -113,13 +114,37 @@ class DuckDuckGoSearch(SearchProvider):
 # Shared URL fetcher
 # ─────────────────────────────────────────────
 
+# A realistic browser header set — many sites 403 a bot-identifying agent.
+# (Accept-Encoding is left to aiohttp so we never receive an undecodable brotli body.)
+_FETCH_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Sec-Fetch-Dest": "document", "Sec-Fetch-Mode": "navigate", "Sec-Fetch-Site": "none",
+    "Upgrade-Insecure-Requests": "1",
+}
+
+
+def _fetch_blocked_note(status: int, url: str) -> str:
+    """Actionable message when a site refuses a direct fetch (403/429/503…).
+
+    Some large sites (Etsy, Amazon, Instagram) hard-block server-side fetches
+    regardless of headers. Tell the agent — which also has web_search — to fall
+    back rather than give up.
+    """
+    host = urlparse(url).netloc or url
+    return (f"[fetch blocked: HTTP {status} — {host} blocks direct fetching. "
+            f"Use web_search to gather this page's content (shop/product name, price, "
+            f"reviews, what a visitor sees) and answer from the search results instead.]")
+
+
 async def _fetch_url(url: str) -> str:
-    headers = {"User-Agent": "Mozilla/5.0 (compatible; research-agent/1.0)"}
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+            async with session.get(url, headers=_FETCH_HEADERS, timeout=aiohttp.ClientTimeout(total=15)) as resp:
                 if resp.status != 200:
-                    return f"[fetch error: HTTP {resp.status}]"
+                    return _fetch_blocked_note(resp.status, url)
                 content_type = resp.content_type or ""
                 if "html" in content_type or "text" in content_type:
                     text = await resp.text()

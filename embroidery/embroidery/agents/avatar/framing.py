@@ -24,8 +24,11 @@ Visit the product page with fresh eyes — assume no prior knowledge.
 
 TASK:
 1. Fetch the shop/product URL above.
-2. Skim it for ~30 seconds like a real customer would (above the fold first).
-3. Answer Q1–Q11 based ONLY on what a first-time visitor sees — your own words, NOT site copy.
+2. If the fetch is BLOCKED or errors (many shops — e.g. Etsy — block direct fetching), do NOT give
+   up: use web_search on the shop/product name to gather what a visitor would see (products, price,
+   reviews, the promise). Never answer that you "couldn't access the page" — search instead.
+3. Skim it for ~30 seconds like a real customer would (above the fold first).
+4. Answer Q1–Q11 based ONLY on what a first-time visitor sees/finds — your own words, NOT site copy.
 
 ONBOARDING QUESTIONS:
 Q1. What does this product do? (1 sentence, your words)
@@ -60,7 +63,9 @@ writing any copy. Build the Product Understanding Map for this shop.
 
 {shop_context}
 
-Fetch the shop URL and run light searches for spec/feature/comparison detail. Then:
+Fetch the shop URL and run light searches for spec/feature/comparison detail. If the fetch is
+blocked or errors (e.g. Etsy blocks direct fetching), rely on web_search for the shop/product name
++ reviews instead — don't report that you couldn't access the page. Then:
 
 STEP 1 — FEATURE → BENEFIT: for every feature, give mechanism, functional benefit, emotional payoff.
 STEP 2 — CLAIMS AUDIT: every marketing claim, rated Believable/Unique/Provable 1–5. Flag any <3 on Unique or Provable.
