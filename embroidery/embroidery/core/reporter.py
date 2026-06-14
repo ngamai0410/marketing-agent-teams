@@ -46,10 +46,11 @@ PRICES: dict[str, tuple[float, float]] = {
     "claude-haiku-4-5": (1.0, 5.0),
     "claude-sonnet-4-6": (3.0, 15.0),
     "claude-opus-4-8": (5.0, 25.0),
-    # Google Gemini (best-effort public list pricing for the ≤200k context tier)
-    "gemini-2.5-flash": (0.30, 2.50),
-    "gemini-2.5-pro": (1.25, 10.0),
 }
+# Gemini pricing comes from core/model_catalog.py (the picker's source of truth)
+# so cost badges and this table never drift.
+from embroidery.core.model_catalog import price_map as _gemini_price_map  # noqa: E402
+PRICES.update(_gemini_price_map())
 
 
 def _cost(model: str, in_tok: int, out_tok: int) -> float | None:

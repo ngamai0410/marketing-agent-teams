@@ -274,6 +274,7 @@ def prompt_catalog() -> list[dict]:
             "id": pid,
             "name": name,
             "stage": "Research — synthesis",
+            "model_key": "synthesizer",
             "placeholders": placeholders,
             "default": default,
             "text": store.text(pid, default),

@@ -65,6 +65,19 @@
   .prompt .edited { font-size: 10px; background: rgba(91,140,255,.18); color: var(--accent);
                     border-radius: 999px; padding: 2px 7px; }
   .prompt textarea { min-height: 280px; margin-top: 8px; }
+  /* per-agent model picker */
+  .pmodel { display: grid; grid-template-columns: auto auto auto; gap: 8px; align-items: center;
+            margin: 8px 0 4px; }
+  .pmodel .pmlabel { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .pmodel select { font: inherit; background: #222632; color: var(--txt); border: 1px solid var(--line);
+                   border-radius: 8px; padding: 5px 8px; }
+  .pmodel select:hover { border-color: var(--accent); }
+  .pmodel .m-reset { font-size: 11px; color: var(--accent); cursor: pointer; }
+  .pmodel .m-note { grid-column: 1 / -1; font-size: 11px; color: var(--muted); display: flex;
+                    flex-wrap: wrap; gap: 6px 12px; align-items: baseline; }
+  .pmodel .m-tier { font-weight: 700; color: var(--run); }
+  .pmodel .m-pros { color: var(--ok); }
+  .pmodel .m-cons { color: var(--run); }
   .phint { color: var(--muted); font-size: 12px; margin: 8px 0 4px; }
   .phint code { background: var(--bg); padding: 1px 5px; border-radius: 4px; color: var(--accent); }
   .prow { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
@@ -473,10 +486,29 @@ async function loadPrompts() {
     box.innerHTML = `<div class="locked">Prompts are locked while a campaign is running. They'll unlock when it finishes.</div>`;
     return;
   }
+  // per-agent model picker state (options + each agent's current/default/overridden)
+  const ms = await fetch("/models").then(r => r.json()).catch(() => ({ options: [], agents: {} }));
+  const mOpts = ms.options || [];
+  const mAgents = ms.agents || {};
+
   // workflow palette + labels (matches pipeline order; --wf drives the group color)
   const WF_COLOR = { shared: "#8b919e", research: "#5b8cff", avatar: "#a78bfa", qa: "#d8a657" };
   const WF_LABEL = { shared: "Shared context", research: "Research", avatar: "Avatar Builder", qa: "QA" };
   workflowsMeta.forEach(w => { if (w.label) WF_LABEL[w.id] = w.label; });
+
+  const modelControl = p => {
+    if (!p.model_key || !mOpts.length) return "";
+    const a = mAgents[p.model_key] || {};
+    const cur = a.current, def = a.default;
+    const opts = mOpts.map(o => `<option value="${o.id}" ${o.id === cur ? "selected" : ""}>${esc(o.label)} · ${o.tier}</option>`).join("");
+    return `
+      <div class="pmodel" data-mk="${p.model_key}" data-default="${esc(def || "")}">
+        <span class="pmlabel">Model</span>
+        <select class="m-select">${opts}</select>
+        <span class="m-reset" ${a.overridden ? "" : "hidden"} title="reset to ${esc(def || "")}">↺ default</span>
+        <div class="m-note"></div>
+      </div>`;
+  };
 
   const renderItem = p => {
     const hints = p.placeholders.length
@@ -491,6 +523,7 @@ async function loadPrompts() {
         <span class="pstage">${esc(sub)}</span>
         <span class="edited" ${p.overridden ? "" : "hidden"}>edited</span>
       </summary>
+      ${modelControl(p)}
       ${hints}
       <textarea spellcheck="false">${esc(p.text)}</textarea>
       <div class="prow">
@@ -534,6 +567,42 @@ async function loadPrompts() {
       const item = await res.json();
       ta.value = item.text; badge.hidden = true;
       okMsg.textContent = "↺ reset"; okMsg.hidden = false; setTimeout(() => { okMsg.hidden = true; okMsg.textContent = "✓ saved"; }, 1500);
+    };
+  });
+
+  // ---- per-agent model picker (pros/cons + cost) ----
+  const optById = Object.fromEntries(mOpts.map(o => [o.id, o]));
+  const noteFor = id => {
+    const o = optById[id]; if (!o) return "";
+    return `<span class="m-tier">${o.tier}</span> in $${o.price_in}/1M · out $${o.price_out}/1M`
+      + `<span class="m-pros">✓ ${esc(o.pros)}</span><span class="m-cons">⚠ ${esc(o.cons)}</span>`;
+  };
+  const syncRow = mk => box.querySelectorAll(`.pmodel[data-mk="${mk}"]`);
+  box.querySelectorAll(".pmodel").forEach(el => {
+    const mk = el.dataset.mk, def = el.dataset.default;
+    const sel = el.querySelector(".m-select");
+    const note = el.querySelector(".m-note");
+    const resetBtn = el.querySelector(".m-reset");
+    note.innerHTML = noteFor(sel.value);
+    const reflect = (model, overridden) => {        // keep rows sharing a model_key in sync
+      syncRow(mk).forEach(r => {
+        r.querySelector(".m-select").value = model;
+        r.querySelector(".m-note").innerHTML = noteFor(model);
+        r.querySelector(".m-reset").hidden = !overridden;
+      });
+    };
+    sel.onchange = async () => {
+      const r = await fetch("/models", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model_key: mk, model: sel.value }) });
+      if (!r.ok) { note.innerHTML = `<span class="m-cons">⚠ ${esc((await r.json()).detail || "failed")}</span>`; return; }
+      const s = await r.json();
+      reflect(s.current, s.overridden);
+    };
+    resetBtn.onclick = async () => {
+      const r = await fetch("/models/reset", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model_key: mk }) });
+      const s = await r.json();
+      reflect(s.current, s.overridden);
     };
   });
 }

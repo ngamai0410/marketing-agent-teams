@@ -105,6 +105,13 @@ the store (see `agents/research/`). The shared **`{shop_context}` block itself i
 via `resolved_shop_context()` / `effective_shop_context()` in `agents/research/subagents.py`, so a
 saved override replaces the brief-rendered default for **every** agent in both workflows.
 
+**Editable models.** Each agent's row in the ⚙ panel also has a **model picker** (`core/model_store.py`
++ `core/model_catalog.py`, endpoints `/models` · `/models/reset`): pick a provider model (with
+pros/cons + $/1M cost shown) per agent. The choice persists to `data/prompts/model_overrides.json`
+and is applied onto `settings.agents.<key>` at startup, so `run_agent()` picks it up. The picker
+offers only the active provider's models (`config.yaml` `llm.provider`); `core/model_catalog.py` is
+the single source of Gemini pricing, merged into `core/reporter.py`'s cost table so badges never drift.
+
 **Web UI — needs for the whole team (monitor / test / edit).** Research, Avatar, and QA are wired;
 Copy and Feedback remain future work. The dashboard is the single local control surface for the
 **entire 8-agent team** (Research → Copy → QA → Feedback). Build every new workflow toward these

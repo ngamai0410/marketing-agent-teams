@@ -43,6 +43,9 @@ single-user, no auth.
 | POST | `/prompts` | Save an override: `{id, text}`. 409 while a run is in progress, 404 for unknown id. |
 | POST | `/prompts/reset` | `{id}` → drop the override, return the refreshed (default) item. |
 | POST | `/prompts/preview` | Dry-run render: `{id, text?}` → `{rendered}`. Substitutes sample context variables into the prompt template without spending tokens. |
+| GET | `/models` | Per-agent model picker state: `provider`, `options` (active provider's models with `tier`/`price_in`/`price_out`/`pros`/`cons` from `core/model_catalog.py`), and `agents` (`{model_key: {current, default, overridden}}`). Each `/prompts` item carries a `model_key` (null for shared blocks) tying it to one of these agents. |
+| POST | `/models` | Pick a model for an agent: `{model_key, model}` → applied to `settings.agents.<key>` + persisted (`data/prompts/model_overrides.json`) via `core/model_store.py`. 409 while running, 404 unknown agent, 400 if the model isn't offered for the active provider. |
+| POST | `/models/reset` | `{model_key}` → drop the override, restore the config.yaml default. |
 
 ## Event types (reporter → browser, over SSE)
 
@@ -108,6 +111,7 @@ Register a `WorkflowSpec` (see `core/workflow.py`): give the pipeline module an 
 `entry_point(brief, *, start_stage, stop_stage, gate)`, a `prompt_catalog()`, and call
 `register(WorkflowSpec(...))` at import; add the module to `load_workflows()` in
 `core/workflow.py`. The current `/start` · `/gate` · `/workflows` · `/prompts` ·
-`/prompts/reset` · `/prompts/preview` · `/artifacts` · `/output` · `/report` set covers
+`/prompts/reset` · `/prompts/preview` · `/models` · `/models/reset` · `/artifacts` ·
+`/output` · `/report` set covers
 it — add an endpoint (and a row to the table above) only when a workflow needs a contract
 these can't express.

@@ -29,12 +29,16 @@ from embroidery.core.config import settings
 from embroidery.core.logger import get_logger
 from embroidery.core.orchestrator import run_team
 from embroidery.core.prompt_store import get_prompt_store
+from embroidery.core.model_catalog import options_for
+from embroidery.core.model_store import get_model_store
 from embroidery.core.reporter import get_reporter
 from embroidery.agents.research.subagents import SHOP_BRIEF, shop_context
 from embroidery.core.workflow import get_registry, load_workflows
 
 # Populate the workflow registry once at import (lazy per-module imports inside).
 load_workflows()
+# Apply any saved per-agent model overrides onto settings before the first run.
+get_model_store()
 
 log = get_logger(__name__)
 
@@ -217,6 +221,63 @@ async def reset_prompt(body: PromptResetBody):
     if item is None:
         raise HTTPException(404, f"unknown prompt {body.id}")
     return item
+
+
+# ─────────────────────────────────────────────
+# Models — view options (pros/cons + cost) and pick a model per agent
+# ─────────────────────────────────────────────
+
+def _model_state() -> dict:
+    """Provider model options + each agent's current/default/overridden model."""
+    store = get_model_store()
+    options = [o.as_dict() for o in options_for(settings.llm_provider)]
+    agents = {
+        key: {"current": store.current(key), "default": store.default(key),
+              "overridden": store.is_overridden(key)}
+        for key in store.keys()
+    }
+    return {"provider": settings.llm_provider, "options": options, "agents": agents}
+
+
+@app.get("/models")
+async def list_models():
+    return {**_model_state(), "editable": not _run_in_progress()}
+
+
+class ModelBody(BaseModel):
+    model_key: str
+    model: str
+
+
+@app.post("/models")
+async def set_model(body: ModelBody):
+    if _run_in_progress():
+        raise HTTPException(409, "stop the current run before changing models")
+    store = get_model_store()
+    if body.model_key not in store.keys():
+        raise HTTPException(404, f"unknown agent {body.model_key}")
+    valid = {o.id for o in options_for(settings.llm_provider)}
+    if body.model not in valid:
+        raise HTTPException(400, f"model {body.model} not offered for provider {settings.llm_provider}")
+    store.set(body.model_key, body.model)
+    return {"model_key": body.model_key, "current": store.current(body.model_key),
+            "default": store.default(body.model_key), "overridden": store.is_overridden(body.model_key)}
+
+
+class ModelResetBody(BaseModel):
+    model_key: str
+
+
+@app.post("/models/reset")
+async def reset_model(body: ModelResetBody):
+    if _run_in_progress():
+        raise HTTPException(409, "stop the current run before changing models")
+    store = get_model_store()
+    if body.model_key not in store.keys():
+        raise HTTPException(404, f"unknown agent {body.model_key}")
+    store.reset(body.model_key)
+    return {"model_key": body.model_key, "current": store.current(body.model_key),
+            "default": store.default(body.model_key), "overridden": store.is_overridden(body.model_key)}
 
 
 class GateBody(BaseModel):
