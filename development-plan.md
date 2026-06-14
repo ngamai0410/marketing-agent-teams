@@ -322,6 +322,25 @@ Note: Feedback Agent requires real ad performance data. Build scaffold now, acti
 
 ---
 
+### Deploy — VM always-on (Phương án B) — ✅ scaffolded June 14
+
+Containerised the dashboard for a single-instance VM (team access), HTTPS + basic auth via Caddy.
+
+- [x] `EMBROIDERY_WEB_HOST` / `EMBROIDERY_WEB_PORT` env override in `core/config.py` (env wins over `config.yaml`) so a container binds `0.0.0.0` unedited
+- [x] `requirements.txt` pinned from the working 3.11 venv
+- [x] `Dockerfile` (3.11-slim, `python -m embroidery.web --no-browser`) + `.dockerignore`
+- [x] `docker-compose.yml` — `app` (no host port) + `caddy` (80/443), `./data` volume, `restart: unless-stopped`
+- [x] `Caddyfile` — reverse proxy + basic auth + `flush_interval -1` for SSE
+- [x] `.env.example` extended with `SITE_ADDRESS` / `BASIC_AUTH_USER` / `BASIC_AUTH_HASH`
+- [x] `DEPLOY.md` runbook (VM steps + cost notes) + README pointer
+- [ ] First real deploy on a VM + smoke test against live keys (operator step)
+
+> Design constraint recorded: app holds run-state in RAM (1 run/process) + in-memory QC gates
+> + SSE + file-based state → **single instance only**, not serverless/scale-to-zero. Hosting
+> ≈ $0–6/mo; dominant cost stays the LLM tokens (~$1.50–4/run, see Cost Summary).
+
+---
+
 ## Cost Summary
 
 | Stage | Dev cost (Haiku) | Validation (Sonnet/Opus) | Total |

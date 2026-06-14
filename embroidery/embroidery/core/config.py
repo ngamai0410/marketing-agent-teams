@@ -139,8 +139,10 @@ def load_config(path: Path = _CONFIG_FILE) -> Config:
             prompts=_resolve(paths_raw.get("prompts", "data/prompts")),
         ),
         web=WebSettings(
-            host=web_raw.get("host", "127.0.0.1"),
-            port=web_raw.get("port", 8765),
+            # Env wins over config.yaml so a container can bind 0.0.0.0 without
+            # editing the committed config (EMBROIDERY_WEB_HOST/_PORT).
+            host=os.getenv("EMBROIDERY_WEB_HOST", web_raw.get("host", "127.0.0.1")),
+            port=int(os.getenv("EMBROIDERY_WEB_PORT", web_raw.get("port", 8765))),
             open_browser=web_raw.get("open_browser", True),
         ),
         avatar=AvatarSettings(

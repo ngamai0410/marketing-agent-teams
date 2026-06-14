@@ -1,0 +1,39 @@
+# Phương án B — VM always-on: app (uvicorn) sau Caddy (HTTPS + basic auth).
+# App KHÔNG publish port ra host — chỉ Caddy nói chuyện với nó qua mạng nội bộ.
+#
+#   cp .env.example .env   # rồi điền GEMINI_API_KEY / BRAVE_API_KEY
+#   docker compose up -d --build
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env          # GEMINI_API_KEY, BRAVE_API_KEY, ... (gitignored)
+    environment:
+      EMBROIDERY_WEB_HOST: 0.0.0.0
+      EMBROIDERY_WEB_PORT: "8765"
+    volumes:
+      - ./data:/app/data    # artifacts + prompt overrides survive restarts
+    expose:
+      - "8765"              # chỉ trong mạng compose, không ra host
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # Đổi sang domain thật + cặp user/hash của bạn (xem README deploy).
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER:-admin}
+      BASIC_AUTH_HASH: ${BASIC_AUTH_HASH:?run 'docker run caddy:2-alpine caddy hash-password -p YOURPASS'}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

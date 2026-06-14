@@ -112,6 +112,17 @@ Every run also writes a `data/output/run_report.md` perf digest. The reporter ta
 `core/agent_loop.py` already computes — see `embroidery/web/README.md`. Run headless
 (`-m embroidery.agents.research.pipeline`) and the gates auto-approve.
 
+The dashboard binds `127.0.0.1` by default; `EMBROIDERY_WEB_HOST` / `EMBROIDERY_WEB_PORT`
+override `config.yaml` (env wins) so a container can bind `0.0.0.0` unedited.
+
+## Deploy (VM + Docker + Caddy)
+
+`Dockerfile` · `docker-compose.yml` · `Caddyfile` ship the dashboard on an always-on VM:
+`uvicorn` in a container behind Caddy (HTTPS + basic auth, since the app has no auth of its
+own), state on the `./data` volume. Single instance only (run-state is in RAM). Full runbook
++ cost notes in **`DEPLOY.md`**. TL;DR: `cp .env.example .env` → fill keys + `BASIC_AUTH_HASH`
+→ `docker compose up -d --build`.
+
 ## Run Agent 1 (Market Research)
 
 ```bash

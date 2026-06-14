@@ -1,0 +1,14 @@
+# Reverse proxy phía trước dashboard. Caddy tự lấy/triển khai TLS (Let's Encrypt)
+# khi SITE_ADDRESS là một domain thật; với :80 nó chạy HTTP (chỉ dùng để test).
+#
+# Bù lại việc app KHÔNG có auth, ta đặt basic auth ở đây cho mọi route.
+{$SITE_ADDRESS} {
+	basicauth {
+		{$BASIC_AUTH_USER} {$BASIC_AUTH_HASH}
+	}
+
+	reverse_proxy app:8765 {
+		# SSE: tắt buffering để /events stream realtime, không bị gom.
+		flush_interval -1
+	}
+}
