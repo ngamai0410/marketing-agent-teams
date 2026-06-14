@@ -44,6 +44,18 @@
   details#promptsPanel > summary::before, details#testPanel > summary::before { content: "▸ "; color: var(--muted); }
   details#promptsPanel[open] > summary::before, details#testPanel[open] > summary::before { content: "▾ "; }
   .promptlist { padding: 0 16px 12px; }
+  /* workflow groups — colored boundary + header (--wf set inline per group) */
+  .pgroup { border: 1px solid var(--line); border-left: 4px solid var(--wf, var(--line));
+            border-radius: 10px; margin: 12px 0; overflow: hidden;
+            background: color-mix(in srgb, var(--wf, var(--panel)) 5%, var(--panel)); }
+  .pgroup-head { display: flex; align-items: center; gap: 8px; padding: 9px 14px;
+                 font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+                 color: var(--wf, var(--txt)); border-bottom: 1px solid var(--line);
+                 background: color-mix(in srgb, var(--wf, var(--panel)) 12%, var(--panel)); }
+  .pgroup-count { font-weight: 600; color: var(--muted); background: var(--bg);
+                  border-radius: 999px; padding: 1px 8px; font-size: 11px; letter-spacing: 0; }
+  .pgroup .prompt:first-of-type { border-top: none; }
+  .pgroup .prompt { padding: 0 14px; }
   .prompt { border-top: 1px solid var(--line); }
   .prompt > summary { cursor: pointer; padding: 10px 4px; list-style: none;
                       display: flex; align-items: center; gap: 10px; }
@@ -461,15 +473,22 @@ async function loadPrompts() {
     box.innerHTML = `<div class="locked">Prompts are locked while a campaign is running. They'll unlock when it finishes.</div>`;
     return;
   }
-  box.innerHTML = prompts.map(p => {
+  // workflow palette + labels (matches pipeline order; --wf drives the group color)
+  const WF_COLOR = { shared: "#8b919e", research: "#5b8cff", avatar: "#a78bfa", qa: "#d8a657" };
+  const WF_LABEL = { shared: "Shared context", research: "Research", avatar: "Avatar Builder", qa: "QA" };
+  workflowsMeta.forEach(w => { if (w.label) WF_LABEL[w.id] = w.label; });
+
+  const renderItem = p => {
     const hints = p.placeholders.length
       ? `<div class="phint">Keep these placeholders so the brief is injected: ${p.placeholders.map(h => `<code>$${h}</code>`).join(" ")}</div>`
       : `<div class="phint">No placeholders — plain text.</div>`;
+    // within a colored group the workflow prefix is redundant — show just the sub-stage
+    const sub = (p.stage.split("—").pop() || p.stage).trim();
     return `
     <details class="prompt" data-id="${p.id}">
       <summary>
         <span class="pname">${esc(p.name)}</span>
-        <span class="pstage">${esc(p.stage)}</span>
+        <span class="pstage">${esc(sub)}</span>
         <span class="edited" ${p.overridden ? "" : "hidden"}>edited</span>
       </summary>
       ${hints}
@@ -480,6 +499,23 @@ async function loadPrompts() {
         <span class="ok" hidden>✓ saved</span>
       </div>
     </details>`;
+  };
+
+  // group consecutive prompts by workflow namespace (prompts arrive pipeline-ordered)
+  const groups = [];
+  for (const p of prompts) {
+    const ns = p.id.split(".")[0];
+    let g = groups[groups.length - 1];
+    if (!g || g.ns !== ns) { g = { ns, items: [] }; groups.push(g); }
+    g.items.push(p);
+  }
+  box.innerHTML = groups.map(g => {
+    const color = WF_COLOR[g.ns] || "var(--line)";
+    const label = WF_LABEL[g.ns] || g.ns;
+    return `<div class="pgroup" style="--wf:${color}">
+      <div class="pgroup-head">${esc(label)}<span class="pgroup-count">${g.items.length}</span></div>
+      ${g.items.map(renderItem).join("")}
+    </div>`;
   }).join("");
 
   box.querySelectorAll(".prompt").forEach(el => {
