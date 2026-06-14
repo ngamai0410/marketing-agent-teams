@@ -147,6 +147,14 @@
   .panel-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: .1em; padding: 3px 8px; border-radius: 5px; }
   .panel-eyebrow.edit { color: var(--qa); background: rgba(227,168,87,.14); }
   .panel-eyebrow.test { color: var(--ok); background: rgba(70,196,106,.14); }
+  .panel-eyebrow.onboard { color: var(--avatar); background: rgba(177,140,255,.14); }
+  /* manual onboarding form */
+  .ob-field { margin: 10px 0; }
+  .ob-field label { display: block; font-size: 12px; color: var(--txt-2); margin: 0 0 4px; }
+  .ob-field .ob-k { color: var(--avatar); font-weight: 700; font-family: var(--mono); margin-right: 6px; }
+  .ob-field textarea { width: 100%; min-height: 42px; }
+  .ob-actions { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .ob-actions .ok { color: var(--ok); font-size: 12px; }
   .panel-title { font-weight: 650; font-size: 13.5px; }
   .panel-desc { color: var(--muted); font-size: 12px; }
   body[data-running] .panel-locked { margin-left: auto; font-size: 11px; color: var(--run); font-weight: 600; }
@@ -406,6 +414,16 @@
         </div>
         <pre id="t-preview" class="hide" style="background:var(--bg);border:1px solid var(--line-2);border-radius:10px;padding:13px;white-space:pre-wrap;max-height:300px;overflow:auto;font-family:var(--mono);font-size:11.5px;line-height:1.6;margin-top:10px"></pre>
       </div>
+    </details>
+
+    <details id="onboardPanel" class="panel">
+      <summary>
+        <span class="chev-d"></span>
+        <span class="panel-eyebrow onboard">STAGE 0</span>
+        <span class="panel-title">Manual onboarding</span>
+        <span class="panel-desc">type the first-visit answers by hand (when a shop blocks direct fetch), then run from Product</span>
+      </summary>
+      <div id="onboardForm" class="promptlist">loading…</div>
     </details>
   </section>
 
@@ -745,6 +763,7 @@ function showDone(ev) {
   setRunning(false);
   $("startBtn").disabled = false;
   loadPrompts();   // unlock prompt editing again
+  loadOnboarding(); // unlock manual onboarding again
   const d = $("done");
   d.style.display = "block";
   d.className = "";
@@ -953,10 +972,62 @@ $("startBtn").onclick = async () => {
   };
   const res = await fetch("/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   if (!res.ok) { setRunning(false); $("startBtn").disabled = false; setStage("Could not start (already running?)", false); }
-  else { loadPrompts(); }   // lock prompt editing during the run
+  else { loadPrompts(); loadOnboarding(); }   // lock editing during the run
 };
 
+/* ── manual onboarding (Stage 0 by hand) ───────────── */
+async function loadOnboarding() {
+  const box = $("onboardForm");
+  const data = await fetch("/onboarding").then(r => r.json()).catch(() => null);
+  if (!data) { box.innerHTML = `<div class="locked">Manual onboarding unavailable.</div>`; return; }
+  if (!data.editable) { box.innerHTML = `<div class="locked">Locked while a campaign is running.</div>`; return; }
+  const a = data.answers || {};
+  box.innerHTML = data.questions.map(q => `
+    <div class="ob-field">
+      <label><span class="ob-k">${esc(q.key)}</span>${esc(q.label)}</label>
+      <textarea spellcheck="false" data-k="${esc(q.key)}">${esc(a[q.key] || "")}</textarea>
+    </div>`).join("")
+    + `<div class="ob-actions">
+         <button class="btn sm primary ob-save">Save</button>
+         <button class="btn sm ob-run">Save &amp; run from Product</button>
+         <span class="ok" hidden></span>
+       </div>
+       <div class="phint">Saved to <code>avatar_onboarding.json</code>. "Run from Product" starts the Avatar
+       workflow at the Product stage (Stage 0 loaded from your answers) and seeds the research report if missing.</div>`;
+
+  const collect = () => {
+    const ans = {};
+    box.querySelectorAll("textarea[data-k]").forEach(t => ans[t.dataset.k] = t.value);
+    return ans;
+  };
+  const okEl = box.querySelector(".ok");
+  const flash = msg => { okEl.textContent = msg; okEl.hidden = false; setTimeout(() => okEl.hidden = true, 1800); };
+  const save = async () => fetch("/onboarding", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ answers: collect() }) });
+
+  box.querySelector(".ob-save").onclick = async () => {
+    const r = await save();
+    flash(r.ok ? "✓ saved" : "⚠ " + ((await r.json()).detail || "failed"));
+  };
+  box.querySelector(".ob-run").onclick = async () => {
+    const r = await save();
+    if (!r.ok) { flash("⚠ " + ((await r.json()).detail || "save failed")); return; }
+    const avatar = workflowsMeta.find(w => w.id === "avatar") || {};
+    const have = new Set((await fetch("/artifacts").then(x => x.json()).catch(() => ({ files: [] }))).files || []);
+    const seed = (avatar.fixtures || []).filter(f => (avatar.inputs || []).includes(f) && !have.has(f));
+    const sr = await fetch("/start", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ target: "avatar", start_stage: "product", seed_fixtures: seed }) });
+    if (sr.ok) {
+      if (typeof setRunning === "function") setRunning(true);
+      $("startBtn").disabled = true;
+      flash("▶ running from Product…");
+      loadPrompts(); loadOnboarding();
+    } else { flash("⚠ could not start (already running?)"); }
+  };
+}
+
 loadPrompts();
+loadOnboarding();
 loadWorkflows();
 </script>
 </body>

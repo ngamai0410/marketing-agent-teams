@@ -50,6 +50,29 @@ def main() -> int:
               for i in range(first_agent, len(prompts))),
           "no shared block appears after the first agent prompt")
 
+    # manual onboarding — author Stage 0 by hand, pre-filled from disk
+    import json
+    from pathlib import Path
+    from embroidery.core.config import settings
+    ob_file = Path(settings.paths.output) / "avatar_onboarding.json"
+    ob_backup = ob_file.read_text(encoding="utf-8") if ob_file.exists() else None
+    try:
+        ob = asyncio.run(server.get_onboarding())
+        check(len(ob["questions"]) == 11, "/onboarding exposes the 11 Stage-0 questions")
+        check(ob["questions"][0]["key"] == "Q1" and ob["file"] == "avatar_onboarding.json",
+              "/onboarding carries question keys + the target file")
+        res = asyncio.run(server.save_onboarding(server.OnboardingBody(answers={"Q1": "test blanket", "Q5": "keepsake"})))
+        check(res["status"] == "saved" and res["answered"] == 2, "POST /onboarding writes answered fields")
+        saved = json.loads(ob_file.read_text(encoding="utf-8"))
+        check(saved["Q1"] == "test blanket" and saved["Q3"] == "", "onboarding file has all keys, blanks where unanswered")
+        ob2 = asyncio.run(server.get_onboarding())
+        check(ob2["answers"]["Q1"] == "test blanket", "/onboarding pre-fills from the saved file")
+    finally:
+        if ob_backup is not None:
+            ob_file.write_text(ob_backup, encoding="utf-8")
+        elif ob_file.exists():
+            ob_file.unlink()
+
     if failures:
         print(f"\n✗ test_web_workflows FAILED ({len(failures)})")
         return 1

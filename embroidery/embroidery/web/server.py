@@ -33,6 +33,7 @@ from embroidery.core.model_catalog import options_for
 from embroidery.core.model_store import get_model_store
 from embroidery.core.reporter import get_reporter
 from embroidery.agents.research.subagents import SHOP_BRIEF, shop_context
+from embroidery.agents.avatar.framing import ONBOARDING_FILE, ONBOARDING_QUESTIONS
 from embroidery.core.workflow import get_registry, load_workflows
 
 # Populate the workflow registry once at import (lazy per-module imports inside).
@@ -278,6 +279,50 @@ async def reset_model(body: ModelResetBody):
     store.reset(body.model_key)
     return {"model_key": body.model_key, "current": store.current(body.model_key),
             "default": store.default(body.model_key), "overridden": store.is_overridden(body.model_key)}
+
+
+# ─────────────────────────────────────────────
+# Manual onboarding — author Stage 0 (Q1–Q11) by hand when a shop blocks direct fetch
+# ─────────────────────────────────────────────
+
+_ONBOARDING_KEYS = [k for k, _ in ONBOARDING_QUESTIONS]
+
+
+@app.get("/onboarding")
+async def get_onboarding():
+    """The Stage-0 questions + whatever answers are currently on disk (for pre-fill)."""
+    out = Path(settings.paths.output) / ONBOARDING_FILE
+    answers = {}
+    if out.exists():
+        try:
+            answers = json.loads(out.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            answers = {}
+    return {
+        "questions": [{"key": k, "label": label} for k, label in ONBOARDING_QUESTIONS],
+        "answers": answers,
+        "file": ONBOARDING_FILE,
+        "editable": not _run_in_progress(),
+    }
+
+
+class OnboardingBody(BaseModel):
+    answers: dict
+
+
+@app.post("/onboarding")
+async def save_onboarding(body: OnboardingBody):
+    """Write a hand-authored avatar_onboarding.json so the avatar run can start at `product`."""
+    if _run_in_progress():
+        raise HTTPException(409, "stop the current run before editing onboarding")
+    answers = {k: str(body.answers.get(k, "")).strip() for k in _ONBOARDING_KEYS}
+    if not any(answers.values()):
+        raise HTTPException(400, "provide at least one answer")
+    out = Path(settings.paths.output)
+    out.mkdir(parents=True, exist_ok=True)
+    (out / ONBOARDING_FILE).write_text(json.dumps(answers, indent=2, ensure_ascii=False), encoding="utf-8")
+    log.info("manual onboarding saved (%d/%d answered)", sum(1 for v in answers.values() if v), len(answers))
+    return {"status": "saved", "file": ONBOARDING_FILE, "answered": sum(1 for v in answers.values() if v)}
 
 
 class GateBody(BaseModel):

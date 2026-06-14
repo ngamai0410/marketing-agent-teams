@@ -12,6 +12,24 @@ from embroidery.agents.avatar._common import AvatarAgent, catalog_items, run_jso
 from embroidery.agents.research.subagents import SHOP_BRIEF, shop_context
 from embroidery.core.tools import SEARCH_TOOLS
 
+# Stage 0 onboarding schema — the file the onboarder writes (and the user can author by
+# hand from the dashboard when a shop blocks direct fetching). Single source of truth for
+# the manual-onboarding form (web layer renders the form from this).
+ONBOARDING_FILE = "avatar_onboarding.json"
+ONBOARDING_QUESTIONS = [
+    ("Q1", "What does this product do? (1 sentence, your words)"),
+    ("Q2", "Who is this obviously for? (describe the person)"),
+    ("Q3", "What problem does it claim to solve?"),
+    ("Q4", "What's the price?"),
+    ("Q5", "What's the main promise / claim?"),
+    ("Q6", "What proof do they show? (reviews, certifications, before/afters)"),
+    ("Q7", "What would make a first-time visitor NOT buy? (gut reaction)"),
+    ("Q8", "What's the best thing about this product based on what you see?"),
+    ("Q9", "What's confusing or missing from the page?"),
+    ("Q10", "If this product were a person, describe them in 3 words."),
+    ("Q11", "One sentence you'd use to tell a friend about this product."),
+]
+
 ONBOARDER = AvatarAgent(
     name="avatar_onboarder",
     label="Stage 0 — Self-Onboarding (first-time visitor)",
