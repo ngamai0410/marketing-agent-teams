@@ -13,6 +13,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
+from embroidery.agents.research.subagents import effective_shop_context
 from embroidery.core.json_utils import parse_json_output
 from embroidery.core.agent_loop import run_agent
 from embroidery.core.config import settings
@@ -33,8 +34,14 @@ class AvatarAgent:
 
 
 def build_system(agent: AvatarAgent, **ctx) -> str:
-    """Render an agent's system prompt, honouring any saved user override."""
+    """Render an agent's system prompt, honouring any saved user override.
+
+    The shared {shop_context} block is itself editable from the dashboard, so a
+    caller-supplied shop_context is overridden by the saved value when one is set.
+    """
     store = get_prompt_store()
+    if "shop_context" in ctx:
+        ctx = {**ctx, "shop_context": effective_shop_context(ctx["shop_context"])}
     return store.render(f"avatar.{agent.name}", to_dollar(agent.system_template), **ctx)
 
 

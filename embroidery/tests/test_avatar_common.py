@@ -103,6 +103,36 @@ def test_synthesizer_writes_two_files():
     check(md.startswith("# Avatar Deep Dive"), "synthesizer returns the markdown doc")
 
 
+def test_shop_context_editable():
+    from embroidery.core.prompt_store import get_prompt_store
+    from embroidery.agents.research.subagents import (
+        SHOP_CONTEXT_PROMPT_ID, effective_shop_context, shop_context_catalog_item)
+    from embroidery.agents.avatar import _common as C
+    from embroidery.agents.avatar.framing import ONBOARDER
+
+    item = shop_context_catalog_item()
+    check(item["id"] == "shared.shop_context", "shop_context catalog item has the shared id")
+    check("SHOP CONTEXT" in item["default"], "shop_context default is the rendered brief")
+
+    store = get_prompt_store()
+    # save any pre-existing override so the test never clobbers a real one
+    prior = store.text(SHOP_CONTEXT_PROMPT_ID, None) if store.is_overridden(SHOP_CONTEXT_PROMPT_ID) else None
+    store.reset(SHOP_CONTEXT_PROMPT_ID)
+    try:
+        check(effective_shop_context("DEFAULT") == "DEFAULT", "no override -> default value used")
+        store.set(SHOP_CONTEXT_PROMPT_ID, "MY CUSTOM SHOP CONTEXT")
+        check(effective_shop_context("DEFAULT") == "MY CUSTOM SHOP CONTEXT",
+              "override -> override value used")
+        rendered = C.build_system(ONBOARDER, shop_context="ORIGINAL")
+        check("MY CUSTOM SHOP CONTEXT" in rendered and "ORIGINAL" not in rendered,
+              "avatar build_system applies the shop_context override")
+    finally:
+        if prior is not None:
+            store.set(SHOP_CONTEXT_PROMPT_ID, prior)
+        else:
+            store.reset(SHOP_CONTEXT_PROMPT_ID)
+
+
 def main() -> int:
     test_config()
     test_common()
@@ -111,6 +141,7 @@ def main() -> int:
     test_voc()
     test_reframe()
     test_synthesizer_writes_two_files()
+    test_shop_context_editable()
     if failures:
         print(f"\n✗ test_avatar_common FAILED ({len(failures)})")
         return 1

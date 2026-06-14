@@ -20,7 +20,7 @@ import json
 from datetime import date
 from pathlib import Path
 
-from embroidery.agents.research.subagents import SHOP_BRIEF, shop_context
+from embroidery.agents.research.subagents import SHOP_BRIEF, resolved_shop_context
 from embroidery.core.agent_loop import run_agent
 from embroidery.core.config import settings
 from embroidery.core.json_utils import parse_json_output
@@ -213,7 +213,7 @@ async def run_synthesizer(
     research_a: dict, research_b: dict, research_c: dict, brief: dict = SHOP_BRIEF
 ) -> tuple[dict, str]:
     """Two no-tool synthesis calls: (master report dict, markdown narrative)."""
-    ctx = shop_context(brief)
+    ctx = resolved_shop_context(brief)
     model = settings.agents.synthesizer
     store = get_prompt_store()
 

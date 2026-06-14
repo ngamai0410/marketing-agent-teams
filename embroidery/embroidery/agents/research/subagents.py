@@ -65,6 +65,37 @@ TARGET SEGMENTS (research each separately):
 - Segment D "Aesthetic Buyer": TikTok/Instagram-native, "quiet luxury", embroidery as fashion"""
 
 
+# The {shop_context} block is shared by every research + avatar agent. It is
+# user-editable from the dashboard (⚙ Agent prompts → "Shared — Shop context"):
+# the saved override, if any, replaces the brief-rendered default for ALL agents.
+SHOP_CONTEXT_PROMPT_ID = "shared.shop_context"
+
+
+def effective_shop_context(default: str) -> str:
+    """Resolve the {shop_context} substitution value: a saved dashboard override, else `default`."""
+    return get_prompt_store().text(SHOP_CONTEXT_PROMPT_ID, default)
+
+
+def resolved_shop_context(brief: dict = SHOP_BRIEF) -> str:
+    """Effective shop context for a brief — the override if set, else the brief render."""
+    return effective_shop_context(shop_context(brief))
+
+
+def shop_context_catalog_item(brief: dict = SHOP_BRIEF) -> dict:
+    """Prompt-catalog entry exposing the shared shop context as an editable block."""
+    store = get_prompt_store()
+    default = shop_context(brief)
+    return {
+        "id": SHOP_CONTEXT_PROMPT_ID,
+        "name": "Shared — Shop context (brief)",
+        "stage": "Shared — shop",
+        "placeholders": [],
+        "default": default,
+        "text": store.text(SHOP_CONTEXT_PROMPT_ID, default),
+        "overridden": store.is_overridden(SHOP_CONTEXT_PROMPT_ID),
+    }
+
+
 _SHARED_RULES = """
 RESEARCH DISCIPLINE:
 - ALL insights must come from actual search results — never invent quotes, reviews, or competitor names.
@@ -334,7 +365,7 @@ def build_system(spec: SubAgentSpec, brief: dict = SHOP_BRIEF) -> str:
     return store.render(
         f"research.{spec.name}",
         to_dollar(spec.system_template),
-        shop_context=shop_context(brief),
+        shop_context=resolved_shop_context(brief),
         shared_rules=rules,
     )
 
@@ -372,6 +403,9 @@ def prompt_catalog() -> list[dict]:
         "text": store.text("research.shared_rules", _SHARED_RULES),
         "overridden": store.is_overridden("research.shared_rules"),
     })
+    # The shared shop-context block (used by every research + avatar agent). Listed
+    # once here so it appears a single time in the dashboard ⚙ Agent prompts panel.
+    items.append(shop_context_catalog_item())
     return items
 
 

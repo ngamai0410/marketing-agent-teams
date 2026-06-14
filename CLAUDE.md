@@ -100,7 +100,10 @@ converts them once to a brace-safe `$placeholder` form for editing, overrides pe
 `data/prompts/overrides.json`, and `build_system()` / `run_synthesizer()` render via
 `PromptStore.render` (`Template.safe_substitute` — a removed placeholder degrades gracefully).
 A new agent makes its prompts editable by exposing a `prompt_catalog()` and rendering through
-the store (see `agents/research/`).
+the store (see `agents/research/`). The shared **`{shop_context}` block itself is editable**
+(catalog id `shared.shop_context`, "Shared — Shop context"): research + avatar agents resolve it
+via `resolved_shop_context()` / `effective_shop_context()` in `agents/research/subagents.py`, so a
+saved override replaces the brief-rendered default for **every** agent in both workflows.
 
 **Web UI — needs for the whole team (monitor / test / edit).** Research, Avatar, and QA are wired;
 Copy and Feedback remain future work. The dashboard is the single local control surface for the
